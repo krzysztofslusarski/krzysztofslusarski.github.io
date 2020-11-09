@@ -1,10 +1,16 @@
 ---
-# Feel free to add content and custom Front Matter to this file.
-# To modify the layout, see https://jekyllrb.com/docs/themes/#overriding-theme-defaults
-
 layout: default
 ---
-
-My articles about JVM performance and tuning:
-
+## My articles about JVM performance and tuning
 [Biased lock disabled, again](2020/11/09/biased.html)
+
+## My open source projects
+### Aync-profiler utils
+I created some tools that help me with profiling big application with [Async-profiler](https://github.com/jvm-profiling-tools/async-profiler): 
+* [Collapsed stack viewer](https://github.com/krzysztofslusarski/collapsed-stack-viewer)
+* [Collapse JFR](https://github.com/krzysztofslusarski/collapse-jfr)
+
+## Other projects
+I'm creating my own JVM/GC log analyzer. You can find online version here [gclogs.com](http://gclogs.com/).
+
+Krzysztof Ślusarski
