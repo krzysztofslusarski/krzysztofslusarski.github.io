@@ -4,6 +4,8 @@ layout: default
 ## My articles about JVM performance and tuning
 [Biased lock disabled, again](2020/11/09/biased.html)
 
+[To tune or not to tune? G1GC vs humongous allocation](2020/11/10/humongous.html)
+
 ## My open source projects
 ### Aync-profiler utils
 I created some tools that help me with profiling big application with [Async-profiler](https://github.com/jvm-profiling-tools/async-profiler): 
