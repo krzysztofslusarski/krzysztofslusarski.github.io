@@ -11,8 +11,8 @@ This article shows some JVM tuning using some JVM flags. **You should never use 
 
 ## What are _humongous objects_?
 
-G1 divides the whole heap into regions. Goal is to have 2048 regions, so for 2GB heap G1 will divide it to 2048 regions of 1MB size.
-Size of region on your JVM is easy to find, the easiest way is to run (Java 11):
+G1 divides the whole heap into regions. The goal is to have 2048 regions, so for 2GB heap G1 will divide it to 2048 regions of 1MB size.
+The size of region on your JVM is easy to find, the easiest way is to run (Java 11):
 
 ```shell
 java -Xms2G -Xmx2G -Xlog:gc+heap -version
@@ -39,7 +39,7 @@ Sample result:
   class space    used 500K, capacity 540K, committed 640K, reserved 1048576K
 ```
 
-Second line contains region size.
+The second line contains region size.
 
 _**Humongous objects**_ are objects that are bigger than **half of region** size. They are usually large arrays.
 
@@ -48,7 +48,7 @@ _**Humongous objects**_ are objects that are bigger than **half of region** size
 * **JDK 11u5** from Oracle
 * **5GB** heap size
 * Already tuned, region size changed to **8MB**, so we have **640** regions
-* Tuning mention above was done to avoid _Full GC_ after spike of _humongous allocation_, it helped but didn't solve the problem completely
+* Tuning mentioned above was done to avoid _Full GC_ after spike of _humongous allocation_, it helped but didn't solve the problem entirely
 
 ## Production example of that fail
 
@@ -56,7 +56,7 @@ Let's look at heap size after GC chart:
 
 ![alt text](/assets/humongous/1.jpeg "chart 1")
 
-Everything is normal except one spike in the middle. Let's look at GC stats in table:
+Everything is normal except one spike in the middle. Let's look at GC stats in the table:
 
 ![alt text](/assets/humongous/2.png "chart 2")
 
@@ -86,35 +86,35 @@ A little tutorial how to interpret those lines:
 
 Line ```<type> regions: <from>-><to>(<max>)```,  example: ```Eden regions: 210->0(319)``` means:
 
-* before GC cycle number of regions was **\<from\>**, **210** in the example above
-* after GC cycle number of regions was **\<to\>**, **0** in the example above
-* maximum number of regions in the next cycle for a given **\<type\>** is **\<max\>**, **319** of **Eden** in the example above
+* before GC cycle the number of regions was **\<from\>**, **210** in the example above
+* after GC cycle the number of regions was **\<to\>**, **0** in the example above
+* the maximum number of regions in the next cycle for a given **\<type\>** is **\<max\>**, **319** of **Eden** in the example above
 
-So in cycle **1056** everything was normal, then in **1057** we had **72** new _humongous objects_. GC failed the evacuation process 
+So in the cycle **1056** everything was normal, then in **1057** we had **72** new _humongous objects_. GC failed the evacuation process 
 (collection marked by _To-space exhausted_) and moved almost all objects from the young generation to the old one. 
 It can be seen in line with old regions **231->534**, so **303** new old regions appeared. Then G1 simply cannot clean the large 
 old generation in "good enough" time and does a fallback to _Full GC_. If we count all regions in the **1057** cycle, we have 
 319+13+231+72=**635** regions filled (from **640**), so G1 has only **5** regions for his job. It is no wonder that G1 failed.
 
-When we look at the region count before GC chart, we see that there was only one spike of _humongous objects_ during the whole day (logs are from 24h period).
+When we look at the region count before the GC chart, we see that there was only one spike of _humongous objects_ during the whole day (logs are from 24h period).
 
 ![alt text](/assets/humongous/3.jpeg "chart 3")
 
-It was mentioned to me that such a situation occurs once or twice a day on every node of this application.
+I was told that such a situation occurs once or twice a day on every node of this application.
 
 ## What can we do to fix it?
 
-If you google, what can you do with it, most of the time you will see suggestions, that you should tune GC by increasing region size. 
-But what impact does this tune to the rest of your application? Nobody can tell you that. In some situations you can try to do it, but what 
+If you google, what can you do about it, most of the time you will see suggestions, that you should tune GC by increasing region size. 
+But what's the impact of this tuning to the rest of your application? Nobody can tell you that. In some situations you can try to do it, but what 
 if a _humongous object_ would have **20MB**? You need to increase region size to **64MB** to make that _humongous object_ normal young generation objects. 
 Unfortunately you cannot do it, max region size is **32MB** (JDK 11u9). Another thing to consider is how long such _humongous objects_ live in your application. 
-If they are not dead very fast then they are going to be copied by the young generation collector, this may be very expensive.
+If they are not dying very fast then they are going to be copied by the young generation collector, this may be very expensive.
  They also may occupy most of the young generation, so you may have more frequent GC collections.
 
-Application mentioned above did such tuning twice. First development team increased region size to **4MB**, and after that they increased it to **8MB**.
-Problem still exists.
+The application mentioned above did such tuning twice. First, development team increased region size to **4MB**, and after that they increased it to **8MB**.
+The problem still exists.
 
-So what can we do other than GC tuning?
+Is there anything else we can do apart from GC tuning?
 
 Well, we can simply find where those _humongous objects_ are created in our application and change our code. 
 **So instead of tuning GC to work better with our application, we can change our application to work better with GC**.
@@ -124,10 +124,10 @@ Well, we can simply find where those _humongous objects_ are created in our appl
 When it comes to object on heap we have two points of view:
 
 * we can check where object is located on heap using heap dump,
-* or we can find stacktrace of thread that creates those objects using allocation profiler.
-* or we can find stacktrace of thread that creates humongous objects by tracing JVM internal calls.
+* or we can find the stack trace of the thread creating those objects using allocation profiler.
+* or we can find the stack trace of the thread creating those objects by tracing JVM internal calls.
 
-Since we want to find where _humongous objects_ are created, the second and third option is more suitable, but there are situations where heap dump is "good enough".
+Since we want to find where _humongous objects_ are created, the second, and the third option are more suitable, but there are situations where heap dump is "good enough".
 
 ## Allocation profiler
 
@@ -153,7 +153,7 @@ They are using same principle, from Async-profiler readme:
 > On the other hand, the collected data may be incomplete, though in practice it will often reflect the top allocation sources.
 
 If you don't know what TLAB is, I recommend reading [this article](https://alidg.me/blog/2019/6/21/tlab-jvm).
-Long story short one TLAB is a small part of eden that is assigned to one thread and only one thread can allocate in it.
+Long story short: one TLAB is a small part of eden that is assigned to one thread and only one thread can allocate in it.
  
 Both profilers can dump:
 
@@ -166,21 +166,21 @@ After dumping data we have to post-process output file and find _humongous objec
 
 ## Async-profiler example
 
-In my opinion Async-profiler is the best profiler in the world, so I will use it in example.
+In my opinion, Async-profiler is the best profiler in the world, so I will use it in the following example.
 
 I wrote an example application that does some _humongous allocations_, let's try to find out where this allocation is done. 
 I run (from async-profiler directory) profiler.sh command with:
 
 * Duration time, ten seconds: **-d 10**
 * Output file: **-f /tmp/humongous.jfr**
-* I'm interested in allocation event. so: **-e alloc**
+* I'm interested in the allocation event. so: **-e alloc**
 * **Application** is my main class
 
 ```shell
 ./profiler.sh -d 10 -f /tmp/humongous.jfr -e alloc Application
 ```
 
-Now I have to post-process output file and find interesting stacktraces. First, lets look at GC logs to find sizes :
+Now I have to post-process output file and find interesting stacktraces. First, let's look at GC logs to find sizes :
 
 ```
 ...
@@ -274,11 +274,11 @@ jdk.ObjectAllocationOutsideTLAB {
 
 Available formats are:
 
-* Plain human readable text - as example above
+* Plain human readable text - as the example above
 * JSON
 * XML
 
-By default stacktrace is cut to 5 top frames, you can change it using --stack-depth option.
+By default, stack trace is cut to 5 top frames, you can change it using --stack-depth option.
 
 From the output I put above, we can read that we have 3 objects we were looking for, we can read from it, that our _humongous allocation_ is done
 with thread "badguy", and is done in lambda in Application class.
@@ -317,7 +317,7 @@ If you need thread name you can add **-t** switch while running async-profiler.
 ## Hard part - modifying application
 
 Everything I wrote so far is easy. Now we have to modify our application. Of course, I cannot fix every _humongous allocation_ with one article.
-All I can do is to write production examples and what have been done with them.
+All I can do is to write production examples and what has been done with them.
 
 ### Hazelcast distributed cache
 
@@ -333,7 +333,7 @@ All I can do is to write production examples and what have been done with them.
 
 ### Hibernate
 
-**Humongous allocation**: Hibernate engine was creating very a large Object[]. From the heap dump I could find what kind of objects they were, and what content they had. 
+**Humongous allocation**: Hibernate engine was creating a very large Object[]. From the heap dump I could find what kind of objects they were, and what content they had. 
 From the profiler I knew which thread allocated them, and from application log I knew what business operation invoked it. I found following entity in codebase:
 
 ```java
@@ -361,7 +361,7 @@ Such mapping created multiple joins on SQL level and created duplicated results 
 
 ### Big WebService response
 
-**Humongous allocation**: One application fetched "product catalog" from other application through WebService. That created a huge byte[] (around 100MB) to fetch data from the network.
+**Humongous allocation**: One application fetched "product catalog" from another application through WebService. That created a huge byte[] (around 100MB) to fetch data from the network.
  
 **Fix**: Both applications were changed to give possibility to fetch "product catalog" in chunks.
  
