@@ -86,9 +86,9 @@ A little tutorial how to interpret those lines:
 
 Line ```<type> regions: <from>-><to>(<max>)```,  example: ```Eden regions: 210->0(319)``` means:
 
-* before GC cycle number of regions was **\<from\>**, **210** in the example above,
-* after GC cycle number of regions was **\<to\>**, **0** in the example above,
-* maximum number of regions in the next cycle for a given **\<type\>** is **\<max\>**, **319** of **Eden** in the example above.
+* before GC cycle number of regions was **\<from\>**, **210** in the example above
+* after GC cycle number of regions was **\<to\>**, **0** in the example above
+* maximum number of regions in the next cycle for a given **\<type\>** is **\<max\>**, **319** of **Eden** in the example above
 
 So in cycle **1056** everything was normal, then in **1057** we had **72** new _humongous objects_. GC failed the evacuation process 
 (collection marked by _To-space exhausted_) and moved almost all objects from the young generation to the old one. 
@@ -157,10 +157,10 @@ Long story short one TLAB is a small part of eden that is assigned to one thread
  
 Both profilers can dump:
 
-* **type** of allocated object,
-* **stacktrace** where object was created,
-* **timestamp**,
-* **thread** creating that object.
+* **type** of allocated object
+* **stacktrace** where object was created
+* **timestamp**
+* **thread** creating that object
 
 After dumping data we have to post-process output file and find _humongous objects_.
 
@@ -221,8 +221,8 @@ jfr summary humongous.jfr
 
 We have registered:
 
-* **134** allocations outside TLAB,
-* **65632** allocations in new TLAB.
+* **134** allocations outside TLAB
+* **65632** allocations in new TLAB
 
 _Humongous objects_ are usually allocated outside TLAB, because they are very big. Let's look at those allocations:
 
@@ -292,8 +292,8 @@ G1CollectedHeap::humongous_obj_allocate(size_t word_size)
 
 To trace its calls we can use:
 
-* Tracing tools from OS level, like **eBPF**,
-* Async-profiler using **G1CollectedHeap::humongous_obj_allocate** event, this works also in **1.8** version (and earlier).
+* Tracing tools from OS level, like **eBPF**
+* Async-profiler using **G1CollectedHeap::humongous_obj_allocate** event, this works also in **1.8** version (and earlier)
 
 ### Async-profiler example
 
@@ -372,21 +372,21 @@ As I mentioned before, sometimes instead of tuning GC to work better with our ap
 
 ## Changing application - pros
 
-* We have full control of the code of our applications, so we can change it as we want.
-* Does not require deep understanding of JVM internals, after analysis it can be done by any developer from our team.
+* We have full control of the code of our applications, so we can change it as we want
+* Does not require deep understanding of JVM internals, after analysis it can be done by any developer from our team
 
 ## Changing application - cons
 
-* Deployment.
-* Release management.
-* Other corpo-related issues.
+* Deployment
+* Release management
+* Other corpo-related issues
 
 ## Tuning GC - pros
 
-* It only needs to change JVM flags, sometimes it can be done on production without deployment.
+* It only needs to change JVM flags, sometimes it can be done on production without deployment
 
 ## Tuning GC - cons
-* Require deep understanding of JVM internals.
+* Require deep understanding of JVM internals
 * Those internals can change in time, so after JDK update your application can have other performance issues
 
 **As a rule of thumb I suggest changing application first if this can solve your GC problems.**
