@@ -1,10 +1,10 @@
 ---
 layout: default
-title:  "[Java][JVM][Tuning][Profiling] [Java][JVM][Tuning][Profiling][G1] To tune or not to tune? G1GC vs humongous allocation"
+title:  "[Java][JVM][Tuning][Profiling][G1] To tune or not to tune? G1GC vs humongous allocation"
 date:   2020-11-10 12:51:30 +0100
 ---
 
-# [Java][JVM][Tuning][Profiling] [Java][JVM][Tuning][Profiling][G1] To tune or not to tune? G1GC vs _humongous allocation_
+# [Java][JVM][Tuning][Profiling][G1] To tune or not to tune? G1GC vs _humongous allocation_
 ## Big fat warning
 
 This article shows some JVM tuning using some JVM flags. **You should never use any JVM flags without knowing what consequences they may produce**.
