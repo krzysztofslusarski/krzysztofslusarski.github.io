@@ -6,6 +6,8 @@ layout: default
 
 [To tune or not to tune? G1GC vs humongous allocation](2020/11/10/humongous.html)
 
+[JVM internals basics - Stop-the-world phase (safepoints) - how it works?](2020/11/13/stw.html)
+
 ## My open source projects
 ### Aync-profiler utils
 I created some tools that help me with profiling big application with [Async-profiler](https://github.com/jvm-profiling-tools/async-profiler): 
