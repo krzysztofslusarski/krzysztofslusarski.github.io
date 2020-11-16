@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: new
 ---
 ## My articles about JVM performance and tuning
 [Biased lock disabled, again](2020/11/09/biased.html)

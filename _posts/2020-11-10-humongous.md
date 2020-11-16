@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: new
 title:  "[Java][JVM][Tuning][Profiling][G1] To tune or not to tune? G1GC vs humongous allocation"
 date:   2020-11-10 12:51:30 +0100
 ---
