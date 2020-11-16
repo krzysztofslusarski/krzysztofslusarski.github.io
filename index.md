@@ -8,6 +8,8 @@ layout: default
 
 [JVM internals basics - Stop-the-world phase (safepoints) - how it works?](2020/11/13/stw.html)
 
+[_Time to safepoint_ - finally there is a tool to find long ones, and yes it is the async-profiler](2020/11/14/tts.html)
+
 ## My open source projects
 ### Aync-profiler utils
 I created some tools that help me with profiling big application with [Async-profiler](https://github.com/jvm-profiling-tools/async-profiler): 
