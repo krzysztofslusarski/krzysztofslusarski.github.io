@@ -10,6 +10,8 @@ layout: default
 
 [_Time to safepoint_ - finally there is a tool to find long ones, and yes it is the async-profiler](2020/11/14/tts.html)
 
+[Can G1GC cause outage?](2020/11/29/g1outage.html)
+
 ## My open source projects
 ### Aync-profiler utils
 I created some tools that help me with profiling big application with [Async-profiler](https://github.com/jvm-profiling-tools/async-profiler): 
