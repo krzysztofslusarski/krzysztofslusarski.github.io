@@ -119,7 +119,7 @@ Is there anything else we can do apart from GC tuning?
 Well, we can simply find where those _humongous objects_ are created in our application and change our code. 
 **So instead of tuning GC to work better with our application, we can change our application to work better with GC**.
 
-##How to do it?
+## How to do it?
 
 When it comes to object on heap we have two points of view:
 
