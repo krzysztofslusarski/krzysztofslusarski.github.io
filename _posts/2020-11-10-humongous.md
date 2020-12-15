@@ -152,7 +152,7 @@ They are using same principle, from Async-profiler readme:
 > This means not each allocation is counted, but only allocations every N kB, where N is the average size of TLAB. This makes heap sampling very cheap and suitable for production.
 > On the other hand, the collected data may be incomplete, though in practice it will often reflect the top allocation sources.
 
-If you don't know what TLAB is, I recommend reading [this article](https://alidg.me/blog/2019/6/21/tlab-jvm).
+If you don't know what TLAB is, I recommend reading [this article](https://alidg.me/blog/2019/6/21/tlab-jvm){:target="_blank"}.
 Long story short: one TLAB is a small part of eden that is assigned to one thread and only one thread can allocate in it.
  
 Both profilers can dump:

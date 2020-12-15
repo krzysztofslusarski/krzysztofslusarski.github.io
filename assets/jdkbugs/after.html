@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<!-- saved from url=(0173)http://localhost.generali.pl:8079/from-method?collapsed=collapsed-stack-7436be07-442e-4ee9-91da-474ddf0d753a.log&method=pl%2Fks%2Fjdkbug%2Fws%2Fclient%2FClientController.get -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<style>
+	body {margin: 0; padding: 10px; background-color: #ffffff}
+	h1 {margin: 5px 0 0 0; font-size: 18px; font-weight: normal; text-align: center}
+	header {margin: -24px 0 5px 0; line-height: 24px}
+	button {font: 12px sans-serif; cursor: pointer}
+	p {margin: 5px 0 5px 0}
+	a {color: #0366d6}
+	#hl {position: absolute; display: none; overflow: hidden; white-space: nowrap; pointer-events: none; background-color: #ffffe0; outline: 1px solid #ffc000; height: 15px}
+	#hl span {padding: 0 3px 0 3px}
+	#status {overflow: hidden; white-space: nowrap}
+	#match {overflow: hidden; white-space: nowrap; display: none; float: right; text-align: right}
+	#reset {cursor: pointer}
+</style>
+</head>
+<body style="font: 12px Verdana, sans-serif">
+<h1>Flame Graph</h1>
+<header style="text-align: left"><button id="reverse" title="Reverse">🔻</button>&nbsp;&nbsp;<button id="search" title="Search">🔍</button></header>
+<header style="text-align: right">Produced by <a href="https://github.com/jvm-profiling-tools/async-profiler">async-profiler</a></header>
+<canvas id="canvas" style="width: 2540px; height: 880px;" width="2540" height="880" title=""></canvas>
+<div id="hl" style="display: none;"><span></span></div>
+<p id="match">Matched: <span id="matchval"></span> <span id="reset" title="Clear">❌</span></p>
+<p id="status">&nbsp;</p>
+<script>
+	// Copyright 2020 Andrei Pangin
+	// Licensed under the Apache License, Version 2.0.
+	'use strict';
+	var root, rootLevel, px, pattern;
+	var reverse = false;
+	const levels = Array(55);
+	for (let h = 0; h < levels.length; h++) {
+		levels[h] = [];
+	}
+
+	const canvas = document.getElementById('canvas');
+	const c = canvas.getContext('2d');
+	const hl = document.getElementById('hl');
+	const status = document.getElementById('status');
+
+	const canvasWidth = canvas.offsetWidth;
+	const canvasHeight = canvas.offsetHeight;
+	canvas.style.width = canvasWidth + 'px';
+	canvas.width = canvasWidth * (devicePixelRatio || 1);
+	canvas.height = canvasHeight * (devicePixelRatio || 1);
+	if (devicePixelRatio) c.scale(devicePixelRatio, devicePixelRatio);
+	c.font = document.body.style.font;
+
+	const palette = [
+		[0x50e150, 30, 30, 30],
+		[0x50bebe, 30, 30, 30],
+		[0xe17d00, 30, 30,  0],
+		[0xc8c83c, 30, 30, 10],
+		[0xe15a5a, 30, 40, 40],
+	];
+
+	function getColor(p) {
+		const v = Math.random();
+		return '#' + (p[0] + ((p[1] * v) << 16 | (p[2] * v) << 8 | (p[3] * v))).toString(16);
+	}
+
+	function f(level, left, width, type, title) {
+		levels[level].push({left: left, width: width, color: getColor(palette[type]), title: title});
+	}
+
+	function samples(n) {
+		return n === 1 ? '1 sample' : n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' samples';
+	}
+
+	function pct(a, b) {
+		return a >= b ? '100' : (100 * a / b).toFixed(2);
+	}
+
+	function findFrame(frames, x) {
+		let left = 0;
+		let right = frames.length - 1;
+
+		while (left <= right) {
+			const mid = (left + right) >>> 1;
+			const f = frames[mid];
+
+			if (f.left > x) {
+				right = mid - 1;
+			} else if (f.left + f.width <= x) {
+				left = mid + 1;
+			} else {
+				return f;
+			}
+		}
+
+		if (frames[left] && (frames[left].left - x) * px < 0.5) return frames[left];
+		if (frames[right] && (x - (frames[right].left + frames[right].width)) * px < 0.5) return frames[right];
+
+		return null;
+	}
+
+	function search(r) {
+		if (r && (r = prompt('Enter regexp to search:', '')) === null) {
+			return;
+		}
+
+		pattern = r ? RegExp(r) : undefined;
+		const matched = render(root, rootLevel);
+		document.getElementById('matchval').textContent = pct(matched, root.width) + '%';
+		document.getElementById('match').style.display = r ? 'inherit' : 'none';
+	}
+
+	function render(newRoot, newLevel) {
+		if (root) {
+			c.fillStyle = '#ffffff';
+			c.fillRect(0, 0, canvasWidth, canvasHeight);
+		}
+
+		root = newRoot || levels[0][0];
+		rootLevel = newLevel || 0;
+		px = canvasWidth / root.width;
+
+		const x0 = root.left;
+		const x1 = x0 + root.width;
+		const marked = [];
+
+		function mark(f) {
+			return marked[f.left] >= f.width || (marked[f.left] = f.width);
+		}
+
+		function totalMarked() {
+			let total = 0;
+			let left = 0;
+			for (let x in marked) {
+				if (+x >= left) {
+					total += marked[x];
+					left = +x + marked[x];
+				}
+			}
+			return total;
+		}
+
+		function drawFrame(f, y, alpha) {
+			if (f.left < x1 && f.left + f.width > x0) {
+				c.fillStyle = pattern && f.title.match(pattern) && mark(f) ? '#ee00ee' : f.color;
+				c.fillRect((f.left - x0) * px, y, f.width * px, 15);
+
+				if (f.width * px >= 21) {
+					const chars = Math.floor(f.width * px / 7);
+					const title = f.title.length <= chars ? f.title : f.title.substring(0, chars - 2) + '..';
+					c.fillStyle = '#000000';
+					c.fillText(title, Math.max(f.left - x0, 0) * px + 3, y + 12, f.width * px - 6);
+				}
+
+				if (alpha) {
+					c.fillStyle = 'rgba(255, 255, 255, 0.5)';
+					c.fillRect((f.left - x0) * px, y, f.width * px, 15);
+				}
+			}
+		}
+
+		for (let h = 0; h < levels.length; h++) {
+			const y = reverse ? h * 16 : canvasHeight - (h + 1) * 16;
+			const frames = levels[h];
+			for (let i = 0; i < frames.length; i++) {
+				drawFrame(frames[i], y, h < rootLevel);
+			}
+		}
+
+		return totalMarked();
+	}
+
+	canvas.onmousemove = function() {
+		const h = Math.floor((reverse ? event.offsetY : (canvasHeight - event.offsetY)) / 16);
+		if (h >= 0 && h < levels.length) {
+			const f = findFrame(levels[h], event.offsetX / px + root.left);
+			if (f) {
+				hl.style.left = (Math.max(f.left - root.left, 0) * px + canvas.offsetLeft) + 'px';
+				hl.style.width = (Math.min(f.width, root.width) * px) + 'px';
+				hl.style.top = ((reverse ? h * 16 : canvasHeight - (h + 1) * 16) + canvas.offsetTop) + 'px';
+				hl.firstChild.textContent = f.title;
+				hl.style.display = 'block';
+				canvas.title = f.title + '\n(' + samples(f.width) + ', ' + pct(f.width, levels[0][0].width) + '%)';
+				canvas.style.cursor = 'pointer';
+				canvas.onclick = function() {
+					if (f != root) {
+						render(f, h);
+						canvas.onmousemove();
+					}
+				};
+				status.textContent = 'Function: ' + canvas.title;
+				return;
+			}
+		}
+		canvas.onmouseout();
+	}
+
+	canvas.onmouseout = function() {
+		hl.style.display = 'none';
+		status.textContent = '\xa0';
+		canvas.title = '';
+		canvas.style.cursor = '';
+		canvas.onclick = '';
+	}
+
+	document.getElementById('reverse').onclick = function() {
+		reverse = !reverse;
+		render();
+	}
+
+	document.getElementById('search').onclick = function() {
+		search(true);
+	}
+
+	document.getElementById('reset').onclick = function() {
+		search(false);
+	}
+
+	window.onkeydown = function() {
+		if (event.ctrlKey && event.keyCode === 70) {
+			event.preventDefault();
+			search(true);
+		} else if (event.keyCode === 27) {
+			search(false);
+		}
+	}
+f(0,0,60,4,'all')
+f(1,0,60,0,'pl/ks/jdkbug/ws/client/ClientController.get')
+f(2,0,60,0,'com/sun/proxy/$Proxy51.temp')
+f(3,0,60,0,'org/springframework/aop/framework/JdkDynamicAopProxy.invoke')
+f(4,0,60,0,'org/springframework/aop/framework/ReflectiveMethodInvocation.proceed')
+f(5,0,60,0,'pl/ks/jdkbug/ws/client/WebServiceProxy$$Lambda$566/1550398797.invoke')
+f(6,0,60,0,'pl/ks/jdkbug/ws/client/WebServiceProxy.invokeMethod')
+f(7,0,60,0,'org/springframework/ws/client/core/WebServiceTemplate.marshalSendAndReceive')
+f(8,0,60,0,'org/springframework/ws/client/core/WebServiceTemplate.marshalSendAndReceive')
+f(9,0,60,0,'org/springframework/ws/client/core/WebServiceTemplate.marshalSendAndReceive')
+f(10,0,60,0,'org/springframework/ws/client/core/WebServiceTemplate.sendAndReceive')
+f(11,0,60,0,'org/springframework/ws/client/core/WebServiceTemplate.doSendAndReceive')
+f(12,0,1,0,'org/springframework/ws/client/core/WebServiceTemplate$3.extractData')
+f(13,0,1,0,'org/springframework/ws/support/MarshallingUtils.unmarshal')
+f(14,0,1,0,'org/springframework/oxm/jaxb/Jaxb2Marshaller.unmarshal')
+f(15,0,1,0,'javax/xml/bind/helpers/AbstractUnmarshallerImpl.unmarshal')
+f(16,0,1,0,'com/sun/xml/bind/v2/runtime/unmarshaller/UnmarshallerImpl.unmarshal')
+f(17,0,1,0,'com/sun/xml/bind/v2/runtime/unmarshaller/UnmarshallerImpl.unmarshal0')
+f(18,0,1,0,'com/sun/xml/bind/unmarshaller/DOMScanner.scan')
+f(19,0,1,0,'com/sun/xml/bind/unmarshaller/DOMScanner.visit')
+f(12,1,9,0,'org/springframework/ws/client/core/WebServiceTemplate.hasError')
+f(13,1,9,0,'org/springframework/ws/transport/http/AbstractHttpSenderConnection.hasError')
+f(14,1,9,0,'org/springframework/ws/transport/http/HttpUrlConnection.getResponseCode')
+f(15,1,9,0,'sun/net/www/protocol/https/HttpsURLConnectionImpl.getResponseCode')
+f(16,1,9,0,'java/net/HttpURLConnection.getResponseCode')
+f(17,1,9,0,'sun/net/www/protocol/http/HttpURLConnection.getInputStream')
+f(18,1,9,0,'sun/net/www/protocol/http/HttpURLConnection.getInputStream0')
+f(19,1,8,0,'sun/net/www/http/HttpClient.parseHTTP')
+f(20,1,8,0,'sun/net/www/http/HttpClient.parseHTTPHeader')
+f(21,1,8,0,'java/io/BufferedInputStream.read')
+f(22,1,8,0,'java/io/BufferedInputStream.read1')
+f(23,1,8,0,'java/io/BufferedInputStream.fill')
+f(24,1,8,0,'sun/security/ssl/SSLSocketImpl$AppInputStream.read')
+f(25,1,8,0,'sun/security/ssl/SSLSocketImpl.readApplicationRecord')
+f(26,1,8,0,'sun/security/ssl/SSLSocketInputRecord.bytesInCompletePacket')
+f(27,1,8,0,'sun/security/ssl/SSLSocketInputRecord.read')
+f(28,1,8,0,'java/net/SocketInputStream.read')
+f(29,1,8,0,'java/net/SocketInputStream.read')
+f(30,1,8,0,'java/net/SocketInputStream.socketRead')
+f(31,1,8,0,'java/net/SocketInputStream.socketRead0')
+f(32,1,8,4,'Java_java_net_SocketInputStream_socketRead0')
+f(33,1,8,4,'poll')
+f(19,9,1,0,'sun/net/www/protocol/http/HttpURLConnection.writeRequests')
+f(20,9,1,0,'sun/net/www/http/HttpClient.writeRequests')
+f(21,9,1,0,'sun/net/www/http/HttpClient.writeRequests')
+f(22,9,1,0,'sun/net/www/MessageHeader.print')
+f(23,9,1,0,'java/io/PrintStream.flush')
+f(24,9,1,0,'java/io/BufferedOutputStream.flush')
+f(25,9,1,0,'java/io/BufferedOutputStream.flushBuffer')
+f(26,9,1,0,'sun/security/ssl/SSLSocketImpl$AppOutputStream.write')
+f(27,9,1,0,'sun/security/ssl/SSLSocketOutputRecord.deliver')
+f(28,9,1,0,'java/net/SocketOutputStream.write')
+f(29,9,1,0,'java/net/SocketOutputStream.socketWrite')
+f(30,9,1,0,'java/net/SocketOutputStream.socketWrite0')
+f(31,9,1,4,'__send')
+f(12,10,45,0,'org/springframework/ws/client/core/WebServiceTemplate.sendRequest')
+f(13,10,45,0,'org/springframework/ws/transport/AbstractWebServiceConnection.send')
+f(14,10,45,0,'org/springframework/ws/soap/saaj/SaajSoapMessage.writeTo')
+f(15,10,1,0,'com/sun/xml/messaging/saaj/soap/MessageImpl.saveChanges')
+f(16,10,1,0,'com/sun/xml/messaging/saaj/soap/MessageImpl.getHeaderBytes')
+f(17,10,1,0,'com/sun/xml/messaging/saaj/soap/SOAPPartImpl.getContentAsStream')
+f(18,10,1,0,'com/sun/xml/messaging/saaj/soap/impl/EnvelopeImpl.output')
+f(19,10,1,0,'com/sun/xml/messaging/saaj/soap/impl/EnvelopeImpl.output')
+f(20,10,1,0,'com/sun/xml/messaging/saaj/util/transform/EfficientStreamingTransformer.newTransformer')
+f(21,10,1,0,'com/sun/xml/messaging/saaj/util/transform/EfficientStreamingTransformer.<init>')
+f(22,10,1,0,'javax/xml/transform/TransformerFactory.newInstance')
+f(23,10,1,0,'javax/xml/transform/FactoryFinder.find')
+f(24,10,1,0,'javax/xml/transform/FactoryFinder.findServiceProvider')
+f(25,10,1,0,'java/security/AccessController.doPrivileged')
+f(26,10,1,0,'javax/xml/transform/FactoryFinder$1.run')
+f(27,10,1,0,'java/util/ServiceLoader$3.hasNext')
+f(28,10,1,0,'java/util/ServiceLoader$2.hasNext')
+f(29,10,1,0,'java/util/ServiceLoader$LazyClassPathLookupIterator.hasNext')
+f(30,10,1,0,'java/util/ServiceLoader$LazyClassPathLookupIterator.hasNextService')
+f(31,10,1,0,'java/util/ServiceLoader$LazyClassPathLookupIterator.nextProviderClass')
+f(32,10,1,0,'org/apache/catalina/loader/WebappClassLoaderBase$CombinedEnumeration.hasMoreElements')
+f(33,10,1,0,'org/apache/catalina/loader/WebappClassLoaderBase$CombinedEnumeration.inc')
+f(34,10,1,0,'java/lang/CompoundEnumeration.hasMoreElements')
+f(35,10,1,0,'java/lang/CompoundEnumeration.next')
+f(36,10,1,0,'jdk/internal/loader/BuiltinClassLoader$1.hasMoreElements')
+f(37,10,1,0,'jdk/internal/loader/BuiltinClassLoader$1.hasNext')
+f(38,10,1,0,'jdk/internal/loader/URLClassPath$1.hasMoreElements')
+f(39,10,1,0,'jdk/internal/loader/URLClassPath$1.next')
+f(40,10,1,0,'jdk/internal/loader/URLClassPath$JarLoader.findResource')
+f(41,10,1,0,'jdk/internal/loader/URLClassPath$JarLoader.getResource')
+f(42,10,1,0,'java/util/jar/JarFile.getJarEntry')
+f(43,10,1,0,'java/util/jar/JarFile.getEntry')
+f(44,10,1,0,'java/util/jar/JarFile.getEntry0')
+f(45,10,1,0,'java/util/zip/ZipFile$1.getEntry')
+f(46,10,1,0,'java/util/zip/ZipFile.getEntry')
+f(47,10,1,0,'java/util/zip/ZipFile$Source.getEntryPos')
+f(15,11,44,0,'com/sun/xml/messaging/saaj/soap/MessageImpl.writeTo')
+f(16,11,44,0,'org/springframework/ws/transport/TransportOutputStream.write')
+f(17,11,44,0,'org/springframework/ws/transport/TransportOutputStream.getOutputStream')
+f(18,11,44,0,'org/springframework/ws/transport/AbstractSenderConnection$RequestTransportOutputStream.createOutputStream')
+f(19,11,44,0,'org/springframework/ws/transport/http/HttpUrlConnection.getRequestOutputStream')
+f(20,11,44,0,'sun/net/www/protocol/https/HttpsURLConnectionImpl.getOutputStream')
+f(21,11,44,0,'sun/net/www/protocol/http/HttpURLConnection.getOutputStream')
+f(22,11,44,0,'sun/net/www/protocol/http/HttpURLConnection.getOutputStream0')
+f(23,11,44,0,'sun/net/www/protocol/https/AbstractDelegateHttpsURLConnection.connect')
+f(24,11,44,0,'sun/net/www/protocol/https/HttpsClient.afterConnect')
+f(25,11,44,0,'sun/security/ssl/SSLSocketImpl.startHandshake')
+f(26,11,39,0,'sun/security/ssl/SSLSocketImpl.readHandshakeRecord')
+f(27,11,39,0,'sun/security/ssl/SSLSocketImpl.decode')
+f(28,11,39,0,'sun/security/ssl/SSLTransport.decode')
+f(29,11,19,0,'sun/security/ssl/SSLSocketInputRecord.decode')
+f(30,11,19,0,'sun/security/ssl/SSLSocketInputRecord.read')
+f(31,11,19,0,'java/net/SocketInputStream.read')
+f(32,11,19,0,'java/net/SocketInputStream.read')
+f(33,11,19,0,'java/net/SocketInputStream.socketRead')
+f(34,11,19,0,'java/net/SocketInputStream.socketRead0')
+f(35,11,18,4,'Java_java_net_SocketInputStream_socketRead0')
+f(36,11,18,4,'poll')
+f(35,29,1,4,'recv')
+f(29,30,20,0,'sun/security/ssl/TransportContext.dispatch')
+f(30,30,20,0,'sun/security/ssl/HandshakeContext.dispatch')
+f(31,30,20,0,'sun/security/ssl/HandshakeContext.dispatch')
+f(32,30,20,0,'sun/security/ssl/SSLHandshake.consume')
+f(33,30,4,0,'sun/security/ssl/Finished$T13FinishedConsumer.consume')
+f(34,30,4,0,'sun/security/ssl/Finished$T13FinishedConsumer.onConsumeFinished')
+f(35,30,4,0,'sun/security/ssl/SSLHandshake.produce')
+f(36,30,4,0,'sun/security/ssl/Finished$T13FinishedProducer.produce')
+f(37,30,4,0,'sun/security/ssl/Finished$T13FinishedProducer.onProduceFinished')
+f(38,30,2,0,'sun/security/ssl/SSLCipher.createWriteCipher')
+f(39,30,2,0,'sun/security/ssl/SSLCipher$T13GcmWriteCipherGenerator.createCipher')
+f(40,30,2,0,'sun/security/ssl/SSLCipher$T13GcmWriteCipherGenerator$GcmWriteCipher.<init>')
+f(41,30,2,0,'sun/security/ssl/JsseJce.getCipher')
+f(42,30,2,0,'javax/crypto/Cipher.getInstance')
+f(43,30,1,0,'javax/crypto/Cipher$Transform.supportsModePadding')
+f(44,30,1,0,'javax/crypto/Cipher$Transform.supportsPadding')
+f(45,30,1,0,'javax/crypto/Cipher$Transform.supports')
+f(46,30,1,0,'java/security/Provider$Service.getAttribute')
+f(47,30,1,0,'java/util/HashMap.get')
+f(48,30,1,0,'java/util/HashMap.getNode')
+f(49,30,1,0,'java/security/Provider$UString.equals')
+f(50,30,1,0,'java/lang/String.equals')
+f(51,30,1,0,'java/lang/StringLatin1.equals')
+f(43,31,1,0,'sun/security/jca/ProviderList$ServiceList$1.hasNext')
+f(44,31,1,0,'sun/security/jca/ProviderList$ServiceList.tryGet')
+f(45,31,1,0,'java/security/Provider.getService')
+f(46,31,1,0,'java/security/Provider$ServiceKey.<init>')
+f(47,31,1,0,'java/lang/String.toUpperCase')
+f(48,31,1,0,'java/lang/StringLatin1.toUpperCase')
+f(49,31,1,0,'java/lang/Character.toUpperCaseEx')
+f(50,31,1,0,'java/lang/CharacterDataLatin1.toUpperCaseEx')
+f(51,31,1,0,'java/lang/CharacterDataLatin1.getProperties')
+f(38,32,1,0,'sun/security/ssl/SSLSecretDerivation.deriveKey')
+f(39,32,1,0,'sun/security/ssl/HKDF.<init>')
+f(40,32,1,0,'sun/security/ssl/JsseJce.getMac')
+f(41,32,1,0,'javax/crypto/Mac.getInstance')
+f(42,32,1,0,'sun/security/jca/ProviderList$ServiceList$1.hasNext')
+f(43,32,1,0,'sun/security/jca/ProviderList$ServiceList.tryGet')
+f(44,32,1,0,'sun/security/jca/ProviderList.getProvider')
+f(38,33,1,0,'sun/security/ssl/SSLSecretDerivation.forContext')
+f(39,33,1,0,'sun/security/ssl/SSLSecretDerivation.<init>')
+f(40,33,1,0,'sun/security/ssl/HandshakeHash.digest')
+f(41,33,1,0,'sun/security/ssl/HandshakeHash$T13HandshakeHash.digest')
+f(42,33,1,0,'sun/security/ssl/HandshakeHash$NonCloneableHash.digest')
+f(43,33,1,0,'java/security/MessageDigest.digest')
+f(44,33,1,0,'java/security/MessageDigest.update')
+f(45,33,1,0,'java/security/MessageDigest$Delegate.engineUpdate')
+f(46,33,1,0,'sun/security/provider/DigestBase.engineUpdate')
+f(47,33,1,0,'sun/security/provider/DigestBase.implCompressMultiBlock')
+f(48,33,1,0,'sun/security/provider/DigestBase.implCompressMultiBlock0')
+f(49,33,1,0,'sun/security/provider/SHA2.implCompress')
+f(50,33,1,0,'sun/security/provider/SHA2.implCompress0')
+f(33,34,16,0,'sun/security/ssl/ServerHello$ServerHelloConsumer.consume')
+f(34,34,16,0,'sun/security/ssl/ServerHello$ServerHelloConsumer.onServerHello')
+f(35,34,16,0,'sun/security/ssl/ServerHello$T13ServerHelloConsumer.consume')
+f(36,34,15,0,'sun/security/ssl/ECDHKeyExchange$ECDHEKAKeyDerivation.deriveKey')
+f(37,34,15,0,'sun/security/ssl/ECDHKeyExchange$ECDHEKAKeyDerivation.t13DeriveKey')
+f(38,34,15,0,'javax/crypto/KeyAgreement.generateSecret')
+f(39,34,15,0,'sun/security/ec/ECDHKeyAgreement.engineGenerateSecret')
+f(40,34,15,0,'sun/security/ec/ECDHKeyAgreement.engineGenerateSecret')
+f(41,34,15,0,'sun/security/ec/ECDHKeyAgreement.deriveKeyImpl')
+f(42,34,7,0,'sun/security/ec/ECDHKeyAgreement.validate')
+f(43,34,7,0,'sun/security/ec/ECOperations.multiply')
+f(44,34,3,0,'sun/security/ec/ECOperations.double4')
+f(45,34,3,0,'sun/security/ec/ECOperations.setDouble')
+f(46,34,2,0,'sun/security/util/math/intpoly/IntegerPolynomial$MutableElement.setProduct')
+f(47,34,2,0,'sun/security/util/math/intpoly/IntegerPolynomial$MutableElement.setProduct')
+f(48,34,2,0,'sun/security/util/math/intpoly/IntegerPolynomialP256.mult')
+f(49,35,1,0,'sun/security/util/math/intpoly/IntegerPolynomialP256.carryReduce')
+f(46,36,1,0,'sun/security/util/math/intpoly/IntegerPolynomial$MutableElement.setSum')
+f(47,36,1,0,'sun/security/util/math/intpoly/IntegerPolynomial$MutableElement.setSum')
+f(44,37,4,0,'sun/security/ec/ECOperations.setSum')
+f(45,37,3,0,'sun/security/util/math/intpoly/IntegerPolynomial$MutableElement.setProduct')
+f(46,37,3,0,'sun/security/util/math/intpoly/IntegerPolynomial$MutableElement.setProduct')
+f(47,37,3,0,'sun/security/util/math/intpoly/IntegerPolynomialP256.mult')
+f(48,38,2,0,'sun/security/util/math/intpoly/IntegerPolynomialP256.carryReduce')
+f(49,38,2,0,'sun/security/util/math/intpoly/IntegerPolynomialP256.carryReduce0')
+f(45,40,1,0,'sun/security/util/math/intpoly/IntegerPolynomial$MutableElement.setReduced')
+f(46,40,1,0,'sun/security/util/math/intpoly/IntegerPolynomial$MutableElement.setReduced')
+f(47,40,1,0,'sun/security/util/math/intpoly/IntegerPolynomialP256.reduce')
+f(48,40,1,0,'sun/security/util/math/intpoly/IntegerPolynomialP256.carryReduce')
+f(42,41,7,0,'sun/security/ec/ECOperations.multiply')
+f(43,41,7,0,'sun/security/ec/ECOperations.double4')
+f(44,41,7,0,'sun/security/ec/ECOperations.setDouble')
+f(45,41,4,0,'sun/security/util/math/intpoly/IntegerPolynomial$MutableElement.setProduct')
+f(46,41,4,0,'sun/security/util/math/intpoly/IntegerPolynomial$MutableElement.setProduct')
+f(47,41,1,0,'sun/security/util/math/intpoly/IntegerPolynomial.multByInt')
+f(48,41,1,0,'sun/security/util/math/intpoly/IntegerPolynomialP256.reduce')
+f(49,41,1,0,'sun/security/util/math/intpoly/IntegerPolynomialP256.carryReduce')
+f(47,42,3,0,'sun/security/util/math/intpoly/IntegerPolynomialP256.mult')
+f(48,44,1,0,'sun/security/util/math/intpoly/IntegerPolynomialP256.carryReduce')
+f(49,44,1,0,'sun/security/util/math/intpoly/IntegerPolynomialP256.carryReduce0')
+f(45,45,2,0,'sun/security/util/math/intpoly/IntegerPolynomial$MutableElement.setSquare')
+f(46,45,2,0,'sun/security/util/math/intpoly/IntegerPolynomial$MutableElement.setSquare')
+f(47,45,2,0,'sun/security/util/math/intpoly/IntegerPolynomialP256.square')
+f(48,46,1,0,'sun/security/util/math/intpoly/IntegerPolynomialP256.carryReduce')
+f(45,47,1,0,'sun/security/util/math/intpoly/IntegerPolynomial$MutableElement.setSum')
+f(46,47,1,0,'sun/security/util/math/intpoly/IntegerPolynomial$MutableElement.setSum')
+f(42,48,1,0,'sun/security/ec/point/ProjectivePoint.asAffine')
+f(43,48,1,0,'sun/security/util/math/IntegerModuloP.multiplicativeInverse')
+f(44,48,1,0,'sun/security/util/math/IntegerModuloP.pow')
+f(45,48,1,0,'sun/security/util/math/intpoly/IntegerPolynomial$MutableElement.setSquare')
+f(46,48,1,0,'sun/security/util/math/intpoly/IntegerPolynomial$MutableElement.setSquare')
+f(47,48,1,0,'sun/security/util/math/intpoly/IntegerPolynomialP256.square')
+f(48,48,1,0,'sun/security/util/math/intpoly/IntegerPolynomialP256.carryReduce')
+f(49,48,1,0,'sun/security/util/math/intpoly/IntegerPolynomialP256.carryReduce0')
+f(36,49,1,0,'sun/security/ssl/InputRecord.changeReadCiphers')
+f(37,49,1,0,'sun/security/ssl/SSLCipher$T13GcmReadCipherGenerator$GcmReadCipher.dispose')
+f(38,49,1,0,'javax/crypto/Cipher.doFinal')
+f(39,49,1,0,'javax/crypto/Cipher.checkCipherState')
+f(40,49,1,0,'java/lang/IllegalStateException.<init>')
+f(41,49,1,0,'java/lang/RuntimeException.<init>')
+f(42,49,1,0,'java/lang/Exception.<init>')
+f(43,49,1,0,'java/lang/Throwable.<init>')
+f(44,49,1,0,'java/lang/Throwable.fillInStackTrace')
+f(45,49,1,0,'java/lang/Throwable.fillInStackTrace')
+f(46,49,1,4,'Java_java_lang_Throwable_fillInStackTrace')
+f(47,49,1,4,'JVM_FillInStackTrace')
+f(48,49,1,3,'java_lang_Throwable::fill_in_stack_trace(Handle, methodHandle const&)')
+f(49,49,1,3,'java_lang_Throwable::fill_in_stack_trace(Handle, methodHandle const&, Thread*)')
+f(50,49,1,3,'Klass::java_mirror() const')
+f(26,50,5,0,'sun/security/ssl/TransportContext.kickstart')
+f(27,50,2,0,'sun/security/ssl/ClientHandshakeContext.<init>')
+f(28,50,2,0,'sun/security/ssl/HandshakeContext.<init>')
+f(29,50,2,0,'sun/security/ssl/HandshakeContext.getActiveProtocols')
+f(30,50,1,0,'sun/security/ssl/HandshakeContext.isActivatable')
+f(31,50,1,0,'sun/security/ssl/SupportedGroupsExtension$SupportedGroups.isActivatable')
+f(32,50,1,0,'sun/security/ssl/SSLAlgorithmConstraints.permits')
+f(33,50,1,0,'sun/security/util/DisabledAlgorithmConstraints.permits')
+f(34,50,1,0,'sun/security/util/AbstractAlgorithmConstraints.checkAlgorithm')
+f(35,50,1,0,'java/util/HashMap$KeyIterator.next')
+f(36,50,1,0,'java/util/HashMap$HashIterator.nextNode')
+f(30,51,1,0,'sun/security/ssl/SSLAlgorithmConstraints.permits')
+f(31,51,1,0,'sun/security/util/DisabledAlgorithmConstraints.permits')
+f(32,51,1,0,'sun/security/util/AbstractAlgorithmConstraints.checkAlgorithm')
+f(33,51,1,0,'sun/security/ssl/SSLAlgorithmDecomposer.decompose')
+f(34,51,1,0,'java/lang/String.startsWith')
+f(35,51,1,0,'java/lang/String.startsWith')
+f(27,52,3,0,'sun/security/ssl/ClientHandshakeContext.kickstart')
+f(28,52,3,0,'sun/security/ssl/SSLHandshake.kickstart')
+f(29,52,3,0,'sun/security/ssl/ClientHello$ClientHelloKickstartProducer.produce')
+f(30,52,3,0,'sun/security/ssl/SSLExtensions.produce')
+f(31,52,3,0,'sun/security/ssl/SSLExtension.produce')
+f(32,52,2,0,'sun/security/ssl/KeyShareExtension$CHKeyShareProducer.produce')
+f(33,52,2,0,'sun/security/ssl/SSLKeyExchange.createPossessions')
+f(34,52,2,0,'sun/security/ssl/SSLKeyExchange$T13KeyAgreement.createPossession')
+f(35,52,2,0,'sun/security/ssl/ECDHKeyExchange$ECDHEPossession.<init>')
+f(36,52,2,0,'java/security/KeyPairGenerator$Delegate.generateKeyPair')
+f(37,52,2,0,'sun/security/ec/ECKeyPairGenerator.generateKeyPair')
+f(38,52,2,0,'sun/security/ec/ECKeyPairGenerator.generateKeyPairImpl')
+f(39,52,2,0,'sun/security/ec/ECOperations.multiply')
+f(40,52,2,0,'sun/security/ec/ECOperations.double4')
+f(41,52,2,0,'sun/security/ec/ECOperations.setDouble')
+f(42,52,2,0,'sun/security/util/math/intpoly/IntegerPolynomial$MutableElement.setProduct')
+f(43,53,1,0,'sun/security/util/math/intpoly/IntegerPolynomial$MutableElement.setProduct')
+f(44,53,1,0,'sun/security/util/math/intpoly/IntegerPolynomial.multByInt')
+f(32,54,1,0,'sun/security/ssl/SignatureAlgorithmsExtension$CHSignatureSchemesProducer.produce')
+f(33,54,1,0,'sun/security/ssl/SignatureScheme.getSupportedAlgorithms')
+f(34,54,1,0,'sun/security/ssl/SSLAlgorithmConstraints.permits')
+f(35,54,1,0,'sun/security/util/DisabledAlgorithmConstraints.permits')
+f(36,54,1,0,'sun/security/util/AbstractAlgorithmConstraints.checkAlgorithm')
+f(37,54,1,0,'sun/security/ssl/SSLAlgorithmDecomposer.decompose')
+f(38,54,1,0,'sun/security/util/AlgorithmDecomposer.decompose')
+f(39,54,1,0,'sun/security/util/AlgorithmDecomposer.decomposeImpl')
+f(40,54,1,0,'java/util/regex/Pattern.split')
+f(41,54,1,0,'java/util/regex/Pattern.split')
+f(42,54,1,0,'java/util/regex/Matcher.find')
+f(43,54,1,0,'java/util/regex/Matcher.search')
+f(44,54,1,0,'java/util/regex/Pattern$Start.match')
+f(45,54,1,0,'java/util/regex/Pattern$Branch.match')
+f(12,55,5,0,'org/springframework/ws/transport/AbstractWebServiceConnection.receive')
+f(13,55,5,0,'org/springframework/ws/soap/saaj/SaajSoapMessageFactory.createWebServiceMessage')
+f(14,55,5,0,'org/springframework/ws/soap/saaj/SaajSoapMessageFactory.createWebServiceMessage')
+f(15,55,3,0,'com/sun/xml/messaging/saaj/soap/SOAPPartImpl.getEnvelope')
+f(16,55,3,0,'com/sun/xml/messaging/saaj/soap/ver1_1/SOAPPart1_1Impl.createEnvelopeFromSource')
+f(17,55,3,0,'com/sun/xml/messaging/saaj/soap/EnvelopeFactory.createEnvelope')
+f(18,55,3,0,'com/sun/xml/messaging/saaj/soap/EnvelopeFactory.parseEnvelopeSax')
+f(19,55,1,0,'com/sun/xml/messaging/saaj/util/transform/EfficientStreamingTransformer.newTransformer')
+f(20,55,1,0,'com/sun/xml/messaging/saaj/util/transform/EfficientStreamingTransformer.<init>')
+f(21,55,1,0,'javax/xml/transform/TransformerFactory.newInstance')
+f(22,55,1,0,'javax/xml/transform/FactoryFinder.find')
+f(23,55,1,0,'javax/xml/transform/FactoryFinder.newInstance')
+f(24,55,1,0,'javax/xml/transform/FactoryFinder.getProviderClass')
+f(25,55,1,0,'java/lang/Class.forName')
+f(26,55,1,0,'java/lang/Class.forName0')
+f(27,55,1,4,'Java_java_lang_Class_forName0')
+f(28,55,1,4,'JVM_FindClassFromCaller')
+f(29,55,1,3,'SymbolTable::lookup(char const*, int, Thread*)')
+f(30,55,1,3,'SymbolTable::lookup(int, char const*, int, unsigned int)')
+f(19,56,2,0,'com/sun/xml/messaging/saaj/util/transform/EfficientStreamingTransformer.transform')
+f(20,56,2,0,'com/sun/org/apache/xalan/internal/xsltc/trax/TransformerImpl.transform')
+f(21,56,2,0,'com/sun/org/apache/xalan/internal/xsltc/trax/TransformerImpl.transform')
+f(22,56,2,0,'com/sun/org/apache/xalan/internal/xsltc/trax/TransformerImpl.transformIdentity')
+f(23,56,2,0,'org/xml/sax/helpers/XMLFilterImpl.parse')
+f(24,56,2,0,'com/sun/org/apache/xerces/internal/jaxp/SAXParserImpl$JAXPSAXParser.parse')
+f(25,56,2,0,'com/sun/org/apache/xerces/internal/parsers/AbstractSAXParser.parse')
+f(26,56,2,0,'com/sun/org/apache/xerces/internal/parsers/XMLParser.parse')
+f(27,56,2,0,'com/sun/org/apache/xerces/internal/parsers/XML11Configuration.parse')
+f(28,56,2,0,'com/sun/org/apache/xerces/internal/parsers/XML11Configuration.parse')
+f(29,56,1,0,'com/sun/org/apache/xerces/internal/impl/XMLDocumentFragmentScannerImpl.scanDocument')
+f(30,56,1,0,'com/sun/org/apache/xerces/internal/impl/XMLNSDocumentScannerImpl.next')
+f(31,56,1,0,'com/sun/org/apache/xerces/internal/impl/XMLDocumentScannerImpl.next')
+f(32,56,1,0,'com/sun/org/apache/xerces/internal/impl/XMLDocumentFragmentScannerImpl$FragmentContentDriver.next')
+f(33,56,1,0,'com/sun/org/apache/xerces/internal/impl/XMLNSDocumentScannerImpl.scanStartElement')
+f(34,56,1,0,'com/sun/org/apache/xerces/internal/parsers/AbstractXMLDocumentParser.emptyElement')
+f(35,56,1,0,'com/sun/org/apache/xerces/internal/parsers/AbstractSAXParser.startElement')
+f(36,56,1,0,'com/sun/org/apache/xerces/internal/parsers/AbstractSAXParser.startNamespaceMapping')
+f(37,56,1,0,'org/xml/sax/helpers/XMLFilterImpl.startPrefixMapping')
+f(38,56,1,0,'com/sun/org/apache/xml/internal/serializer/ToXMLSAXHandler.startPrefixMapping')
+f(39,56,1,0,'com/sun/org/apache/xml/internal/serializer/ToXMLSAXHandler.startPrefixMapping')
+f(40,56,1,0,'com/sun/org/apache/xml/internal/serializer/ToSAXHandler.flushPending')
+f(41,56,1,0,'com/sun/org/apache/xml/internal/serializer/ToXMLSAXHandler.closeStartTag')
+f(42,56,1,0,'com/sun/org/apache/xalan/internal/xsltc/trax/SAX2DOM.startElement')
+f(43,56,1,0,'com/sun/xml/messaging/saaj/soap/SOAPPartImpl.createElementNS')
+f(44,56,1,0,'com/sun/xml/messaging/saaj/soap/SOAPDocumentImpl.createElementNS')
+f(45,56,1,0,'com/sun/xml/messaging/saaj/soap/impl/ElementFactory.createElement')
+f(46,56,1,0,'com/sun/xml/messaging/saaj/soap/impl/ElementFactory.createNamedElement')
+f(47,56,1,0,'com/sun/xml/messaging/saaj/soap/ver1_1/Body1_1Impl.<init>')
+f(48,56,1,0,'com/sun/xml/messaging/saaj/soap/impl/BodyImpl.<init>')
+f(49,56,1,0,'com/sun/xml/messaging/saaj/soap/impl/ElementImpl.<init>')
+f(50,56,1,0,'com/sun/xml/messaging/saaj/soap/SOAPDocumentImpl.register')
+f(51,56,1,0,'com/sun/org/apache/xerces/internal/dom/NodeImpl.setUserData')
+f(52,56,1,0,'com/sun/org/apache/xerces/internal/dom/CoreDocumentImpl.setUserData')
+f(53,56,1,0,'java/util/HashMap.get')
+f(54,56,1,0,'java/util/HashMap.getNode')
+f(29,57,1,0,'com/sun/org/apache/xerces/internal/impl/XMLVersionDetector.startDocumentParsing')
+f(30,57,1,0,'com/sun/org/apache/xerces/internal/impl/XMLDocumentScannerImpl.startEntity')
+f(15,58,1,0,'com/sun/xml/messaging/saaj/soap/ver1_1/SOAPMessageFactory1_1Impl.createMessage')
+f(16,58,1,0,'com/sun/xml/messaging/saaj/soap/ver1_1/Message1_1Impl.<init>')
+f(17,58,1,0,'com/sun/xml/messaging/saaj/soap/MessageImpl.<init>')
+f(18,58,1,0,'com/sun/xml/messaging/saaj/soap/MessageImpl.init')
+f(19,58,1,0,'com/sun/xml/messaging/saaj/soap/MessageImpl.initCharsetProperty')
+f(20,58,1,0,'com/sun/xml/messaging/saaj/soap/ver1_1/Message1_1Impl.getSOAPPart')
+f(21,58,1,0,'com/sun/xml/messaging/saaj/soap/ver1_1/SOAPPart1_1Impl.<init>')
+f(22,58,1,0,'com/sun/xml/messaging/saaj/soap/SOAPPartImpl.<init>')
+f(23,58,1,0,'com/sun/xml/messaging/saaj/soap/SOAPDocumentImpl.<init>')
+f(24,58,1,0,'com/sun/xml/messaging/saaj/soap/SOAPDocumentImpl.createDocument')
+f(25,58,1,0,'com/sun/org/apache/xerces/internal/jaxp/DocumentBuilderFactoryImpl.newDocumentBuilder')
+f(26,58,1,0,'com/sun/org/apache/xerces/internal/jaxp/DocumentBuilderImpl.<init>')
+f(27,58,1,0,'com/sun/org/apache/xerces/internal/parsers/DOMParser.<init>')
+f(28,58,1,0,'com/sun/org/apache/xerces/internal/parsers/DOMParser.<init>')
+f(29,58,1,0,'com/sun/org/apache/xerces/internal/parsers/XIncludeAwareParserConfiguration.<init>')
+f(30,58,1,0,'com/sun/org/apache/xerces/internal/parsers/XIncludeAwareParserConfiguration.<init>')
+f(31,58,1,0,'com/sun/org/apache/xerces/internal/parsers/XML11Configuration.<init>')
+f(32,58,1,0,'com/sun/org/apache/xerces/internal/impl/XMLVersionDetector.<init>')
+f(33,58,1,4,'_dl_update_slotinfo')
+f(15,59,1,0,'org/springframework/ws/soap/saaj/SaajSoapMessageFactory.checkForUtf8ByteOrderMark')
+f(16,59,1,0,'java/io/PushbackInputStream.read')
+f(17,59,1,0,'java/io/FilterInputStream.read')
+f(18,59,1,0,'java/io/BufferedInputStream.read')
+f(19,59,1,0,'java/io/BufferedInputStream.read1')
+f(20,59,1,0,'java/io/BufferedInputStream.fill')
+f(21,59,1,0,'org/springframework/ws/transport/TransportInputStream.read')
+f(22,59,1,0,'sun/net/www/protocol/http/HttpURLConnection$HttpInputStream.read')
+f(23,59,1,0,'java/io/FilterInputStream.read')
+f(24,59,1,0,'sun/net/www/MeteredStream.read')
+f(25,59,1,0,'sun/net/www/MeteredStream.justRead')
+f(26,59,1,0,'sun/net/www/MeteredStream.close')
+f(27,59,1,0,'java/io/BufferedInputStream.close')
+f(28,59,1,0,'sun/security/ssl/SSLSocketImpl$AppInputStream.close')
+f(29,59,1,0,'sun/security/ssl/SSLSocketImpl.close')
+f(30,59,1,0,'sun/security/ssl/SSLSocketImpl.duplexCloseOutput')
+f(31,59,1,0,'sun/security/ssl/TransportContext.warning')
+f(32,59,1,0,'sun/security/ssl/SSLSocketOutputRecord.encodeAlert')
+f(33,59,1,0,'sun/security/ssl/OutputRecord.encrypt')
+f(34,59,1,0,'sun/security/ssl/OutputRecord.t13Encrypt')
+f(35,59,1,0,'sun/security/ssl/SSLCipher$T13GcmWriteCipherGenerator$GcmWriteCipher.encrypt')
+f(36,59,1,0,'javax/crypto/Cipher.doFinal')
+f(37,59,1,0,'javax/crypto/CipherSpi.engineDoFinal')
+f(38,59,1,0,'javax/crypto/CipherSpi.bufferCrypt')
+f(39,59,1,0,'com/sun/crypto/provider/AESCipher.engineDoFinal')
+f(40,59,1,0,'com/sun/crypto/provider/CipherCore.doFinal')
+f(41,59,1,0,'com/sun/crypto/provider/CipherCore.fillOutputBuffer')
+f(42,59,1,0,'com/sun/crypto/provider/CipherCore.finalNoPadding')
+f(43,59,1,0,'com/sun/crypto/provider/GaloisCounterMode.encryptFinal')
+f(44,59,1,0,'com/sun/crypto/provider/GaloisCounterMode.processAAD')
+f(45,59,1,0,'com/sun/crypto/provider/GHASH.update')
+f(46,59,1,0,'com/sun/crypto/provider/GHASH.update')
+f(47,59,1,0,'com/sun/crypto/provider/GHASH.processBlocks')
+f(48,59,1,0,'com/sun/crypto/provider/GHASH.processBlock')
+f(49,59,1,0,'com/sun/crypto/provider/GHASH.blockMult')
+render();
+</script>
+</body></html>

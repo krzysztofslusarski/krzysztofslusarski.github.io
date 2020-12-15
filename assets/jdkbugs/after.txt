@@ -1,0 +1,1187 @@
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.593 CET|SSLEngineInputRecord.java:177|Raw read (
+  0000: 17 03 03 02 49 E1 35 DA   30 92 5E F3 37 03 12 84  ....I.5.0.^.7...
+  0010: BA A5 39 4D 25 F7 86 C6   44 87 43 A0 5C 8A F1 28  ..9M%...D.C.\..(
+  0020: 14 38 4E C1 9C EB 60 EF   60 2F 3C 65 0B 54 87 5F  .8N...`.`/<e.T._
+  0030: 55 2A 3E 2A B9 86 42 F0   27 4E A2 41 0A 88 B5 BE  U*>*..B.'N.A....
+  0040: A2 1F 2A A7 E3 F3 68 93   53 17 93 71 D3 8F 5C BD  ..*...h.S..q..\.
+  0050: A3 30 AC 6A 7A 4F EC D8   71 EF 1E 1D C3 B5 B4 9D  .0.jzO..q.......
+  0060: 96 6F A7 9F B2 59 E7 D3   0B 33 B9 BA 0C 13 1A E4  .o...Y...3......
+  0070: B4 46 75 C6 74 58 98 A5   F9 D5 9D 28 48 4C 98 80  .Fu.tX.....(HL..
+  0080: FC EE CB 29 74 ED E2 D4   B6 16 8D A2 51 3E BA B5  ...)t.......Q>..
+  0090: BC 07 46 D9 C5 4F DD 33   1C D2 3E C4 C5 43 0C A9  ..F..O.3..>..C..
+  00A0: DC A8 AB 89 91 54 B5 77   7D 4B 48 8D 42 4B D1 B2  .....T.w.KH.BK..
+  00B0: C0 07 64 83 CA 23 73 21   85 9C 54 08 E3 9E 16 E8  ..d..#s!..T.....
+  00C0: 84 3C F7 EE 00 AA CE DB   FA 9E 84 87 D6 23 48 4A  .<...........#HJ
+  00D0: 6B 7B E1 CC AC 09 1E 66   71 95 D7 86 A5 77 C7 0F  k......fq....w..
+  00E0: A4 34 82 AD 13 71 EB 32   41 AD 40 A7 B5 1A AF CA  .4...q.2A.@.....
+  00F0: 16 C0 27 F4 3F EA B4 04   74 AD 11 D0 FA 5C C2 25  ..'.?...t....\.%
+  0100: 9A F4 35 FC 32 01 29 45   97 EE 50 AC 08 D5 BC FC  ..5.2.)E..P.....
+  0110: 44 C0 FE 89 A2 0A DC D3   03 F3 F4 AB 38 EF D3 A6  D...........8...
+  0120: 01 11 1B BC 41 93 AA 71   7A DF 58 36 0C 7A 38 5B  ....A..qz.X6.z8[
+  0130: A0 C8 C1 9D 01 A4 4D 4B   AD 0F 8B C8 A2 5B 15 3D  ......MK.....[.=
+  0140: BE 16 27 88 F9 87 47 B4   7D EF F2 DA 26 E5 C9 CF  ..'...G.....&...
+  0150: 22 0B B9 FB 3B F1 D1 E8   7D 80 F5 E8 02 23 39 4A  "...;........#9J
+  0160: 2E 08 01 90 BD 3C 38 3A   40 EB 46 9F 9B 4B 7E 43  .....<8:@.F..K.C
+  0170: 6D 60 A4 31 71 F1 9B 40   6A 37 C5 88 AD A2 7A 98  m`.1q..@j7....z.
+  0180: 04 DD DC 65 3F F3 57 62   B4 3A 42 27 F3 77 47 43  ...e?.Wb.:B'.wGC
+  0190: 99 72 3A 76 71 3C A9 93   3E E6 EE 0F 94 33 FC 1A  .r:vq<..>....3..
+  01A0: 06 AA C1 9E 62 B0 D1 2A   F2 CA E0 C0 76 79 28 1D  ....b..*....vy(.
+  01B0: EC AB EA 97 05 7C E3 3F   65 F6 22 35 80 B4 0C C7  .......?e."5....
+  01C0: 1E E6 16 8D 30 0E 92 C9   07 7C 99 51 B6 2E 7E 85  ....0......Q....
+  01D0: C7 19 13 0D BC 6D 69 A6   89 5A A9 B1 83 ED E3 7F  .....mi..Z......
+  01E0: C9 9D C6 2B FE 8D 1A D9   6A 30 78 31 92 26 07 34  ...+....j0x1.&.4
+  01F0: ED 1C 8F B9 FC 1F 6C 23   7A 46 7F 6F CA 86 03 61  ......l#zF.o...a
+  0200: 88 5F 3F 55 57 2B 46 CC   06 3F 3C 68 DE F6 E5 8F  ._?UW+F..?<h....
+  0210: E5 D8 9E 36 51 FB 66 1C   34 5A F1 91 F0 29 98 EE  ...6Q.f.4Z...)..
+  0220: F5 20 A8 85 34 02 F9 29   B3 2D 20 9D 04 1A FB B7  . ..4..).- .....
+  0230: 2C A6 51 DB F2 27 C8 8A   05 0F B9 43 F8 1F 31 2B  ,.Q..'.....C..1+
+  0240: 12 29 1A 2B FC 80 1B F8   00 D6 EF C8 31 E7        .).+........1.
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.593 CET|SSLEngineInputRecord.java:214|READ: TLSv1.2 application_data, length = 585
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.594 CET|SSLCipher.java:1931|Plaintext after DECRYPTION (
+  0000: 47 45 54 20 2F 20 48 54   54 50 2F 31 2E 31 0D 0A  GET / HTTP/1.1..
+  0010: 48 6F 73 74 3A 20 6C 6F   63 61 6C 68 6F 73 74 2E  Host: localhost.
+  0020: 67 65 6E 65 72 61 6C 69   2E 70 6C 3A 38 34 34 33  generali.pl:8443
+  0030: 0D 0A 43 6F 6E 6E 65 63   74 69 6F 6E 3A 20 6B 65  ..Connection: ke
+  0040: 65 70 2D 61 6C 69 76 65   0D 0A 43 61 63 68 65 2D  ep-alive..Cache-
+  0050: 43 6F 6E 74 72 6F 6C 3A   20 6D 61 78 2D 61 67 65  Control: max-age
+  0060: 3D 30 0D 0A 55 70 67 72   61 64 65 2D 49 6E 73 65  =0..Upgrade-Inse
+  0070: 63 75 72 65 2D 52 65 71   75 65 73 74 73 3A 20 31  cure-Requests: 1
+  0080: 0D 0A 55 73 65 72 2D 41   67 65 6E 74 3A 20 4D 6F  ..User-Agent: Mo
+  0090: 7A 69 6C 6C 61 2F 35 2E   30 20 28 58 31 31 3B 20  zilla/5.0 (X11;
+  00A0: 4C 69 6E 75 78 20 78 38   36 5F 36 34 29 20 41 70  Linux x86_64) Ap
+  00B0: 70 6C 65 57 65 62 4B 69   74 2F 35 33 37 2E 33 36  pleWebKit/537.36
+  00C0: 20 28 4B 48 54 4D 4C 2C   20 6C 69 6B 65 20 47 65   (KHTML, like Ge
+  00D0: 63 6B 6F 29 20 43 68 72   6F 6D 65 2F 38 34 2E 30  cko) Chrome/84.0
+  00E0: 2E 34 31 34 37 2E 38 39   20 53 61 66 61 72 69 2F  .4147.89 Safari/
+  00F0: 35 33 37 2E 33 36 0D 0A   41 63 63 65 70 74 3A 20  537.36..Accept:
+  0100: 74 65 78 74 2F 68 74 6D   6C 2C 61 70 70 6C 69 63  text/html,applic
+  0110: 61 74 69 6F 6E 2F 78 68   74 6D 6C 2B 78 6D 6C 2C  ation/xhtml+xml,
+  0120: 61 70 70 6C 69 63 61 74   69 6F 6E 2F 78 6D 6C 3B  application/xml;
+  0130: 71 3D 30 2E 39 2C 69 6D   61 67 65 2F 77 65 62 70  q=0.9,image/webp
+  0140: 2C 69 6D 61 67 65 2F 61   70 6E 67 2C 2A 2F 2A 3B  ,image/apng,*/*;
+  0150: 71 3D 30 2E 38 2C 61 70   70 6C 69 63 61 74 69 6F  q=0.8,applicatio
+  0160: 6E 2F 73 69 67 6E 65 64   2D 65 78 63 68 61 6E 67  n/signed-exchang
+  0170: 65 3B 76 3D 62 33 3B 71   3D 30 2E 39 0D 0A 53 65  e;v=b3;q=0.9..Se
+  0180: 63 2D 46 65 74 63 68 2D   53 69 74 65 3A 20 6E 6F  c-Fetch-Site: no
+  0190: 6E 65 0D 0A 53 65 63 2D   46 65 74 63 68 2D 4D 6F  ne..Sec-Fetch-Mo
+  01A0: 64 65 3A 20 6E 61 76 69   67 61 74 65 0D 0A 53 65  de: navigate..Se
+  01B0: 63 2D 46 65 74 63 68 2D   55 73 65 72 3A 20 3F 31  c-Fetch-User: ?1
+  01C0: 0D 0A 53 65 63 2D 46 65   74 63 68 2D 44 65 73 74  ..Sec-Fetch-Dest
+  01D0: 3A 20 64 6F 63 75 6D 65   6E 74 0D 0A 41 63 63 65  : document..Acce
+  01E0: 70 74 2D 45 6E 63 6F 64   69 6E 67 3A 20 67 7A 69  pt-Encoding: gzi
+  01F0: 70 2C 20 64 65 66 6C 61   74 65 2C 20 62 72 0D 0A  p, deflate, br..
+  0200: 41 63 63 65 70 74 2D 4C   61 6E 67 75 61 67 65 3A  Accept-Language:
+  0210: 20 70 6C 2D 50 4C 2C 70   6C 3B 71 3D 30 2E 39 2C   pl-PL,pl;q=0.9,
+  0220: 65 6E 2D 55 53 3B 71 3D   30 2E 38 2C 65 6E 3B 71  en-US;q=0.8,en;q
+  0230: 3D 30 2E 37 0D 0A 0D 0A                            =0.7....
+)
+javax.net.ssl|WARNING|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.600 CET|ServerNameExtension.java:261|Unable to indicate server name
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.600 CET|SSLExtensions.java:257|Ignore, context unavailable extension: server_name
+javax.net.ssl|ALL|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.600 CET|SignatureScheme.java:371|Ignore disabled signature scheme: rsa_md5
+javax.net.ssl|INFO|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.600 CET|AlpnExtension.java:161|No available application protocols
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.600 CET|SSLExtensions.java:257|Ignore, context unavailable extension: application_layer_protocol_negotiation
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.601 CET|SSLExtensions.java:257|Ignore, context unavailable extension: renegotiation_info
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.601 CET|ClientHello.java:653|Produced ClientHello handshake message (
+"ClientHello": {
+  "client version"      : "TLSv1.2",
+  "random"              : "25 2E 2D FB 7F BC 60 54 39 59 52 0B 59 F6 78 F7 23 E9 60 87 0C 08 5A 37 02 33 F5 28 78 F8 07 4E",
+  "session id"          : "",
+  "cipher suites"       : "[TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384(0xC02C), TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256(0xC02B), TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384(0xC030), TLS_RSA_WITH_AES_256_GCM_SHA384(0x009D), TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384(0xC02E), TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384(0xC032), TLS_DHE_RSA_WITH_AES_256_GCM_SHA384(0x009F), TLS_DHE_DSS_WITH_AES_256_GCM_SHA384(0x00A3), TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256(0xC02F), TLS_RSA_WITH_AES_128_GCM_SHA256(0x009C), TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256(0xC02D), TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256(0xC031), TLS_DHE_RSA_WITH_AES_128_GCM_SHA256(0x009E), TLS_DHE_DSS_WITH_AES_128_GCM_SHA256(0x00A2), TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384(0xC024), TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384(0xC028), TLS_RSA_WITH_AES_256_CBC_SHA256(0x003D), TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384(0xC026), TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384(0xC02A), TLS_DHE_RSA_WITH_AES_256_CBC_SHA256(0x006B), TLS_DHE_DSS_WITH_AES_256_CBC_SHA256(0x006A), TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA(0xC00A), TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA(0xC014), TLS_RSA_WITH_AES_256_CBC_SHA(0x0035), TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA(0xC005), TLS_ECDH_RSA_WITH_AES_256_CBC_SHA(0xC00F), TLS_DHE_RSA_WITH_AES_256_CBC_SHA(0x0039), TLS_DHE_DSS_WITH_AES_256_CBC_SHA(0x0038), TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256(0xC023), TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256(0xC027), TLS_RSA_WITH_AES_128_CBC_SHA256(0x003C), TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256(0xC025), TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256(0xC029), TLS_DHE_RSA_WITH_AES_128_CBC_SHA256(0x0067), TLS_DHE_DSS_WITH_AES_128_CBC_SHA256(0x0040), TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA(0xC009), TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA(0xC013), TLS_RSA_WITH_AES_128_CBC_SHA(0x002F), TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA(0xC004), TLS_ECDH_RSA_WITH_AES_128_CBC_SHA(0xC00E), TLS_DHE_RSA_WITH_AES_128_CBC_SHA(0x0033), TLS_DHE_DSS_WITH_AES_128_CBC_SHA(0x0032), TLS_EMPTY_RENEGOTIATION_INFO_SCSV(0x00FF)]",
+  "compression methods" : "00",
+  "extensions"          : [
+    "status_request (5)": {
+      "certificate status type": ocsp
+      "OCSP status request": {
+        "responder_id": <empty>
+        "request extensions": {
+          <empty>
+        }
+      }
+    },
+    "supported_groups (10)": {
+      "versions": [secp256r1, secp384r1, secp521r1, ffdhe2048, ffdhe3072, ffdhe4096, ffdhe6144, ffdhe8192]
+    },
+    "ec_point_formats (11)": {
+      "formats": [uncompressed]
+    },
+    "signature_algorithms (13)": {
+      "signature schemes": [ecdsa_secp256r1_sha256, ecdsa_secp384r1_sha384, ecdsa_secp521r1_sha512, rsa_pss_rsae_sha256, rsa_pss_rsae_sha384, rsa_pss_rsae_sha512, rsa_pss_pss_sha256, rsa_pss_pss_sha384, rsa_pss_pss_sha512, rsa_pkcs1_sha256, rsa_pkcs1_sha384, rsa_pkcs1_sha512, dsa_sha256, ecdsa_sha224, rsa_sha224, dsa_sha224, ecdsa_sha1, rsa_pkcs1_sha1, dsa_sha1]
+    },
+    "signature_algorithms_cert (50)": {
+      "signature schemes": [ecdsa_secp256r1_sha256, ecdsa_secp384r1_sha384, ecdsa_secp521r1_sha512, rsa_pss_rsae_sha256, rsa_pss_rsae_sha384, rsa_pss_rsae_sha512, rsa_pss_pss_sha256, rsa_pss_pss_sha384, rsa_pss_pss_sha512, rsa_pkcs1_sha256, rsa_pkcs1_sha384, rsa_pkcs1_sha512, dsa_sha256, ecdsa_sha224, rsa_sha224, dsa_sha224, ecdsa_sha1, rsa_pkcs1_sha1, dsa_sha1]
+    },
+    "status_request_v2 (17)": {
+      "cert status request": {
+        "certificate status type": ocsp_multi
+        "OCSP status request": {
+          "responder_id": <empty>
+          "request extensions": {
+            <empty>
+          }
+        }
+      }
+    },
+    "extended_master_secret (23)": {
+      <empty>
+    },
+    "supported_versions (43)": {
+      "versions": [TLSv1.2]
+    }
+  ]
+}
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.601 CET|SSLSocketOutputRecord.java:241|WRITE: TLS12 handshake, length = 280
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.602 CET|SSLSocketOutputRecord.java:255|Raw write (
+  0000: 16 03 03 01 18 01 00 01   14 03 03 25 2E 2D FB 7F  ...........%.-..
+  0010: BC 60 54 39 59 52 0B 59   F6 78 F7 23 E9 60 87 0C  .`T9YR.Y.x.#.`..
+  0020: 08 5A 37 02 33 F5 28 78   F8 07 4E 00 00 56 C0 2C  .Z7.3.(x..N..V.,
+  0030: C0 2B C0 30 00 9D C0 2E   C0 32 00 9F 00 A3 C0 2F  .+.0.....2...../
+  0040: 00 9C C0 2D C0 31 00 9E   00 A2 C0 24 C0 28 00 3D  ...-.1.....$.(.=
+  0050: C0 26 C0 2A 00 6B 00 6A   C0 0A C0 14 00 35 C0 05  .&.*.k.j.....5..
+  0060: C0 0F 00 39 00 38 C0 23   C0 27 00 3C C0 25 C0 29  ...9.8.#.'.<.%.)
+  0070: 00 67 00 40 C0 09 C0 13   00 2F C0 04 C0 0E 00 33  .g.@...../.....3
+  0080: 00 32 00 FF 01 00 00 95   00 05 00 05 01 00 00 00  .2..............
+  0090: 00 00 0A 00 12 00 10 00   17 00 18 00 19 01 00 01  ................
+  00A0: 01 01 02 01 03 01 04 00   0B 00 02 01 00 00 0D 00  ................
+  00B0: 28 00 26 04 03 05 03 06   03 08 04 08 05 08 06 08  (.&.............
+  00C0: 09 08 0A 08 0B 04 01 05   01 06 01 04 02 03 03 03  ................
+  00D0: 01 03 02 02 03 02 01 02   02 00 32 00 28 00 26 04  ..........2.(.&.
+  00E0: 03 05 03 06 03 08 04 08   05 08 06 08 09 08 0A 08  ................
+  00F0: 0B 04 01 05 01 06 01 04   02 03 03 03 01 03 02 02  ................
+  0100: 03 02 01 02 02 00 11 00   09 00 07 02 00 04 00 00  ................
+  0110: 00 00 00 17 00 00 00 2B   00 03 02 03 03           .......+.....
+)
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.602 CET|HandshakeContext.java:296|Ignore unsupported cipher suite: TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 for TLS10
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.602 CET|HandshakeContext.java:296|Ignore unsupported cipher suite: TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 for TLS10
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.602 CET|HandshakeContext.java:296|Ignore unsupported cipher suite: TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384 for TLS10
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.602 CET|HandshakeContext.java:296|Ignore unsupported cipher suite: TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384 for TLS10
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.602 CET|HandshakeContext.java:296|Ignore unsupported cipher suite: TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 for TLS13
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.602 CET|HandshakeContext.java:296|Ignore unsupported cipher suite: TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 for TLS13
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.602 CET|HandshakeContext.java:296|Ignore unsupported cipher suite: TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384 for TLS13
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.602 CET|HandshakeContext.java:296|Ignore unsupported cipher suite: TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384 for TLS13
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.602 CET|HandshakeContext.java:296|Ignore unsupported cipher suite: TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA for TLS13
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.603 CET|HandshakeContext.java:296|Ignore unsupported cipher suite: TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA for TLS13
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.603 CET|HandshakeContext.java:296|Ignore unsupported cipher suite: TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 for TLS11
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.603 CET|HandshakeContext.java:296|Ignore unsupported cipher suite: TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 for TLS11
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.603 CET|HandshakeContext.java:296|Ignore unsupported cipher suite: TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384 for TLS11
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.603 CET|HandshakeContext.java:296|Ignore unsupported cipher suite: TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384 for TLS11
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.604 CET|SSLEngineInputRecord.java:177|Raw read (
+  0000: 16 03 03 01 18 01 00 01   14 03 03 25 2E 2D FB 7F  ...........%.-..
+  0010: BC 60 54 39 59 52 0B 59   F6 78 F7 23 E9 60 87 0C  .`T9YR.Y.x.#.`..
+  0020: 08 5A 37 02 33 F5 28 78   F8 07 4E 00 00 56 C0 2C  .Z7.3.(x..N..V.,
+  0030: C0 2B C0 30 00 9D C0 2E   C0 32 00 9F 00 A3 C0 2F  .+.0.....2...../
+  0040: 00 9C C0 2D C0 31 00 9E   00 A2 C0 24 C0 28 00 3D  ...-.1.....$.(.=
+  0050: C0 26 C0 2A 00 6B 00 6A   C0 0A C0 14 00 35 C0 05  .&.*.k.j.....5..
+  0060: C0 0F 00 39 00 38 C0 23   C0 27 00 3C C0 25 C0 29  ...9.8.#.'.<.%.)
+  0070: 00 67 00 40 C0 09 C0 13   00 2F C0 04 C0 0E 00 33  .g.@...../.....3
+  0080: 00 32 00 FF 01 00 00 95   00 05 00 05 01 00 00 00  .2..............
+  0090: 00 00 0A 00 12 00 10 00   17 00 18 00 19 01 00 01  ................
+  00A0: 01 01 02 01 03 01 04 00   0B 00 02 01 00 00 0D 00  ................
+  00B0: 28 00 26 04 03 05 03 06   03 08 04 08 05 08 06 08  (.&.............
+  00C0: 09 08 0A 08 0B 04 01 05   01 06 01 04 02 03 03 03  ................
+  00D0: 01 03 02 02 03 02 01 02   02 00 32 00 28 00 26 04  ..........2.(.&.
+  00E0: 03 05 03 06 03 08 04 08   05 08 06 08 09 08 0A 08  ................
+  00F0: 0B 04 01 05 01 06 01 04   02 03 03 03 01 03 02 02  ................
+  0100: 03 02 01 02 02 00 11 00   09 00 07 02 00 04 00 00  ................
+  0110: 00 00 00 17 00 00 00 2B   00 03 02 03 03           .......+.....
+)
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.604 CET|SSLEngineInputRecord.java:214|READ: TLSv1.2 handshake, length = 280
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.605 CET|ClientHello.java:809|Consuming ClientHello handshake message (
+"ClientHello": {
+  "client version"      : "TLSv1.2",
+  "random"              : "25 2E 2D FB 7F BC 60 54 39 59 52 0B 59 F6 78 F7 23 E9 60 87 0C 08 5A 37 02 33 F5 28 78 F8 07 4E",
+  "session id"          : "",
+  "cipher suites"       : "[TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384(0xC02C), TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256(0xC02B), TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384(0xC030), TLS_RSA_WITH_AES_256_GCM_SHA384(0x009D), TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384(0xC02E), TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384(0xC032), TLS_DHE_RSA_WITH_AES_256_GCM_SHA384(0x009F), TLS_DHE_DSS_WITH_AES_256_GCM_SHA384(0x00A3), TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256(0xC02F), TLS_RSA_WITH_AES_128_GCM_SHA256(0x009C), TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256(0xC02D), TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256(0xC031), TLS_DHE_RSA_WITH_AES_128_GCM_SHA256(0x009E), TLS_DHE_DSS_WITH_AES_128_GCM_SHA256(0x00A2), TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384(0xC024), TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384(0xC028), TLS_RSA_WITH_AES_256_CBC_SHA256(0x003D), TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384(0xC026), TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384(0xC02A), TLS_DHE_RSA_WITH_AES_256_CBC_SHA256(0x006B), TLS_DHE_DSS_WITH_AES_256_CBC_SHA256(0x006A), TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA(0xC00A), TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA(0xC014), TLS_RSA_WITH_AES_256_CBC_SHA(0x0035), TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA(0xC005), TLS_ECDH_RSA_WITH_AES_256_CBC_SHA(0xC00F), TLS_DHE_RSA_WITH_AES_256_CBC_SHA(0x0039), TLS_DHE_DSS_WITH_AES_256_CBC_SHA(0x0038), TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256(0xC023), TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256(0xC027), TLS_RSA_WITH_AES_128_CBC_SHA256(0x003C), TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256(0xC025), TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256(0xC029), TLS_DHE_RSA_WITH_AES_128_CBC_SHA256(0x0067), TLS_DHE_DSS_WITH_AES_128_CBC_SHA256(0x0040), TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA(0xC009), TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA(0xC013), TLS_RSA_WITH_AES_128_CBC_SHA(0x002F), TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA(0xC004), TLS_ECDH_RSA_WITH_AES_128_CBC_SHA(0xC00E), TLS_DHE_RSA_WITH_AES_128_CBC_SHA(0x0033), TLS_DHE_DSS_WITH_AES_128_CBC_SHA(0x0032), TLS_EMPTY_RENEGOTIATION_INFO_SCSV(0x00FF)]",
+  "compression methods" : "00",
+  "extensions"          : [
+    "status_request (5)": {
+      "certificate status type": ocsp
+      "OCSP status request": {
+        "responder_id": <empty>
+        "request extensions": {
+          <empty>
+        }
+      }
+    },
+    "supported_groups (10)": {
+      "versions": [secp256r1, secp384r1, secp521r1, ffdhe2048, ffdhe3072, ffdhe4096, ffdhe6144, ffdhe8192]
+    },
+    "ec_point_formats (11)": {
+      "formats": [uncompressed]
+    },
+    "signature_algorithms (13)": {
+      "signature schemes": [ecdsa_secp256r1_sha256, ecdsa_secp384r1_sha384, ecdsa_secp521r1_sha512, rsa_pss_rsae_sha256, rsa_pss_rsae_sha384, rsa_pss_rsae_sha512, rsa_pss_pss_sha256, rsa_pss_pss_sha384, rsa_pss_pss_sha512, rsa_pkcs1_sha256, rsa_pkcs1_sha384, rsa_pkcs1_sha512, dsa_sha256, ecdsa_sha224, rsa_sha224, dsa_sha224, ecdsa_sha1, rsa_pkcs1_sha1, dsa_sha1]
+    },
+    "signature_algorithms_cert (50)": {
+      "signature schemes": [ecdsa_secp256r1_sha256, ecdsa_secp384r1_sha384, ecdsa_secp521r1_sha512, rsa_pss_rsae_sha256, rsa_pss_rsae_sha384, rsa_pss_rsae_sha512, rsa_pss_pss_sha256, rsa_pss_pss_sha384, rsa_pss_pss_sha512, rsa_pkcs1_sha256, rsa_pkcs1_sha384, rsa_pkcs1_sha512, dsa_sha256, ecdsa_sha224, rsa_sha224, dsa_sha224, ecdsa_sha1, rsa_pkcs1_sha1, dsa_sha1]
+    },
+    "status_request_v2 (17)": {
+      "cert status request": {
+        "certificate status type": ocsp_multi
+        "OCSP status request": {
+          "responder_id": <empty>
+          "request extensions": {
+            <empty>
+          }
+        }
+      }
+    },
+    "extended_master_secret (23)": {
+      <empty>
+    },
+    "supported_versions (43)": {
+      "versions": [TLSv1.2]
+    }
+  ]
+}
+)
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.605 CET|SSLExtensions.java:189|Consumed extension: supported_versions
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.605 CET|ClientHello.java:839|Negotiated protocol version: TLSv1.2
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.605 CET|SSLExtensions.java:170|Ignore unavailable extension: server_name
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.605 CET|SSLExtensions.java:170|Ignore unavailable extension: max_fragment_length
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.605 CET|SSLExtensions.java:189|Consumed extension: status_request
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.605 CET|SSLExtensions.java:189|Consumed extension: supported_groups
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.605 CET|SSLExtensions.java:189|Consumed extension: ec_point_formats
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.605 CET|SSLExtensions.java:189|Consumed extension: signature_algorithms
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.605 CET|SSLExtensions.java:189|Consumed extension: signature_algorithms_cert
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.605 CET|SSLExtensions.java:189|Consumed extension: status_request_v2
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.605 CET|SSLExtensions.java:189|Consumed extension: extended_master_secret
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.605 CET|SSLExtensions.java:189|Consumed extension: supported_versions
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.605 CET|SSLExtensions.java:160|Ignore unsupported extension: cookie
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.605 CET|SSLExtensions.java:160|Ignore unsupported extension: psk_key_exchange_modes
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.605 CET|SSLExtensions.java:160|Ignore unsupported extension: key_share
+javax.net.ssl|ALL|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.605 CET|RenegoInfoExtension.java:286|Safe renegotiation, using the SCSV signgling
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.605 CET|SSLExtensions.java:160|Ignore unsupported extension: pre_shared_key
+javax.net.ssl|ALL|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.606 CET|SignatureScheme.java:371|Ignore disabled signature scheme: rsa_md5
+javax.net.ssl|ALL|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.606 CET|SSLSessionImpl.java:216|Session initialized:  Session(1608064020606|SSL_NULL_WITH_NULL_NULL)
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.606 CET|SSLExtensions.java:204|Ignore unavailable extension: server_name
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.606 CET|SSLExtensions.java:204|Ignore unavailable extension: max_fragment_length
+javax.net.ssl|WARNING|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.606 CET|SSLExtensions.java:212|Ignore impact of unsupported extension: status_request
+javax.net.ssl|WARNING|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.606 CET|SSLExtensions.java:212|Ignore impact of unsupported extension: supported_groups
+javax.net.ssl|WARNING|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.606 CET|SSLExtensions.java:212|Ignore impact of unsupported extension: ec_point_formats
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.606 CET|SSLExtensions.java:221|Populated with extension: signature_algorithms
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.606 CET|SSLExtensions.java:221|Populated with extension: signature_algorithms_cert
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.607 CET|SSLExtensions.java:204|Ignore unavailable extension: application_layer_protocol_negotiation
+javax.net.ssl|WARNING|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.607 CET|SSLExtensions.java:212|Ignore impact of unsupported extension: status_request_v2
+javax.net.ssl|WARNING|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.607 CET|SSLExtensions.java:212|Ignore impact of unsupported extension: extended_master_secret
+javax.net.ssl|WARNING|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.607 CET|SSLExtensions.java:212|Ignore impact of unsupported extension: supported_versions
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.607 CET|SSLExtensions.java:204|Ignore unavailable extension: renegotiation_info
+javax.net.ssl|ALL|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.607 CET|X509Authentication.java:264|No X.509 cert selected for EC
+javax.net.ssl|ALL|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.607 CET|X509Authentication.java:264|No X.509 cert selected for EC
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.609 CET|ServerHello.java:439|use cipher suite TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+javax.net.ssl|ALL|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.609 CET|SSLSessionImpl.java:471|Negotiating session:  Session(1608064020606|TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384)
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.609 CET|StatusResponseManager.java:763|Staping disabled or is a resumed session
+javax.net.ssl|ALL|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.609 CET|ServerNameExtension.java:440|Ignore unavailable extension: server_name
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.609 CET|SSLExtensions.java:257|Ignore, context unavailable extension: server_name
+javax.net.ssl|ALL|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.609 CET|MaxFragExtension.java:296|Ignore unavailable max_fragment_length extension
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.609 CET|SSLExtensions.java:257|Ignore, context unavailable extension: max_fragment_length
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.609 CET|SSLExtensions.java:257|Ignore, context unavailable extension: status_request
+javax.net.ssl|WARNING|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.609 CET|SSLExtensions.java:243|Ignore, no extension producer defined: ec_point_formats
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.609 CET|AlpnExtension.java:365|Ignore unavailable extension: application_layer_protocol_negotiation
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.609 CET|SSLExtensions.java:257|Ignore, context unavailable extension: application_layer_protocol_negotiation
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.609 CET|SSLExtensions.java:257|Ignore, context unavailable extension: status_request_v2
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.609 CET|ServerHello.java:364|Produced ServerHello handshake message (
+"ServerHello": {
+  "server version"      : "TLSv1.2",
+  "random"              : "D6 61 90 8F C7 9B 8E 89 6C DB 1B 7C 0F FA C7 67 EF 56 FA 28 AC 98 E3 82 44 4F 57 4E 47 52 44 01",
+  "session id"          : "FD FA 2B 18 C8 4F F7 20 77 A8 4E 11 00 AD F9 2D C4 15 93 8D 09 C8 15 65 E6 FF 6A 00 DC 8F 24 0D",
+  "cipher suite"        : "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384(0xC030)",
+  "compression methods" : "00",
+  "extensions"          : [
+    "extended_master_secret (23)": {
+      <empty>
+    },
+    "renegotiation_info (65,281)": {
+      "renegotiated connection": [<no renegotiated connection>]
+    }
+  ]
+}
+)
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.609 CET|CertificateMessage.java:262|Produced server Certificate handshake message (
+"Certificates": [
+  "certificate" : {
+    "version"            : "v3",
+    "serial number"      : "5A C6 4D 01",
+    "signature algorithm": "SHA256withRSA",
+    "issuer"             : "CN=Unknown, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown",
+    "not before"         : "2020-12-14 08:44:35.000 CET",
+    "not  after"         : "2030-12-12 08:44:35.000 CET",
+    "subject"            : "CN=Unknown, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown",
+    "subject public key" : "RSA",
+    "extensions"         : [
+      {
+        ObjectId: 2.5.29.14 Criticality=false
+        SubjectKeyIdentifier [
+        KeyIdentifier [
+        0000: F0 B5 C0 4B 2E EF 07 E9   03 8D 44 33 61 15 D0 C5  ...K......D3a...
+        0010: 39 6F 0E 44                                        9o.D
+        ]
+        ]
+      }
+    ]}
+]
+)
+2020-12-15 21:27:00.595  INFO 8835 --- [nio-8443-exec-3] pl.ks.jdkbug.ws.client.ClientController  : Invoking WS
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.619 CET|ECDHServerKeyExchange.java:502|Produced ECDH ServerKeyExchange handshake message (
+"ECDH ServerKeyExchange": {
+  "parameters": {
+    "named group": "secp256r1"
+    "ecdh public": {
+      0000: 04 60 F1 9C 7A 13 9A 86   AE 47 14 E4 9A 05 C4 75  .`..z....G.....u
+      0010: F2 A4 F5 F3 D3 13 94 0C   05 21 64 C3 73 16 24 ED  .........!d.s.$.
+      0020: 2F DC FE 8D D7 DE 0A 7E   BB 58 78 04 0F 4F 1E 0B  /........Xx..O..
+      0030: 22 76 C8 0F A9 46 6E FB   D2 0D 1D B5 5E 82 45 6D  "v...Fn.....^.Em
+      0040: 2B                                                 +
+    },
+  },
+  "digital signature":  {
+    "signature algorithm": "rsa_pss_rsae_sha256"
+    "signature": {
+      0000: 7D 2C AC 41 4C F7 9A 4C   F6 7E 48 AD A0 D0 85 0B  .,.AL..L..H.....
+      0010: 23 06 3C 3E CF 73 78 CF   E9 CA 99 EB 40 F4 AE 52  #.<>.sx.....@..R
+      0020: 87 AB 46 30 47 29 19 DE   D7 92 BA 91 E5 AE 37 47  ..F0G)........7G
+      0030: D1 94 8A 24 C8 64 84 65   1C DE 08 72 90 E1 05 65  ...$.d.e...r...e
+      0040: 56 92 FE A0 C7 EA 56 3E   56 BC 8B 69 D9 21 28 90  V.....V>V..i.!(.
+      0050: B8 CE 52 4F 02 E4 83 14   9D 6A 29 B4 7C C6 A4 56  ..RO.....j)....V
+      0060: 3F 97 78 D5 6F 49 C9 03   98 ED 79 5A B2 29 35 6E  ?.x.oI....yZ.)5n
+      0070: 88 72 5B EB 0F A5 D2 DE   5C C3 5C 5F 16 6A 07 C3  .r[.....\.\_.j..
+      0080: 29 74 A9 D0 25 6E 18 BF   00 80 21 92 07 55 4C 18  )t..%n....!..UL.
+      0090: AB 05 38 F8 BD 7D 47 4D   5A E1 45 93 57 C2 B9 30  ..8...GMZ.E.W..0
+      00A0: B2 A6 5C D6 B4 64 35 01   E3 2C E2 B9 DD D6 D2 46  ..\..d5..,.....F
+      00B0: 3C AB 32 25 1D 80 27 98   A6 F5 25 53 BF FB 92 1F  <.2%..'...%S....
+      00C0: B1 7B A2 28 71 54 41 C7   4D 09 18 8B 34 88 76 53  ...(qTA.M...4.vS
+      00D0: FE A8 45 74 39 1E 5C 68   1D A6 48 B9 B3 C9 D0 57  ..Et9.\h..H....W
+      00E0: F3 B6 09 24 C7 89 16 17   8F 51 4C 38 59 CF C3 50  ...$.....QL8Y..P
+      00F0: D6 61 14 68 D8 63 38 31   38 BC 52 6A FD 2F DA 7D  .a.h.c818.Rj./..
+    },
+  }
+}
+)
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.619 CET|ServerHelloDone.java:97|Produced ServerHelloDone handshake message (
+<empty>
+)
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.619 CET|SSLEngineOutputRecord.java:505|WRITE: TLS12 handshake, length = 1323
+javax.net.ssl|DEBUG|2D|https-jsse-nio-8443-exec-4|2020-12-15 21:27:00.620 CET|SSLEngineOutputRecord.java:523|Raw write (
+  0000: 16 03 03 05 2B 02 00 00   51 03 03 D6 61 90 8F C7  ....+...Q...a...
+  0010: 9B 8E 89 6C DB 1B 7C 0F   FA C7 67 EF 56 FA 28 AC  ...l......g.V.(.
+  0020: 98 E3 82 44 4F 57 4E 47   52 44 01 20 FD FA 2B 18  ...DOWNGRD. ..+.
+  0030: C8 4F F7 20 77 A8 4E 11   00 AD F9 2D C4 15 93 8D  .O. w.N....-....
+  0040: 09 C8 15 65 E6 FF 6A 00   DC 8F 24 0D C0 30 00 00  ...e..j...$..0..
+  0050: 09 00 17 00 00 FF 01 00   01 00 0B 00 03 81 00 03  ................
+  0060: 7E 00 03 7B 30 82 03 77   30 82 02 5F A0 03 02 01  ....0..w0.._....
+  0070: 02 02 04 5A C6 4D 01 30   0D 06 09 2A 86 48 86 F7  ...Z.M.0...*.H..
+  0080: 0D 01 01 0B 05 00 30 6C   31 10 30 0E 06 03 55 04  ......0l1.0...U.
+  0090: 06 13 07 55 6E 6B 6E 6F   77 6E 31 10 30 0E 06 03  ...Unknown1.0...
+  00A0: 55 04 08 13 07 55 6E 6B   6E 6F 77 6E 31 10 30 0E  U....Unknown1.0.
+  00B0: 06 03 55 04 07 13 07 55   6E 6B 6E 6F 77 6E 31 10  ..U....Unknown1.
+  00C0: 30 0E 06 03 55 04 0A 13   07 55 6E 6B 6E 6F 77 6E  0...U....Unknown
+  00D0: 31 10 30 0E 06 03 55 04   0B 13 07 55 6E 6B 6E 6F  1.0...U....Unkno
+  00E0: 77 6E 31 10 30 0E 06 03   55 04 03 13 07 55 6E 6B  wn1.0...U....Unk
+  00F0: 6E 6F 77 6E 30 1E 17 0D   32 30 31 32 31 34 30 37  nown0...20121407
+  0100: 34 34 33 35 5A 17 0D 33   30 31 32 31 32 30 37 34  4435Z..301212074
+  0110: 34 33 35 5A 30 6C 31 10   30 0E 06 03 55 04 06 13  435Z0l1.0...U...
+  0120: 07 55 6E 6B 6E 6F 77 6E   31 10 30 0E 06 03 55 04  .Unknown1.0...U.
+  0130: 08 13 07 55 6E 6B 6E 6F   77 6E 31 10 30 0E 06 03  ...Unknown1.0...
+  0140: 55 04 07 13 07 55 6E 6B   6E 6F 77 6E 31 10 30 0E  U....Unknown1.0.
+  0150: 06 03 55 04 0A 13 07 55   6E 6B 6E 6F 77 6E 31 10  ..U....Unknown1.
+  0160: 30 0E 06 03 55 04 0B 13   07 55 6E 6B 6E 6F 77 6E  0...U....Unknown
+  0170: 31 10 30 0E 06 03 55 04   03 13 07 55 6E 6B 6E 6F  1.0...U....Unkno
+  0180: 77 6E 30 82 01 22 30 0D   06 09 2A 86 48 86 F7 0D  wn0.."0...*.H...
+  0190: 01 01 01 05 00 03 82 01   0F 00 30 82 01 0A 02 82  ..........0.....
+  01A0: 01 01 00 99 F2 1D D5 EC   95 20 50 D6 07 69 84 CC  ......... P..i..
+  01B0: 84 76 64 DF FA A8 BE 9D   08 1C 39 3D 6E 41 32 32  .vd.......9=nA22
+  01C0: 04 58 32 B1 85 53 EB 87   65 EA 3D 39 55 F0 E7 6C  .X2..S..e.=9U..l
+  01D0: 62 7B FD 33 C6 AB 09 1A   BD 5B BA 4D 73 BD 3B 89  b..3.....[.Ms.;.
+  01E0: 45 84 5F 9A E6 44 16 1C   B6 62 29 0A 2E EB F1 A0  E._..D...b).....
+  01F0: 16 3F 67 07 38 45 E9 9E   23 84 2D 10 AC A7 54 F3  .?g.8E..#.-...T.
+  0200: 62 B4 5A 48 C1 41 24 1E   AF 55 C8 2C 71 17 60 BA  b.ZH.A$..U.,q.`.
+  0210: 32 44 19 9D A4 09 38 60   15 E0 F1 1B 02 55 3B 3B  2D....8`.....U;;
+  0220: 5A A4 0B 0A 4D 7A B0 80   0B CB 70 83 57 6F C3 CD  Z...Mz....p.Wo..
+  0230: 34 B9 74 F5 6D CB D4 F7   A3 81 3B E3 CE A4 D2 B2  4.t.m.....;.....
+  0240: 94 C0 B8 6B EE 18 6E FB   A4 A7 E3 B7 C1 7F D9 91  ...k..n.........
+  0250: FD 3A 9A 49 73 C8 A7 3C   52 3C 78 BB D9 72 5B 77  .:.Is..<R<x..r[w
+  0260: 78 E6 17 F4 BB D5 CA 83   6E E2 DD 21 B5 52 04 57  x.......n..!.R.W
+  0270: A1 E1 14 5F 54 AF A8 5C   17 AA 07 B4 DE 15 30 BA  ..._T..\......0.
+  0280: 98 B9 9E 5E 3A ED 4D 18   62 B5 A9 82 8C D2 1C D7  ...^:.M.b.......
+  0290: D5 C1 11 8B 86 0C ED 27   33 A2 82 7F 65 8B 8B E7  .......'3...e...
+  02A0: F8 23 3F 02 03 01 00 01   A3 21 30 1F 30 1D 06 03  .#?......!0.0...
+  02B0: 55 1D 0E 04 16 04 14 F0   B5 C0 4B 2E EF 07 E9 03  U.........K.....
+  02C0: 8D 44 33 61 15 D0 C5 39   6F 0E 44 30 0D 06 09 2A  .D3a...9o.D0...*
+  02D0: 86 48 86 F7 0D 01 01 0B   05 00 03 82 01 01 00 14  .H..............
+  02E0: BA 04 58 D2 B9 39 70 7D   11 98 6F E7 B1 4B F5 2D  ..X..9p...o..K.-
+  02F0: D7 54 40 0D C3 98 14 62   A1 AC 02 5E 71 B5 A5 65  .T@....b...^q..e
+  0300: 48 95 21 1E 33 B4 CF 2D   34 BE EB 92 EA A8 4F 32  H.!.3..-4.....O2
+  0310: 3E AC E8 83 12 99 58 8E   90 DA FD A1 25 F2 3E 30  >.....X.....%.>0
+  0320: B2 C4 02 37 58 F0 2C 2F   53 F1 99 69 5B F7 B5 A4  ...7X.,/S..i[...
+  0330: A3 01 5F 61 BA 29 77 A5   AC 51 D4 FA A5 C6 32 2C  .._a.)w..Q....2,
+  0340: 1C F9 DE 0A 9A 8D AE D8   D4 78 D2 8A 37 2E C3 36  .........x..7..6
+  0350: 99 8A 78 4E FE CB 1C ED   1C 74 DF 10 59 08 5F FD  ..xN.....t..Y._.
+  0360: 04 0D DC EB FA E3 EB BC   7E 5C AB 33 FF BA 62 E9  .........\.3..b.
+  0370: E5 BE 86 0D B5 6C FB C2   17 C4 BF BA 73 73 C7 A1  .....l......ss..
+  0380: 36 25 DA 7D DE C7 38 AE   23 93 51 2B 88 97 29 19  6%....8.#.Q+..).
+  0390: FE 61 03 78 C0 CE 77 15   CD 86 B3 44 10 98 51 01  .a.x..w....D..Q.
+  03A0: 55 B6 BB 48 8B 43 9E B0   AE AC 5B 21 37 22 4D B0  U..H.C....[!7"M.
+  03B0: 93 3D 7D 44 97 63 30 F2   D2 73 17 1E 47 E8 8A B1  .=.D.c0..s..G...
+  03C0: F0 FA 46 B4 07 5B 82 15   6D 0D 0B E1 C2 C1 5C E0  ..F..[..m.....\.
+  03D0: CE 70 AA 72 12 8A 54 F2   2A BC 86 EE FA BA 1A 0C  .p.r..T.*.......
+  03E0: 00 01 49 03 00 17 41 04   60 F1 9C 7A 13 9A 86 AE  ..I...A.`..z....
+  03F0: 47 14 E4 9A 05 C4 75 F2   A4 F5 F3 D3 13 94 0C 05  G.....u.........
+  0400: 21 64 C3 73 16 24 ED 2F   DC FE 8D D7 DE 0A 7E BB  !d.s.$./........
+  0410: 58 78 04 0F 4F 1E 0B 22   76 C8 0F A9 46 6E FB D2  Xx..O.."v...Fn..
+  0420: 0D 1D B5 5E 82 45 6D 2B   08 04 01 00 7D 2C AC 41  ...^.Em+.....,.A
+  0430: 4C F7 9A 4C F6 7E 48 AD   A0 D0 85 0B 23 06 3C 3E  L..L..H.....#.<>
+  0440: CF 73 78 CF E9 CA 99 EB   40 F4 AE 52 87 AB 46 30  .sx.....@..R..F0
+  0450: 47 29 19 DE D7 92 BA 91   E5 AE 37 47 D1 94 8A 24  G)........7G...$
+  0460: C8 64 84 65 1C DE 08 72   90 E1 05 65 56 92 FE A0  .d.e...r...eV...
+  0470: C7 EA 56 3E 56 BC 8B 69   D9 21 28 90 B8 CE 52 4F  ..V>V..i.!(...RO
+  0480: 02 E4 83 14 9D 6A 29 B4   7C C6 A4 56 3F 97 78 D5  .....j)....V?.x.
+  0490: 6F 49 C9 03 98 ED 79 5A   B2 29 35 6E 88 72 5B EB  oI....yZ.)5n.r[.
+  04A0: 0F A5 D2 DE 5C C3 5C 5F   16 6A 07 C3 29 74 A9 D0  ....\.\_.j..)t..
+  04B0: 25 6E 18 BF 00 80 21 92   07 55 4C 18 AB 05 38 F8  %n....!..UL...8.
+  04C0: BD 7D 47 4D 5A E1 45 93   57 C2 B9 30 B2 A6 5C D6  ..GMZ.E.W..0..\.
+  04D0: B4 64 35 01 E3 2C E2 B9   DD D6 D2 46 3C AB 32 25  .d5..,.....F<.2%
+  04E0: 1D 80 27 98 A6 F5 25 53   BF FB 92 1F B1 7B A2 28  ..'...%S.......(
+  04F0: 71 54 41 C7 4D 09 18 8B   34 88 76 53 FE A8 45 74  qTA.M...4.vS..Et
+  0500: 39 1E 5C 68 1D A6 48 B9   B3 C9 D0 57 F3 B6 09 24  9.\h..H....W...$
+  0510: C7 89 16 17 8F 51 4C 38   59 CF C3 50 D6 61 14 68  .....QL8Y..P.a.h
+  0520: D8 63 38 31 38 BC 52 6A   FD 2F DA 7D 0E 00 00 00  .c818.Rj./......
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.620 CET|SSLSocketInputRecord.java:458|Raw read (
+  0000: 16 03 03 05 2B                                     ....+
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.620 CET|SSLSocketInputRecord.java:213|READ: TLSv1.2 handshake, length = 1323
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.621 CET|SSLSocketInputRecord.java:458|Raw read (
+  0000: 02 00 00 51 03 03 D6 61   90 8F C7 9B 8E 89 6C DB  ...Q...a......l.
+  0010: 1B 7C 0F FA C7 67 EF 56   FA 28 AC 98 E3 82 44 4F  .....g.V.(....DO
+  0020: 57 4E 47 52 44 01 20 FD   FA 2B 18 C8 4F F7 20 77  WNGRD. ..+..O. w
+  0030: A8 4E 11 00 AD F9 2D C4   15 93 8D 09 C8 15 65 E6  .N....-.......e.
+  0040: FF 6A 00 DC 8F 24 0D C0   30 00 00 09 00 17 00 00  .j...$..0.......
+  0050: FF 01 00 01 00 0B 00 03   81 00 03 7E 00 03 7B 30  ...............0
+  0060: 82 03 77 30 82 02 5F A0   03 02 01 02 02 04 5A C6  ..w0.._.......Z.
+  0070: 4D 01 30 0D 06 09 2A 86   48 86 F7 0D 01 01 0B 05  M.0...*.H.......
+  0080: 00 30 6C 31 10 30 0E 06   03 55 04 06 13 07 55 6E  .0l1.0...U....Un
+  0090: 6B 6E 6F 77 6E 31 10 30   0E 06 03 55 04 08 13 07  known1.0...U....
+  00A0: 55 6E 6B 6E 6F 77 6E 31   10 30 0E 06 03 55 04 07  Unknown1.0...U..
+  00B0: 13 07 55 6E 6B 6E 6F 77   6E 31 10 30 0E 06 03 55  ..Unknown1.0...U
+  00C0: 04 0A 13 07 55 6E 6B 6E   6F 77 6E 31 10 30 0E 06  ....Unknown1.0..
+  00D0: 03 55 04 0B 13 07 55 6E   6B 6E 6F 77 6E 31 10 30  .U....Unknown1.0
+  00E0: 0E 06 03 55 04 03 13 07   55 6E 6B 6E 6F 77 6E 30  ...U....Unknown0
+  00F0: 1E 17 0D 32 30 31 32 31   34 30 37 34 34 33 35 5A  ...201214074435Z
+  0100: 17 0D 33 30 31 32 31 32   30 37 34 34 33 35 5A 30  ..301212074435Z0
+  0110: 6C 31 10 30 0E 06 03 55   04 06 13 07 55 6E 6B 6E  l1.0...U....Unkn
+  0120: 6F 77 6E 31 10 30 0E 06   03 55 04 08 13 07 55 6E  own1.0...U....Un
+  0130: 6B 6E 6F 77 6E 31 10 30   0E 06 03 55 04 07 13 07  known1.0...U....
+  0140: 55 6E 6B 6E 6F 77 6E 31   10 30 0E 06 03 55 04 0A  Unknown1.0...U..
+  0150: 13 07 55 6E 6B 6E 6F 77   6E 31 10 30 0E 06 03 55  ..Unknown1.0...U
+  0160: 04 0B 13 07 55 6E 6B 6E   6F 77 6E 31 10 30 0E 06  ....Unknown1.0..
+  0170: 03 55 04 03 13 07 55 6E   6B 6E 6F 77 6E 30 82 01  .U....Unknown0..
+  0180: 22 30 0D 06 09 2A 86 48   86 F7 0D 01 01 01 05 00  "0...*.H........
+  0190: 03 82 01 0F 00 30 82 01   0A 02 82 01 01 00 99 F2  .....0..........
+  01A0: 1D D5 EC 95 20 50 D6 07   69 84 CC 84 76 64 DF FA  .... P..i...vd..
+  01B0: A8 BE 9D 08 1C 39 3D 6E   41 32 32 04 58 32 B1 85  .....9=nA22.X2..
+  01C0: 53 EB 87 65 EA 3D 39 55   F0 E7 6C 62 7B FD 33 C6  S..e.=9U..lb..3.
+  01D0: AB 09 1A BD 5B BA 4D 73   BD 3B 89 45 84 5F 9A E6  ....[.Ms.;.E._..
+  01E0: 44 16 1C B6 62 29 0A 2E   EB F1 A0 16 3F 67 07 38  D...b)......?g.8
+  01F0: 45 E9 9E 23 84 2D 10 AC   A7 54 F3 62 B4 5A 48 C1  E..#.-...T.b.ZH.
+  0200: 41 24 1E AF 55 C8 2C 71   17 60 BA 32 44 19 9D A4  A$..U.,q.`.2D...
+  0210: 09 38 60 15 E0 F1 1B 02   55 3B 3B 5A A4 0B 0A 4D  .8`.....U;;Z...M
+  0220: 7A B0 80 0B CB 70 83 57   6F C3 CD 34 B9 74 F5 6D  z....p.Wo..4.t.m
+  0230: CB D4 F7 A3 81 3B E3 CE   A4 D2 B2 94 C0 B8 6B EE  .....;........k.
+  0240: 18 6E FB A4 A7 E3 B7 C1   7F D9 91 FD 3A 9A 49 73  .n..........:.Is
+  0250: C8 A7 3C 52 3C 78 BB D9   72 5B 77 78 E6 17 F4 BB  ..<R<x..r[wx....
+  0260: D5 CA 83 6E E2 DD 21 B5   52 04 57 A1 E1 14 5F 54  ...n..!.R.W..._T
+  0270: AF A8 5C 17 AA 07 B4 DE   15 30 BA 98 B9 9E 5E 3A  ..\......0....^:
+  0280: ED 4D 18 62 B5 A9 82 8C   D2 1C D7 D5 C1 11 8B 86  .M.b............
+  0290: 0C ED 27 33 A2 82 7F 65   8B 8B E7 F8 23 3F 02 03  ..'3...e....#?..
+  02A0: 01 00 01 A3 21 30 1F 30   1D 06 03 55 1D 0E 04 16  ....!0.0...U....
+  02B0: 04 14 F0 B5 C0 4B 2E EF   07 E9 03 8D 44 33 61 15  .....K......D3a.
+  02C0: D0 C5 39 6F 0E 44 30 0D   06 09 2A 86 48 86 F7 0D  ..9o.D0...*.H...
+  02D0: 01 01 0B 05 00 03 82 01   01 00 14 BA 04 58 D2 B9  .............X..
+  02E0: 39 70 7D 11 98 6F E7 B1   4B F5 2D D7 54 40 0D C3  9p...o..K.-.T@..
+  02F0: 98 14 62 A1 AC 02 5E 71   B5 A5 65 48 95 21 1E 33  ..b...^q..eH.!.3
+  0300: B4 CF 2D 34 BE EB 92 EA   A8 4F 32 3E AC E8 83 12  ..-4.....O2>....
+  0310: 99 58 8E 90 DA FD A1 25   F2 3E 30 B2 C4 02 37 58  .X.....%.>0...7X
+  0320: F0 2C 2F 53 F1 99 69 5B   F7 B5 A4 A3 01 5F 61 BA  .,/S..i[....._a.
+  0330: 29 77 A5 AC 51 D4 FA A5   C6 32 2C 1C F9 DE 0A 9A  )w..Q....2,.....
+  0340: 8D AE D8 D4 78 D2 8A 37   2E C3 36 99 8A 78 4E FE  ....x..7..6..xN.
+  0350: CB 1C ED 1C 74 DF 10 59   08 5F FD 04 0D DC EB FA  ....t..Y._......
+  0360: E3 EB BC 7E 5C AB 33 FF   BA 62 E9 E5 BE 86 0D B5  ....\.3..b......
+  0370: 6C FB C2 17 C4 BF BA 73   73 C7 A1 36 25 DA 7D DE  l......ss..6%...
+  0380: C7 38 AE 23 93 51 2B 88   97 29 19 FE 61 03 78 C0  .8.#.Q+..)..a.x.
+  0390: CE 77 15 CD 86 B3 44 10   98 51 01 55 B6 BB 48 8B  .w....D..Q.U..H.
+  03A0: 43 9E B0 AE AC 5B 21 37   22 4D B0 93 3D 7D 44 97  C....[!7"M..=.D.
+  03B0: 63 30 F2 D2 73 17 1E 47   E8 8A B1 F0 FA 46 B4 07  c0..s..G.....F..
+  03C0: 5B 82 15 6D 0D 0B E1 C2   C1 5C E0 CE 70 AA 72 12  [..m.....\..p.r.
+  03D0: 8A 54 F2 2A BC 86 EE FA   BA 1A 0C 00 01 49 03 00  .T.*.........I..
+  03E0: 17 41 04 60 F1 9C 7A 13   9A 86 AE 47 14 E4 9A 05  .A.`..z....G....
+  03F0: C4 75 F2 A4 F5 F3 D3 13   94 0C 05 21 64 C3 73 16  .u.........!d.s.
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.621 CET|SSLSocketInputRecord.java:458|Raw read (
+  0000: 24 ED 2F DC FE 8D D7 DE   0A 7E BB 58 78 04 0F 4F  $./........Xx..O
+  0010: 1E 0B 22 76 C8 0F A9 46   6E FB D2 0D 1D B5 5E 82  .."v...Fn.....^.
+  0020: 45 6D 2B 08 04 01 00 7D   2C AC 41 4C F7 9A 4C F6  Em+.....,.AL..L.
+  0030: 7E 48 AD A0 D0 85 0B 23   06 3C 3E CF 73 78 CF E9  .H.....#.<>.sx..
+  0040: CA 99 EB 40 F4 AE 52 87   AB 46 30 47 29 19 DE D7  ...@..R..F0G)...
+  0050: 92 BA 91 E5 AE 37 47 D1   94 8A 24 C8 64 84 65 1C  .....7G...$.d.e.
+  0060: DE 08 72 90 E1 05 65 56   92 FE A0 C7 EA 56 3E 56  ..r...eV.....V>V
+  0070: BC 8B 69 D9 21 28 90 B8   CE 52 4F 02 E4 83 14 9D  ..i.!(...RO.....
+  0080: 6A 29 B4 7C C6 A4 56 3F   97 78 D5 6F 49 C9 03 98  j)....V?.x.oI...
+  0090: ED 79 5A B2 29 35 6E 88   72 5B EB 0F A5 D2 DE 5C  .yZ.)5n.r[.....\
+  00A0: C3 5C 5F 16 6A 07 C3 29   74 A9 D0 25 6E 18 BF 00  .\_.j..)t..%n...
+  00B0: 80 21 92 07 55 4C 18 AB   05 38 F8 BD 7D 47 4D 5A  .!..UL...8...GMZ
+  00C0: E1 45 93 57 C2 B9 30 B2   A6 5C D6 B4 64 35 01 E3  .E.W..0..\..d5..
+  00D0: 2C E2 B9 DD D6 D2 46 3C   AB 32 25 1D 80 27 98 A6  ,.....F<.2%..'..
+  00E0: F5 25 53 BF FB 92 1F B1   7B A2 28 71 54 41 C7 4D  .%S.......(qTA.M
+  00F0: 09 18 8B 34 88 76 53 FE   A8 45 74 39 1E 5C 68 1D  ...4.vS..Et9.\h.
+  0100: A6 48 B9 B3 C9 D0 57 F3   B6 09 24 C7 89 16 17 8F  .H....W...$.....
+  0110: 51 4C 38 59 CF C3 50 D6   61 14 68 D8 63 38 31 38  QL8Y..P.a.h.c818
+  0120: BC 52 6A FD 2F DA 7D 0E   00 00 00                 .Rj./......
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.621 CET|SSLSocketInputRecord.java:249|READ: TLSv1.2 handshake, length = 1323
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.621 CET|ServerHello.java:871|Consuming ServerHello handshake message (
+"ServerHello": {
+  "server version"      : "TLSv1.2",
+  "random"              : "D6 61 90 8F C7 9B 8E 89 6C DB 1B 7C 0F FA C7 67 EF 56 FA 28 AC 98 E3 82 44 4F 57 4E 47 52 44 01",
+  "session id"          : "FD FA 2B 18 C8 4F F7 20 77 A8 4E 11 00 AD F9 2D C4 15 93 8D 09 C8 15 65 E6 FF 6A 00 DC 8F 24 0D",
+  "cipher suite"        : "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384(0xC030)",
+  "compression methods" : "00",
+  "extensions"          : [
+    "extended_master_secret (23)": {
+      <empty>
+    },
+    "renegotiation_info (65,281)": {
+      "renegotiated connection": [<no renegotiated connection>]
+    }
+  ]
+}
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.621 CET|SSLExtensions.java:170|Ignore unavailable extension: supported_versions
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.621 CET|ServerHello.java:967|Negotiated protocol version: TLSv1.2
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.621 CET|SSLExtensions.java:189|Consumed extension: renegotiation_info
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.621 CET|SSLExtensions.java:170|Ignore unavailable extension: server_name
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.621 CET|SSLExtensions.java:170|Ignore unavailable extension: max_fragment_length
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.621 CET|SSLExtensions.java:170|Ignore unavailable extension: status_request
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.621 CET|SSLExtensions.java:170|Ignore unavailable extension: ec_point_formats
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.621 CET|SSLExtensions.java:170|Ignore unavailable extension: status_request_v2
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.621 CET|SSLExtensions.java:189|Consumed extension: extended_master_secret
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.621 CET|SSLExtensions.java:189|Consumed extension: renegotiation_info
+javax.net.ssl|ALL|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.622 CET|SSLSessionImpl.java:216|Session initialized:  Session(1608064020621|TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.622 CET|SSLExtensions.java:204|Ignore unavailable extension: server_name
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.622 CET|SSLExtensions.java:204|Ignore unavailable extension: max_fragment_length
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.622 CET|SSLExtensions.java:204|Ignore unavailable extension: status_request
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.622 CET|SSLExtensions.java:204|Ignore unavailable extension: ec_point_formats
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.622 CET|SSLExtensions.java:204|Ignore unavailable extension: application_layer_protocol_negotiation
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.622 CET|SSLExtensions.java:204|Ignore unavailable extension: status_request_v2
+javax.net.ssl|WARNING|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.622 CET|SSLExtensions.java:212|Ignore impact of unsupported extension: extended_master_secret
+javax.net.ssl|WARNING|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.622 CET|SSLExtensions.java:212|Ignore impact of unsupported extension: renegotiation_info
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.622 CET|CertificateMessage.java:357|Consuming server Certificate handshake message (
+"Certificates": [
+  "certificate" : {
+    "version"            : "v3",
+    "serial number"      : "5A C6 4D 01",
+    "signature algorithm": "SHA256withRSA",
+    "issuer"             : "CN=Unknown, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown",
+    "not before"         : "2020-12-14 08:44:35.000 CET",
+    "not  after"         : "2030-12-12 08:44:35.000 CET",
+    "subject"            : "CN=Unknown, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown",
+    "subject public key" : "RSA",
+    "extensions"         : [
+      {
+        ObjectId: 2.5.29.14 Criticality=false
+        SubjectKeyIdentifier [
+        KeyIdentifier [
+        0000: F0 B5 C0 4B 2E EF 07 E9   03 8D 44 33 61 15 D0 C5  ...K......D3a...
+        0010: 39 6F 0E 44                                        9o.D
+        ]
+        ]
+      }
+    ]}
+]
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.623 CET|ECDHServerKeyExchange.java:534|Consuming ECDH ServerKeyExchange handshake message (
+"ECDH ServerKeyExchange": {
+  "parameters": {
+    "named group": "secp256r1"
+    "ecdh public": {
+      0000: 04 60 F1 9C 7A 13 9A 86   AE 47 14 E4 9A 05 C4 75  .`..z....G.....u
+      0010: F2 A4 F5 F3 D3 13 94 0C   05 21 64 C3 73 16 24 ED  .........!d.s.$.
+      0020: 2F DC FE 8D D7 DE 0A 7E   BB 58 78 04 0F 4F 1E 0B  /........Xx..O..
+      0030: 22 76 C8 0F A9 46 6E FB   D2 0D 1D B5 5E 82 45 6D  "v...Fn.....^.Em
+      0040: 2B                                                 +
+    },
+  },
+  "digital signature":  {
+    "signature algorithm": "rsa_pss_rsae_sha256"
+    "signature": {
+      0000: 7D 2C AC 41 4C F7 9A 4C   F6 7E 48 AD A0 D0 85 0B  .,.AL..L..H.....
+      0010: 23 06 3C 3E CF 73 78 CF   E9 CA 99 EB 40 F4 AE 52  #.<>.sx.....@..R
+      0020: 87 AB 46 30 47 29 19 DE   D7 92 BA 91 E5 AE 37 47  ..F0G)........7G
+      0030: D1 94 8A 24 C8 64 84 65   1C DE 08 72 90 E1 05 65  ...$.d.e...r...e
+      0040: 56 92 FE A0 C7 EA 56 3E   56 BC 8B 69 D9 21 28 90  V.....V>V..i.!(.
+      0050: B8 CE 52 4F 02 E4 83 14   9D 6A 29 B4 7C C6 A4 56  ..RO.....j)....V
+      0060: 3F 97 78 D5 6F 49 C9 03   98 ED 79 5A B2 29 35 6E  ?.x.oI....yZ.)5n
+      0070: 88 72 5B EB 0F A5 D2 DE   5C C3 5C 5F 16 6A 07 C3  .r[.....\.\_.j..
+      0080: 29 74 A9 D0 25 6E 18 BF   00 80 21 92 07 55 4C 18  )t..%n....!..UL.
+      0090: AB 05 38 F8 BD 7D 47 4D   5A E1 45 93 57 C2 B9 30  ..8...GMZ.E.W..0
+      00A0: B2 A6 5C D6 B4 64 35 01   E3 2C E2 B9 DD D6 D2 46  ..\..d5..,.....F
+      00B0: 3C AB 32 25 1D 80 27 98   A6 F5 25 53 BF FB 92 1F  <.2%..'...%S....
+      00C0: B1 7B A2 28 71 54 41 C7   4D 09 18 8B 34 88 76 53  ...(qTA.M...4.vS
+      00D0: FE A8 45 74 39 1E 5C 68   1D A6 48 B9 B3 C9 D0 57  ..Et9.\h..H....W
+      00E0: F3 B6 09 24 C7 89 16 17   8F 51 4C 38 59 CF C3 50  ...$.....QL8Y..P
+      00F0: D6 61 14 68 D8 63 38 31   38 BC 52 6A FD 2F DA 7D  .a.h.c818.Rj./..
+    },
+  }
+}
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.623 CET|ServerHelloDone.java:151|Consuming ServerHelloDone handshake message (
+<empty>
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.625 CET|ECDHClientKeyExchange.java:396|Produced ECDHE ClientKeyExchange handshake message (
+"ECDH ClientKeyExchange": {
+  "ecdh public": {
+    0000: 04 EB 0E C1 85 07 E3 8B   F6 E7 22 0B A6 9D D1 CE  ..........".....
+    0010: 54 08 AD D8 6A 4E 12 C6   28 A9 A0 B5 00 84 8B 85  T...jN..(.......
+    0020: 26 E2 AC 6E 42 31 30 53   30 C9 C3 14 92 61 1A 51  &..nB10S0....a.Q
+    0030: 5A 35 45 2E A0 49 5A FF   C5 3A 81 01 25 A7 A5 95  Z5E..IZ..:..%...
+    0040: 57                                                 W
+  },
+}
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.625 CET|SSLSocketOutputRecord.java:241|WRITE: TLS12 handshake, length = 70
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.625 CET|SSLSocketOutputRecord.java:255|Raw write (
+  0000: 16 03 03 00 46 10 00 00   42 41 04 EB 0E C1 85 07  ....F...BA......
+  0010: E3 8B F6 E7 22 0B A6 9D   D1 CE 54 08 AD D8 6A 4E  ....".....T...jN
+  0020: 12 C6 28 A9 A0 B5 00 84   8B 85 26 E2 AC 6E 42 31  ..(.......&..nB1
+  0030: 30 53 30 C9 C3 14 92 61   1A 51 5A 35 45 2E A0 49  0S0....a.QZ5E..I
+  0040: 5A FF C5 3A 81 01 25 A7   A5 95 57                 Z..:..%...W
+)
+javax.net.ssl|DEBUG|2E|https-jsse-nio-8443-exec-5|2020-12-15 21:27:00.626 CET|SSLEngineInputRecord.java:177|Raw read (
+  0000: 16 03 03 00 46 10 00 00   42 41 04 EB 0E C1 85 07  ....F...BA......
+  0010: E3 8B F6 E7 22 0B A6 9D   D1 CE 54 08 AD D8 6A 4E  ....".....T...jN
+  0020: 12 C6 28 A9 A0 B5 00 84   8B 85 26 E2 AC 6E 42 31  ..(.......&..nB1
+  0030: 30 53 30 C9 C3 14 92 61   1A 51 5A 35 45 2E A0 49  0S0....a.QZ5E..I
+  0040: 5A FF C5 3A 81 01 25 A7   A5 95 57                 Z..:..%...W
+)
+javax.net.ssl|DEBUG|2E|https-jsse-nio-8443-exec-5|2020-12-15 21:27:00.626 CET|SSLEngineInputRecord.java:214|READ: TLSv1.2 handshake, length = 70
+javax.net.ssl|DEBUG|2E|https-jsse-nio-8443-exec-5|2020-12-15 21:27:00.626 CET|ECDHClientKeyExchange.java:486|Consuming ECDHE ClientKeyExchange handshake message (
+"ECDH ClientKeyExchange": {
+  "ecdh public": {
+    0000: 04 EB 0E C1 85 07 E3 8B   F6 E7 22 0B A6 9D D1 CE  ..........".....
+    0010: 54 08 AD D8 6A 4E 12 C6   28 A9 A0 B5 00 84 8B 85  T...jN..(.......
+    0020: 26 E2 AC 6E 42 31 30 53   30 C9 C3 14 92 61 1A 51  &..nB10S0....a.Q
+    0030: 5A 35 45 2E A0 49 5A FF   C5 3A 81 01 25 A7 A5 95  Z5E..IZ..:..%...
+    0040: 57                                                 W
+  },
+}
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.629 CET|ChangeCipherSpec.java:115|Produced ChangeCipherSpec message
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.629 CET|SSLSocketOutputRecord.java:225|Raw write (
+  0000: 14 03 03 00 01 01                                  ......
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.629 CET|Finished.java:398|Produced client Finished handshake message (
+"Finished": {
+  "verify data": {
+    0000: BB 65 30 E0 29 72 3A 2F   43 15 83 E2
+  }'}
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.629 CET|SSLSocketOutputRecord.java:241|WRITE: TLS12 handshake, length = 24
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.629 CET|SSLCipher.java:1743|Plaintext before ENCRYPTION (
+  0000: 14 00 00 0C BB 65 30 E0   29 72 3A 2F 43 15 83 E2  .....e0.)r:/C...
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.629 CET|SSLSocketOutputRecord.java:255|Raw write (
+  0000: 16 03 03 00 28 00 00 00   00 00 00 00 00 08 E6 61  ....(..........a
+  0010: C1 38 FF 1A A5 D7 5A B2   CB 91 26 CA A9 61 05 4C  .8....Z...&..a.L
+  0020: 69 DD 41 30 44 AB A1 CD   56 EB 75 15 A1           i.A0D...V.u..
+)
+javax.net.ssl|DEBUG|30|https-jsse-nio-8443-exec-7|2020-12-15 21:27:00.630 CET|SSLEngineInputRecord.java:177|Raw read (
+  0000: 14 03 03 00 01 01 16 03   03 00 28 00 00 00 00 00  ..........(.....
+  0010: 00 00 00 08 E6 61 C1 38   FF 1A A5 D7 5A B2 CB 91  .....a.8....Z...
+  0020: 26 CA A9 61 05 4C 69 DD   41 30 44 AB A1 CD 56 EB  &..a.Li.A0D...V.
+  0030: 75 15 A1                                           u..
+)
+javax.net.ssl|DEBUG|30|https-jsse-nio-8443-exec-7|2020-12-15 21:27:00.630 CET|SSLEngineInputRecord.java:214|READ: TLSv1.2 change_cipher_spec, length = 1
+javax.net.ssl|DEBUG|30|https-jsse-nio-8443-exec-7|2020-12-15 21:27:00.630 CET|ChangeCipherSpec.java:149|Consuming ChangeCipherSpec message
+javax.net.ssl|DEBUG|30|https-jsse-nio-8443-exec-7|2020-12-15 21:27:00.630 CET|SSLEngineInputRecord.java:177|Raw read (
+  0000: 16 03 03 00 28 00 00 00   00 00 00 00 00 08 E6 61  ....(..........a
+  0010: C1 38 FF 1A A5 D7 5A B2   CB 91 26 CA A9 61 05 4C  .8....Z...&..a.L
+  0020: 69 DD 41 30 44 AB A1 CD   56 EB 75 15 A1           i.A0D...V.u..
+)
+javax.net.ssl|DEBUG|30|https-jsse-nio-8443-exec-7|2020-12-15 21:27:00.630 CET|SSLEngineInputRecord.java:214|READ: TLSv1.2 handshake, length = 40
+javax.net.ssl|DEBUG|30|https-jsse-nio-8443-exec-7|2020-12-15 21:27:00.631 CET|SSLCipher.java:1645|Plaintext after DECRYPTION (
+  0000: 14 00 00 0C BB 65 30 E0   29 72 3A 2F 43 15 83 E2  .....e0.)r:/C...
+)
+javax.net.ssl|DEBUG|30|https-jsse-nio-8443-exec-7|2020-12-15 21:27:00.631 CET|Finished.java:595|Consuming client Finished handshake message (
+"Finished": {
+  "verify data": {
+    0000: BB 65 30 E0 29 72 3A 2F   43 15 83 E2
+  }'}
+)
+javax.net.ssl|DEBUG|30|https-jsse-nio-8443-exec-7|2020-12-15 21:27:00.631 CET|ChangeCipherSpec.java:115|Produced ChangeCipherSpec message
+javax.net.ssl|DEBUG|30|https-jsse-nio-8443-exec-7|2020-12-15 21:27:00.631 CET|Finished.java:453|Produced server Finished handshake message (
+"Finished": {
+  "verify data": {
+    0000: CC 1B C2 F7 76 04 7F 24   0D 2E 10 1A
+  }'}
+)
+javax.net.ssl|DEBUG|30|https-jsse-nio-8443-exec-7|2020-12-15 21:27:00.632 CET|SSLEngineOutputRecord.java:505|WRITE: TLS12 change_cipher_spec, length = 1
+javax.net.ssl|DEBUG|30|https-jsse-nio-8443-exec-7|2020-12-15 21:27:00.632 CET|SSLEngineOutputRecord.java:523|Raw write (
+  0000: 14 03 03 00 01 01                                  ......
+)
+javax.net.ssl|DEBUG|31|https-jsse-nio-8443-exec-8|2020-12-15 21:27:00.632 CET|SSLEngineOutputRecord.java:505|WRITE: TLS12 handshake, length = 16
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.632 CET|SSLSocketInputRecord.java:458|Raw read (
+  0000: 14 03 03 00 01                                     .....
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.632 CET|SSLSocketInputRecord.java:213|READ: TLSv1.2 change_cipher_spec, length = 1
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.632 CET|SSLSocketInputRecord.java:458|Raw read (
+  0000: 01                                                 .
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.632 CET|SSLSocketInputRecord.java:249|READ: TLSv1.2 change_cipher_spec, length = 1
+javax.net.ssl|DEBUG|31|https-jsse-nio-8443-exec-8|2020-12-15 21:27:00.632 CET|SSLCipher.java:1743|Plaintext before ENCRYPTION (
+  0000: 14 00 00 0C CC 1B C2 F7   76 04 7F 24 0D 2E 10 1A  ........v..$....
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.632 CET|ChangeCipherSpec.java:149|Consuming ChangeCipherSpec message
+javax.net.ssl|DEBUG|31|https-jsse-nio-8443-exec-8|2020-12-15 21:27:00.632 CET|SSLEngineOutputRecord.java:523|Raw write (
+  0000: 16 03 03 00 28 00 00 00   00 00 00 00 00 55 CA 2C  ....(........U.,
+  0010: 6F E5 40 91 EA 95 58 71   CE 93 18 00 C5 8D 53 31  o.@...Xq......S1
+  0020: 5B 47 7D D4 4A EA 58 BF   ED E1 AF 80 48           [G..J.X.....H
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.632 CET|SSLSocketInputRecord.java:458|Raw read (
+  0000: 16 03 03 00 28                                     ....(
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.632 CET|SSLSocketInputRecord.java:213|READ: TLSv1.2 handshake, length = 40
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.632 CET|SSLSocketInputRecord.java:458|Raw read (
+  0000: 00 00 00 00 00 00 00 00   55 CA 2C 6F E5 40 91 EA  ........U.,o.@..
+  0010: 95 58 71 CE 93 18 00 C5   8D 53 31 5B 47 7D D4 4A  .Xq......S1[G..J
+  0020: EA 58 BF ED E1 AF 80 48                            .X.....H
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.632 CET|SSLSocketInputRecord.java:249|READ: TLSv1.2 handshake, length = 40
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.632 CET|SSLCipher.java:1645|Plaintext after DECRYPTION (
+  0000: 14 00 00 0C CC 1B C2 F7   76 04 7F 24 0D 2E 10 1A  ........v..$....
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.632 CET|Finished.java:535|Consuming server Finished handshake message (
+"Finished": {
+  "verify data": {
+    0000: CC 1B C2 F7 76 04 7F 24   0D 2E 10 1A
+  }'}
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.633 CET|SSLSocketOutputRecord.java:309|WRITE: TLS12 application_data, length = 489
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.633 CET|SSLCipher.java:1743|Plaintext before ENCRYPTION (
+  0000: 50 4F 53 54 20 2F 77 73   2F 74 65 6D 70 20 48 54  POST /ws/temp HT
+  0010: 54 50 2F 31 2E 31 0D 0A   41 63 63 65 70 74 2D 45  TP/1.1..Accept-E
+  0020: 6E 63 6F 64 69 6E 67 3A   20 67 7A 69 70 0D 0A 41  ncoding: gzip..A
+  0030: 63 63 65 70 74 3A 20 74   65 78 74 2F 78 6D 6C 2C  ccept: text/xml,
+  0040: 20 74 65 78 74 2F 68 74   6D 6C 2C 20 69 6D 61 67   text/html, imag
+  0050: 65 2F 67 69 66 2C 20 69   6D 61 67 65 2F 6A 70 65  e/gif, image/jpe
+  0060: 67 2C 20 2A 3B 20 71 3D   2E 32 2C 20 2A 2F 2A 3B  g, *; q=.2, */*;
+  0070: 20 71 3D 2E 32 0D 0A 53   4F 41 50 41 63 74 69 6F   q=.2..SOAPActio
+  0080: 6E 3A 20 22 22 0D 0A 43   6F 6E 74 65 6E 74 2D 54  n: ""..Content-T
+  0090: 79 70 65 3A 20 74 65 78   74 2F 78 6D 6C 3B 20 63  ype: text/xml; c
+  00A0: 68 61 72 73 65 74 3D 75   74 66 2D 38 0D 0A 43 6F  harset=utf-8..Co
+  00B0: 6E 74 65 6E 74 2D 4C 65   6E 67 74 68 3A 20 31 39  ntent-Length: 19
+  00C0: 34 0D 0A 48 6F 73 74 3A   20 6C 6F 63 61 6C 68 6F  4..Host: localho
+  00D0: 73 74 3A 38 34 34 33 0D   0A 43 6F 6E 6E 65 63 74  st:8443..Connect
+  00E0: 69 6F 6E 3A 20 4B 65 65   70 2D 41 6C 69 76 65 0D  ion: Keep-Alive.
+  00F0: 0A 55 73 65 72 2D 41 67   65 6E 74 3A 20 41 70 61  .User-Agent: Apa
+  0100: 63 68 65 2D 48 74 74 70   43 6C 69 65 6E 74 2F 34  che-HttpClient/4
+  0110: 2E 35 2E 31 33 20 28 4A   61 76 61 2F 31 31 2E 30  .5.13 (Java/11.0
+  0120: 2E 36 29 0D 0A 0D 0A 3C   53 4F 41 50 2D 45 4E 56  .6)....<SOAP-ENV
+  0130: 3A 45 6E 76 65 6C 6F 70   65 20 78 6D 6C 6E 73 3A  :Envelope xmlns:
+  0140: 53 4F 41 50 2D 45 4E 56   3D 22 68 74 74 70 3A 2F  SOAP-ENV="http:/
+  0150: 2F 73 63 68 65 6D 61 73   2E 78 6D 6C 73 6F 61 70  /schemas.xmlsoap
+  0160: 2E 6F 72 67 2F 73 6F 61   70 2F 65 6E 76 65 6C 6F  .org/soap/envelo
+  0170: 70 65 2F 22 3E 3C 53 4F   41 50 2D 45 4E 56 3A 48  pe/"><SOAP-ENV:H
+  0180: 65 61 64 65 72 2F 3E 3C   53 4F 41 50 2D 45 4E 56  eader/><SOAP-ENV
+  0190: 3A 42 6F 64 79 3E 3C 6E   73 32 3A 54 65 6D 70 52  :Body><ns2:TempR
+  01A0: 65 71 75 65 73 74 20 78   6D 6C 6E 73 3A 6E 73 32  equest xmlns:ns2
+  01B0: 3D 22 68 74 74 70 3A 2F   2F 6B 73 2E 70 6C 2F 61  ="http://ks.pl/a
+  01C0: 70 69 22 2F 3E 3C 2F 53   4F 41 50 2D 45 4E 56 3A  pi"/></SOAP-ENV:
+  01D0: 42 6F 64 79 3E 3C 2F 53   4F 41 50 2D 45 4E 56 3A  Body></SOAP-ENV:
+  01E0: 45 6E 76 65 6C 6F 70 65   3E                       Envelope>
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.633 CET|SSLSocketOutputRecord.java:323|Raw write (
+  0000: 17 03 03 02 01 00 00 00   00 00 00 00 01 7D 31 16  ..............1.
+  0010: 29 AC 7F 70 CD A0 B8 77   41 22 43 7C 14 F4 C9 3F  )..p...wA"C....?
+  0020: 24 8B 18 2C 8F 08 7F B1   70 B1 C8 EF 63 D9 3C F4  $..,....p...c.<.
+  0030: E9 43 3F 53 D0 3D 48 23   9F 88 6C 4F 2E 42 43 DC  .C?S.=H#..lO.BC.
+  0040: 77 EA 13 6A 82 A4 18 87   79 22 3B 6A 39 27 05 94  w..j....y";j9'..
+  0050: 14 2A 75 34 9D FE 37 E0   63 58 5D 63 7F 9D F6 93  .*u4..7.cX]c....
+  0060: AA 7D EE 6E E9 6A A7 2E   E1 AC 9D 9F 73 B7 16 1D  ...n.j......s...
+  0070: 24 D0 6A F0 C2 B5 26 B7   4A 72 2F 7F B2 A2 3C 06  $.j...&.Jr/...<.
+  0080: 39 95 ED 66 72 C6 4F AB   7B 44 63 25 8C DD 84 2B  9..fr.O..Dc%...+
+  0090: A7 EE 62 ED 78 C4 6E 61   E6 CE 92 0D D0 71 D4 EC  ..b.x.na.....q..
+  00A0: 43 1C 27 E9 5C B3 12 87   83 15 06 66 2E 5D 74 71  C.'.\......f.]tq
+  00B0: 9C BD F6 16 01 5C 74 E1   1B C4 00 7E CE 83 A9 7E  .....\t.........
+  00C0: 0E 24 AA 8A ED A3 B7 45   C3 69 C7 49 5F DB 1D A9  .$.....E.i.I_...
+  00D0: E0 9A 49 0C 17 AC A6 7B   CB 8C 54 04 C3 78 97 05  ..I.......T..x..
+  00E0: CD 38 7B D1 0E AA 8B 72   D2 BF 8F AA 16 A1 F3 4B  .8.....r.......K
+  00F0: 79 CB F7 B8 50 8C 7C 8A   A1 2B 91 F9 6C CD 04 0E  y...P....+..l...
+  0100: 02 40 32 4D 10 AF 09 A6   AE 86 FB 6B 63 39 B7 FC  .@2M.......kc9..
+  0110: 6A AA 4C 9A B4 F8 B6 E3   34 E1 8A 5B 69 41 B3 DC  j.L.....4..[iA..
+  0120: BE 2C 66 E3 16 29 B7 DD   41 C9 07 7A BC A5 47 01  .,f..)..A..z..G.
+  0130: 28 D7 1C 6B 6E C4 54 70   8A 9C 8B D9 D6 6A 04 DF  (..kn.Tp.....j..
+  0140: 19 05 85 00 4C F8 2D C0   18 A7 25 5F 31 B6 AA 6B  ....L.-...%_1..k
+  0150: 61 EE AF 40 A9 6C 4E 67   AE 4E 8D 51 B4 66 B2 EB  a..@.lNg.N.Q.f..
+  0160: A5 35 AC 80 C8 5C 4D 14   D6 56 83 F6 DA 88 62 88  .5...\M..V....b.
+  0170: 49 0C 10 65 DC 89 94 D8   62 71 6C E5 7F 3A F7 1B  I..e....bql..:..
+  0180: 60 75 63 E9 AF 76 F2 D5   C0 94 18 79 56 35 6C DF  `uc..v.....yV5l.
+  0190: 36 8A B2 3D 0A 40 41 BF   62 24 BC AF C5 38 0F 54  6..=.@A.b$...8.T
+  01A0: 22 ED ED C2 69 1B C3 C2   47 49 55 81 FA 9F A0 08  "...i...GIU.....
+  01B0: EC 55 6B 76 16 38 68 36   17 35 BE 4E D9 DD F6 81  .Ukv.8h6.5.N....
+  01C0: 00 61 11 AF 05 99 FE 47   0D A0 A6 43 C6 12 7D F0  .a.....G...C....
+  01D0: 07 EB 3E 04 63 5E EF B9   8D 5F D0 A6 32 A7 60 D5  ..>.c^..._..2.`.
+  01E0: A9 E0 B3 14 18 F0 31 D8   A3 C4 A0 3A C1 BB 1A 33  ......1....:...3
+  01F0: 8B CF BF 63 2F C4 64 53   1C C1 36 29 4A DE 10 5C  ...c/.dS..6)J..\
+  0200: 64 64 43 55 68 69                                  ddCUhi
+)
+javax.net.ssl|DEBUG|33|https-jsse-nio-8443-exec-10|2020-12-15 21:27:00.634 CET|SSLEngineInputRecord.java:177|Raw read (
+  0000: 17 03 03 02 01 00 00 00   00 00 00 00 01 7D 31 16  ..............1.
+  0010: 29 AC 7F 70 CD A0 B8 77   41 22 43 7C 14 F4 C9 3F  )..p...wA"C....?
+  0020: 24 8B 18 2C 8F 08 7F B1   70 B1 C8 EF 63 D9 3C F4  $..,....p...c.<.
+  0030: E9 43 3F 53 D0 3D 48 23   9F 88 6C 4F 2E 42 43 DC  .C?S.=H#..lO.BC.
+  0040: 77 EA 13 6A 82 A4 18 87   79 22 3B 6A 39 27 05 94  w..j....y";j9'..
+  0050: 14 2A 75 34 9D FE 37 E0   63 58 5D 63 7F 9D F6 93  .*u4..7.cX]c....
+  0060: AA 7D EE 6E E9 6A A7 2E   E1 AC 9D 9F 73 B7 16 1D  ...n.j......s...
+  0070: 24 D0 6A F0 C2 B5 26 B7   4A 72 2F 7F B2 A2 3C 06  $.j...&.Jr/...<.
+  0080: 39 95 ED 66 72 C6 4F AB   7B 44 63 25 8C DD 84 2B  9..fr.O..Dc%...+
+  0090: A7 EE 62 ED 78 C4 6E 61   E6 CE 92 0D D0 71 D4 EC  ..b.x.na.....q..
+  00A0: 43 1C 27 E9 5C B3 12 87   83 15 06 66 2E 5D 74 71  C.'.\......f.]tq
+  00B0: 9C BD F6 16 01 5C 74 E1   1B C4 00 7E CE 83 A9 7E  .....\t.........
+  00C0: 0E 24 AA 8A ED A3 B7 45   C3 69 C7 49 5F DB 1D A9  .$.....E.i.I_...
+  00D0: E0 9A 49 0C 17 AC A6 7B   CB 8C 54 04 C3 78 97 05  ..I.......T..x..
+  00E0: CD 38 7B D1 0E AA 8B 72   D2 BF 8F AA 16 A1 F3 4B  .8.....r.......K
+  00F0: 79 CB F7 B8 50 8C 7C 8A   A1 2B 91 F9 6C CD 04 0E  y...P....+..l...
+  0100: 02 40 32 4D 10 AF 09 A6   AE 86 FB 6B 63 39 B7 FC  .@2M.......kc9..
+  0110: 6A AA 4C 9A B4 F8 B6 E3   34 E1 8A 5B 69 41 B3 DC  j.L.....4..[iA..
+  0120: BE 2C 66 E3 16 29 B7 DD   41 C9 07 7A BC A5 47 01  .,f..)..A..z..G.
+  0130: 28 D7 1C 6B 6E C4 54 70   8A 9C 8B D9 D6 6A 04 DF  (..kn.Tp.....j..
+  0140: 19 05 85 00 4C F8 2D C0   18 A7 25 5F 31 B6 AA 6B  ....L.-...%_1..k
+  0150: 61 EE AF 40 A9 6C 4E 67   AE 4E 8D 51 B4 66 B2 EB  a..@.lNg.N.Q.f..
+  0160: A5 35 AC 80 C8 5C 4D 14   D6 56 83 F6 DA 88 62 88  .5...\M..V....b.
+  0170: 49 0C 10 65 DC 89 94 D8   62 71 6C E5 7F 3A F7 1B  I..e....bql..:..
+  0180: 60 75 63 E9 AF 76 F2 D5   C0 94 18 79 56 35 6C DF  `uc..v.....yV5l.
+  0190: 36 8A B2 3D 0A 40 41 BF   62 24 BC AF C5 38 0F 54  6..=.@A.b$...8.T
+  01A0: 22 ED ED C2 69 1B C3 C2   47 49 55 81 FA 9F A0 08  "...i...GIU.....
+  01B0: EC 55 6B 76 16 38 68 36   17 35 BE 4E D9 DD F6 81  .Ukv.8h6.5.N....
+  01C0: 00 61 11 AF 05 99 FE 47   0D A0 A6 43 C6 12 7D F0  .a.....G...C....
+  01D0: 07 EB 3E 04 63 5E EF B9   8D 5F D0 A6 32 A7 60 D5  ..>.c^..._..2.`.
+  01E0: A9 E0 B3 14 18 F0 31 D8   A3 C4 A0 3A C1 BB 1A 33  ......1....:...3
+  01F0: 8B CF BF 63 2F C4 64 53   1C C1 36 29 4A DE 10 5C  ...c/.dS..6)J..\
+  0200: 64 64 43 55 68 69                                  ddCUhi
+)
+javax.net.ssl|DEBUG|33|https-jsse-nio-8443-exec-10|2020-12-15 21:27:00.634 CET|SSLEngineInputRecord.java:214|READ: TLSv1.2 application_data, length = 513
+javax.net.ssl|DEBUG|33|https-jsse-nio-8443-exec-10|2020-12-15 21:27:00.634 CET|SSLCipher.java:1645|Plaintext after DECRYPTION (
+  0000: 50 4F 53 54 20 2F 77 73   2F 74 65 6D 70 20 48 54  POST /ws/temp HT
+  0010: 54 50 2F 31 2E 31 0D 0A   41 63 63 65 70 74 2D 45  TP/1.1..Accept-E
+  0020: 6E 63 6F 64 69 6E 67 3A   20 67 7A 69 70 0D 0A 41  ncoding: gzip..A
+  0030: 63 63 65 70 74 3A 20 74   65 78 74 2F 78 6D 6C 2C  ccept: text/xml,
+  0040: 20 74 65 78 74 2F 68 74   6D 6C 2C 20 69 6D 61 67   text/html, imag
+  0050: 65 2F 67 69 66 2C 20 69   6D 61 67 65 2F 6A 70 65  e/gif, image/jpe
+  0060: 67 2C 20 2A 3B 20 71 3D   2E 32 2C 20 2A 2F 2A 3B  g, *; q=.2, */*;
+  0070: 20 71 3D 2E 32 0D 0A 53   4F 41 50 41 63 74 69 6F   q=.2..SOAPActio
+  0080: 6E 3A 20 22 22 0D 0A 43   6F 6E 74 65 6E 74 2D 54  n: ""..Content-T
+  0090: 79 70 65 3A 20 74 65 78   74 2F 78 6D 6C 3B 20 63  ype: text/xml; c
+  00A0: 68 61 72 73 65 74 3D 75   74 66 2D 38 0D 0A 43 6F  harset=utf-8..Co
+  00B0: 6E 74 65 6E 74 2D 4C 65   6E 67 74 68 3A 20 31 39  ntent-Length: 19
+  00C0: 34 0D 0A 48 6F 73 74 3A   20 6C 6F 63 61 6C 68 6F  4..Host: localho
+  00D0: 73 74 3A 38 34 34 33 0D   0A 43 6F 6E 6E 65 63 74  st:8443..Connect
+  00E0: 69 6F 6E 3A 20 4B 65 65   70 2D 41 6C 69 76 65 0D  ion: Keep-Alive.
+  00F0: 0A 55 73 65 72 2D 41 67   65 6E 74 3A 20 41 70 61  .User-Agent: Apa
+  0100: 63 68 65 2D 48 74 74 70   43 6C 69 65 6E 74 2F 34  che-HttpClient/4
+  0110: 2E 35 2E 31 33 20 28 4A   61 76 61 2F 31 31 2E 30  .5.13 (Java/11.0
+  0120: 2E 36 29 0D 0A 0D 0A 3C   53 4F 41 50 2D 45 4E 56  .6)....<SOAP-ENV
+  0130: 3A 45 6E 76 65 6C 6F 70   65 20 78 6D 6C 6E 73 3A  :Envelope xmlns:
+  0140: 53 4F 41 50 2D 45 4E 56   3D 22 68 74 74 70 3A 2F  SOAP-ENV="http:/
+  0150: 2F 73 63 68 65 6D 61 73   2E 78 6D 6C 73 6F 61 70  /schemas.xmlsoap
+  0160: 2E 6F 72 67 2F 73 6F 61   70 2F 65 6E 76 65 6C 6F  .org/soap/envelo
+  0170: 70 65 2F 22 3E 3C 53 4F   41 50 2D 45 4E 56 3A 48  pe/"><SOAP-ENV:H
+  0180: 65 61 64 65 72 2F 3E 3C   53 4F 41 50 2D 45 4E 56  eader/><SOAP-ENV
+  0190: 3A 42 6F 64 79 3E 3C 6E   73 32 3A 54 65 6D 70 52  :Body><ns2:TempR
+  01A0: 65 71 75 65 73 74 20 78   6D 6C 6E 73 3A 6E 73 32  equest xmlns:ns2
+  01B0: 3D 22 68 74 74 70 3A 2F   2F 6B 73 2E 70 6C 2F 61  ="http://ks.pl/a
+  01C0: 70 69 22 2F 3E 3C 2F 53   4F 41 50 2D 45 4E 56 3A  pi"/></SOAP-ENV:
+  01D0: 42 6F 64 79 3E 3C 2F 53   4F 41 50 2D 45 4E 56 3A  Body></SOAP-ENV:
+  01E0: 45 6E 76 65 6C 6F 70 65   3E                       Envelope>
+)
+javax.net.ssl|DEBUG|33|https-jsse-nio-8443-exec-10|2020-12-15 21:27:00.639 CET|SSLEngineOutputRecord.java:266|WRITE: TLS12 application_data, length = 415
+javax.net.ssl|DEBUG|33|https-jsse-nio-8443-exec-10|2020-12-15 21:27:00.639 CET|SSLCipher.java:1743|Plaintext before ENCRYPTION (
+  0000: 48 54 54 50 2F 31 2E 31   20 32 30 30 20 0D 0A 43  HTTP/1.1 200 ..C
+  0010: 6F 6E 6E 65 63 74 69 6F   6E 3A 20 63 6C 6F 73 65  onnection: close
+  0020: 0D 0A 41 63 63 65 70 74   3A 20 74 65 78 74 2F 78  ..Accept: text/x
+  0030: 6D 6C 2C 20 74 65 78 74   2F 68 74 6D 6C 2C 20 69  ml, text/html, i
+  0040: 6D 61 67 65 2F 67 69 66   2C 20 69 6D 61 67 65 2F  mage/gif, image/
+  0050: 6A 70 65 67 2C 20 2A 3B   20 71 3D 2E 32 2C 20 2A  jpeg, *; q=.2, *
+  0060: 2F 2A 3B 20 71 3D 2E 32   0D 0A 53 4F 41 50 41 63  /*; q=.2..SOAPAc
+  0070: 74 69 6F 6E 3A 20 22 22   0D 0A 43 6F 6E 74 65 6E  tion: ""..Conten
+  0080: 74 2D 54 79 70 65 3A 20   74 65 78 74 2F 78 6D 6C  t-Type: text/xml
+  0090: 3B 63 68 61 72 73 65 74   3D 75 74 66 2D 38 0D 0A  ;charset=utf-8..
+  00A0: 43 6F 6E 74 65 6E 74 2D   4C 65 6E 67 74 68 3A 20  Content-Length:
+  00B0: 31 39 35 0D 0A 44 61 74   65 3A 20 54 75 65 2C 20  195..Date: Tue,
+  00C0: 31 35 20 44 65 63 20 32   30 32 30 20 32 30 3A 32  15 Dec 2020 20:2
+  00D0: 37 3A 30 30 20 47 4D 54   0D 0A 0D 0A 3C 53 4F 41  7:00 GMT....<SOA
+  00E0: 50 2D 45 4E 56 3A 45 6E   76 65 6C 6F 70 65 20 78  P-ENV:Envelope x
+  00F0: 6D 6C 6E 73 3A 53 4F 41   50 2D 45 4E 56 3D 22 68  mlns:SOAP-ENV="h
+  0100: 74 74 70 3A 2F 2F 73 63   68 65 6D 61 73 2E 78 6D  ttp://schemas.xm
+  0110: 6C 73 6F 61 70 2E 6F 72   67 2F 73 6F 61 70 2F 65  lsoap.org/soap/e
+  0120: 6E 76 65 6C 6F 70 65 2F   22 3E 3C 53 4F 41 50 2D  nvelope/"><SOAP-
+  0130: 45 4E 56 3A 48 65 61 64   65 72 2F 3E 3C 53 4F 41  ENV:Header/><SOA
+  0140: 50 2D 45 4E 56 3A 42 6F   64 79 3E 3C 6E 73 32 3A  P-ENV:Body><ns2:
+  0150: 54 65 6D 70 52 65 73 70   6F 6E 73 65 20 78 6D 6C  TempResponse xml
+  0160: 6E 73 3A 6E 73 32 3D 22   68 74 74 70 3A 2F 2F 6B  ns:ns2="http://k
+  0170: 73 2E 70 6C 2F 61 70 69   22 2F 3E 3C 2F 53 4F 41  s.pl/api"/></SOA
+  0180: 50 2D 45 4E 56 3A 42 6F   64 79 3E 3C 2F 53 4F 41  P-ENV:Body></SOA
+  0190: 50 2D 45 4E 56 3A 45 6E   76 65 6C 6F 70 65 3E     P-ENV:Envelope>
+)
+javax.net.ssl|DEBUG|33|https-jsse-nio-8443-exec-10|2020-12-15 21:27:00.640 CET|SSLEngineOutputRecord.java:282|Raw write (
+  0000: 17 03 03 01 B7 00 00 00   00 00 00 00 01 1A 35 84  ..............5.
+  0010: DD D0 73 C5 33 1D 64 D1   45 4D D2 C1 4F F2 CF A5  ..s.3.d.EM..O...
+  0020: 21 A5 47 6A 9E 23 63 44   0A E2 78 32 B3 14 BE 97  !.Gj.#cD..x2....
+  0030: 01 4D 43 21 58 F1 96 FC   8C 93 58 91 25 46 07 E8  .MC!X.....X.%F..
+  0040: BA 72 EC F5 24 DF 3D 61   17 37 F5 10 D3 67 77 4E  .r..$.=a.7...gwN
+  0050: 41 0B 5A 4B 47 5D 1A A0   22 35 E5 66 47 84 43 C1  A.ZKG].."5.fG.C.
+  0060: E8 07 81 4C CF 2F ED E4   8A D1 E6 98 DD 2B FB 9B  ...L./.......+..
+  0070: 00 FC C3 71 8A BF 3E BB   57 41 50 09 07 77 90 6A  ...q..>.WAP..w.j
+  0080: 11 81 4C 41 44 AD 5B B0   E7 D5 C5 46 98 C1 D2 33  ..LAD.[....F...3
+  0090: 42 C8 65 82 29 42 3B 61   E2 42 47 89 6E A5 15 AE  B.e.)B;a.BG.n...
+  00A0: A9 68 04 E4 7E 4A 67 BC   8B D3 FB 7F 66 A2 3E A6  .h...Jg.....f.>.
+  00B0: 3C 92 5E 14 C7 CA D8 D4   E0 CB D7 03 D0 8E DE 62  <.^............b
+  00C0: AC C7 FC BC 45 CF 24 9B   49 2B A8 43 C0 9B 23 DA  ....E.$.I+.C..#.
+  00D0: 77 0F F2 BA 79 97 EC E5   45 62 90 B2 3B 21 54 2E  w...y...Eb..;!T.
+  00E0: BF 78 19 07 95 36 30 B8   4B B8 F7 FC DF 42 EF 22  .x...60.K....B."
+  00F0: FB B2 75 1F AC 32 44 8D   39 EB 55 54 A4 FA AC 78  ..u..2D.9.UT...x
+  0100: D4 05 AD BF B7 59 A6 53   85 80 D4 02 93 30 09 DA  .....Y.S.....0..
+  0110: 38 7B D6 14 56 EE B6 FE   6D B5 DE FE 5F A2 30 1E  8...V...m..._.0.
+  0120: 73 5E F4 E6 61 67 C4 A3   52 A0 E0 E3 7B 27 2A 55  s^..ag..R....'*U
+  0130: 71 94 44 B9 FD 7F C2 24   C2 8A 90 93 66 E0 21 D7  q.D....$....f.!.
+  0140: 92 F4 6F DB 5B 95 E0 BA   B0 50 D7 C0 4F 22 41 D8  ..o.[....P..O"A.
+  0150: 2A 83 48 C0 4F 99 E9 1D   8A 3E 66 C1 09 46 22 66  *.H.O....>f..F"f
+  0160: F5 C1 CE BC 5F B2 86 83   A7 97 15 FE 67 05 0D 69  ...._.......g..i
+  0170: BC F2 75 65 E0 C3 19 E1   AE 1E 40 0B 37 3B AB 59  ..ue......@.7;.Y
+  0180: C4 CF C6 6F E0 30 B1 03   8D 0F 5B 26 24 CB 55 DA  ...o.0....[&$.U.
+  0190: 0C 88 BE 57 62 7D F2 16   E1 78 FC 13 C2 B5 5D 78  ...Wb....x....]x
+  01A0: FC 2D 4A 43 42 EB 44 4A   FE 78 33 89 FF 45 D3 E9  .-JCB.DJ.x3..E..
+  01B0: 9D D9 7A 2B 1B D0 EB 6A   D6 90 13 BA              ..z+...j....
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.640 CET|SSLSocketInputRecord.java:458|Raw read (
+  0000: 17 03 03 01 B7                                     .....
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.640 CET|SSLSocketInputRecord.java:213|READ: TLSv1.2 application_data, length = 439
+javax.net.ssl|ALL|33|https-jsse-nio-8443-exec-10|2020-12-15 21:27:00.640 CET|SSLEngineImpl.java:739|Closing outbound of SSLEngine
+javax.net.ssl|WARNING|33|https-jsse-nio-8443-exec-10|2020-12-15 21:27:00.640 CET|SSLEngineOutputRecord.java:168|outbound has closed, ignore outbound application data
+javax.net.ssl|DEBUG|33|https-jsse-nio-8443-exec-10|2020-12-15 21:27:00.640 CET|SSLEngineOutputRecord.java:505|WRITE: TLS12 alert, length = 2
+javax.net.ssl|DEBUG|33|https-jsse-nio-8443-exec-10|2020-12-15 21:27:00.640 CET|SSLCipher.java:1743|Plaintext before ENCRYPTION (
+  0000: 01 00                                              ..
+)
+javax.net.ssl|DEBUG|33|https-jsse-nio-8443-exec-10|2020-12-15 21:27:00.640 CET|SSLEngineOutputRecord.java:523|Raw write (
+  0000: 15 03 03 00 1A 00 00 00   00 00 00 00 02 DB BD B3  ................
+  0010: 73 AB 3C A3 6E 0D 28 0D   3A 2D 61 96 0E 06 8D     s.<.n.(.:-a....
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.640 CET|SSLSocketInputRecord.java:458|Raw read (
+  0000: 00 00 00 00 00 00 00 01   1A 35 84 DD D0 73 C5 33  .........5...s.3
+  0010: 1D 64 D1 45 4D D2 C1 4F   F2 CF A5 21 A5 47 6A 9E  .d.EM..O...!.Gj.
+  0020: 23 63 44 0A E2 78 32 B3   14 BE 97 01 4D 43 21 58  #cD..x2.....MC!X
+  0030: F1 96 FC 8C 93 58 91 25   46 07 E8 BA 72 EC F5 24  .....X.%F...r..$
+  0040: DF 3D 61 17 37 F5 10 D3   67 77 4E 41 0B 5A 4B 47  .=a.7...gwNA.ZKG
+  0050: 5D 1A A0 22 35 E5 66 47   84 43 C1 E8 07 81 4C CF  ].."5.fG.C....L.
+  0060: 2F ED E4 8A D1 E6 98 DD   2B FB 9B 00 FC C3 71 8A  /.......+.....q.
+  0070: BF 3E BB 57 41 50 09 07   77 90 6A 11 81 4C 41 44  .>.WAP..w.j..LAD
+  0080: AD 5B B0 E7 D5 C5 46 98   C1 D2 33 42 C8 65 82 29  .[....F...3B.e.)
+  0090: 42 3B 61 E2 42 47 89 6E   A5 15 AE A9 68 04 E4 7E  B;a.BG.n....h...
+  00A0: 4A 67 BC 8B D3 FB 7F 66   A2 3E A6 3C 92 5E 14 C7  Jg.....f.>.<.^..
+  00B0: CA D8 D4 E0 CB D7 03 D0   8E DE 62 AC C7 FC BC 45  ..........b....E
+  00C0: CF 24 9B 49 2B A8 43 C0   9B 23 DA 77 0F F2 BA 79  .$.I+.C..#.w...y
+  00D0: 97 EC E5 45 62 90 B2 3B   21 54 2E BF 78 19 07 95  ...Eb..;!T..x...
+  00E0: 36 30 B8 4B B8 F7 FC DF   42 EF 22 FB B2 75 1F AC  60.K....B."..u..
+  00F0: 32 44 8D 39 EB 55 54 A4   FA AC 78 D4 05 AD BF B7  2D.9.UT...x.....
+  0100: 59 A6 53 85 80 D4 02 93   30 09 DA 38 7B D6 14 56  Y.S.....0..8...V
+  0110: EE B6 FE 6D B5 DE FE 5F   A2 30 1E 73 5E F4 E6 61  ...m..._.0.s^..a
+  0120: 67 C4 A3 52 A0 E0 E3 7B   27 2A 55 71 94 44 B9 FD  g..R....'*Uq.D..
+  0130: 7F C2 24 C2 8A 90 93 66   E0 21 D7 92 F4 6F DB 5B  ..$....f.!...o.[
+  0140: 95 E0 BA B0 50 D7 C0 4F   22 41 D8 2A 83 48 C0 4F  ....P..O"A.*.H.O
+  0150: 99 E9 1D 8A 3E 66 C1 09   46 22 66 F5 C1 CE BC 5F  ....>f..F"f...._
+  0160: B2 86 83 A7 97 15 FE 67   05 0D 69 BC F2 75 65 E0  .......g..i..ue.
+  0170: C3 19 E1 AE 1E 40 0B 37   3B AB 59 C4 CF C6 6F E0  .....@.7;.Y...o.
+  0180: 30 B1 03 8D 0F 5B 26 24   CB 55 DA 0C 88 BE 57 62  0....[&$.U....Wb
+  0190: 7D F2 16 E1 78 FC 13 C2   B5 5D 78 FC 2D 4A 43 42  ....x....]x.-JCB
+  01A0: EB 44 4A FE 78 33 89 FF   45 D3 E9 9D D9 7A 2B 1B  .DJ.x3..E....z+.
+  01B0: D0 EB 6A D6 90 13 BA                               ..j....
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.640 CET|SSLSocketInputRecord.java:249|READ: TLSv1.2 application_data, length = 439
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.641 CET|SSLCipher.java:1645|Plaintext after DECRYPTION (
+  0000: 48 54 54 50 2F 31 2E 31   20 32 30 30 20 0D 0A 43  HTTP/1.1 200 ..C
+  0010: 6F 6E 6E 65 63 74 69 6F   6E 3A 20 63 6C 6F 73 65  onnection: close
+  0020: 0D 0A 41 63 63 65 70 74   3A 20 74 65 78 74 2F 78  ..Accept: text/x
+  0030: 6D 6C 2C 20 74 65 78 74   2F 68 74 6D 6C 2C 20 69  ml, text/html, i
+  0040: 6D 61 67 65 2F 67 69 66   2C 20 69 6D 61 67 65 2F  mage/gif, image/
+  0050: 6A 70 65 67 2C 20 2A 3B   20 71 3D 2E 32 2C 20 2A  jpeg, *; q=.2, *
+  0060: 2F 2A 3B 20 71 3D 2E 32   0D 0A 53 4F 41 50 41 63  /*; q=.2..SOAPAc
+  0070: 74 69 6F 6E 3A 20 22 22   0D 0A 43 6F 6E 74 65 6E  tion: ""..Conten
+  0080: 74 2D 54 79 70 65 3A 20   74 65 78 74 2F 78 6D 6C  t-Type: text/xml
+  0090: 3B 63 68 61 72 73 65 74   3D 75 74 66 2D 38 0D 0A  ;charset=utf-8..
+  00A0: 43 6F 6E 74 65 6E 74 2D   4C 65 6E 67 74 68 3A 20  Content-Length:
+  00B0: 31 39 35 0D 0A 44 61 74   65 3A 20 54 75 65 2C 20  195..Date: Tue,
+  00C0: 31 35 20 44 65 63 20 32   30 32 30 20 32 30 3A 32  15 Dec 2020 20:2
+  00D0: 37 3A 30 30 20 47 4D 54   0D 0A 0D 0A 3C 53 4F 41  7:00 GMT....<SOA
+  00E0: 50 2D 45 4E 56 3A 45 6E   76 65 6C 6F 70 65 20 78  P-ENV:Envelope x
+  00F0: 6D 6C 6E 73 3A 53 4F 41   50 2D 45 4E 56 3D 22 68  mlns:SOAP-ENV="h
+  0100: 74 74 70 3A 2F 2F 73 63   68 65 6D 61 73 2E 78 6D  ttp://schemas.xm
+  0110: 6C 73 6F 61 70 2E 6F 72   67 2F 73 6F 61 70 2F 65  lsoap.org/soap/e
+  0120: 6E 76 65 6C 6F 70 65 2F   22 3E 3C 53 4F 41 50 2D  nvelope/"><SOAP-
+  0130: 45 4E 56 3A 48 65 61 64   65 72 2F 3E 3C 53 4F 41  ENV:Header/><SOA
+  0140: 50 2D 45 4E 56 3A 42 6F   64 79 3E 3C 6E 73 32 3A  P-ENV:Body><ns2:
+  0150: 54 65 6D 70 52 65 73 70   6F 6E 73 65 20 78 6D 6C  TempResponse xml
+  0160: 6E 73 3A 6E 73 32 3D 22   68 74 74 70 3A 2F 2F 6B  ns:ns2="http://k
+  0170: 73 2E 70 6C 2F 61 70 69   22 2F 3E 3C 2F 53 4F 41  s.pl/api"/></SOA
+  0180: 50 2D 45 4E 56 3A 42 6F   64 79 3E 3C 2F 53 4F 41  P-ENV:Body></SOA
+  0190: 50 2D 45 4E 56 3A 45 6E   76 65 6C 6F 70 65 3E     P-ENV:Envelope>
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.642 CET|SSLSocketImpl.java:670|close outbound of SSLSocket
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.642 CET|SSLSocketOutputRecord.java:71|WRITE: TLS12 alert(close_notify), length = 10
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.642 CET|SSLCipher.java:1743|Plaintext before ENCRYPTION (
+  0000: 01 00                                              ..
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.642 CET|SSLSocketOutputRecord.java:85|Raw write (
+  0000: 15 03 03 00 1A 00 00 00   00 00 00 00 02 3A 6A 7F  .............:j.
+  0010: 18 08 DC 64 88 9E 49 52   CE 6A 00 C8 C1 5D 78     ...d..IR.j...]x
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.642 CET|SSLSocketImpl.java:636|close inbound of SSLSocket
+javax.net.ssl|ERROR|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.644 CET|TransportContext.java:312|Fatal (INTERNAL_ERROR): closing inbound before receiving peer's close_notify (
+"throwable" : {
+  javax.net.ssl.SSLException: closing inbound before receiving peer's close_notify
+  	at java.base/sun.security.ssl.Alert.createSSLException(Alert.java:133)
+  	at java.base/sun.security.ssl.Alert.createSSLException(Alert.java:117)
+  	at java.base/sun.security.ssl.TransportContext.fatal(TransportContext.java:307)
+  	at java.base/sun.security.ssl.TransportContext.fatal(TransportContext.java:263)
+  	at java.base/sun.security.ssl.TransportContext.fatal(TransportContext.java:254)
+  	at java.base/sun.security.ssl.SSLSocketImpl.shutdownInput(SSLSocketImpl.java:645)
+  	at java.base/sun.security.ssl.SSLSocketImpl.shutdownInput(SSLSocketImpl.java:624)
+  	at org.apache.http.impl.BHttpConnectionBase.close(BHttpConnectionBase.java:325)
+  	at org.apache.http.impl.conn.LoggingManagedHttpClientConnection.close(LoggingManagedHttpClientConnection.java:81)
+  	at org.apache.http.impl.conn.CPoolEntry.closeConnection(CPoolEntry.java:70)
+  	at org.apache.http.impl.conn.CPoolProxy.close(CPoolProxy.java:86)
+  	at org.apache.http.impl.execchain.ConnectionHolder.releaseConnection(ConnectionHolder.java:103)
+  	at org.apache.http.impl.execchain.ConnectionHolder.releaseConnection(ConnectionHolder.java:120)
+  	at org.apache.http.impl.execchain.ResponseEntityProxy.releaseConnection(ResponseEntityProxy.java:76)
+  	at org.apache.http.impl.execchain.ResponseEntityProxy.eofDetected(ResponseEntityProxy.java:121)
+  	at org.apache.http.conn.EofSensorInputStream.checkEOF(EofSensorInputStream.java:199)
+  	at org.apache.http.conn.EofSensorInputStream.read(EofSensorInputStream.java:136)
+  	at org.springframework.ws.transport.TransportInputStream.read(TransportInputStream.java:86)
+  	at java.base/java.io.BufferedInputStream.fill(BufferedInputStream.java:252)
+  	at java.base/java.io.BufferedInputStream.read1(BufferedInputStream.java:292)
+  	at java.base/java.io.BufferedInputStream.read(BufferedInputStream.java:351)
+  	at java.base/java.io.FilterInputStream.read(FilterInputStream.java:133)
+  	at java.base/java.io.PushbackInputStream.read(PushbackInputStream.java:183)
+  	at com.sun.xml.messaging.saaj.util.ByteOutputStream.write(ByteOutputStream.java:66)
+  	at com.sun.xml.messaging.saaj.util.JAXMStreamSource.<init>(JAXMStreamSource.java:45)
+  	at com.sun.xml.messaging.saaj.soap.SOAPPartImpl.setContent(SOAPPartImpl.java:255)
+  	at com.sun.xml.messaging.saaj.soap.MessageImpl.init(MessageImpl.java:414)
+  	at com.sun.xml.messaging.saaj.soap.MessageImpl.<init>(MessageImpl.java:307)
+  	at com.sun.xml.messaging.saaj.soap.ver1_1.Message1_1Impl.<init>(Message1_1Impl.java:51)
+  	at com.sun.xml.messaging.saaj.soap.ver1_1.SOAPMessageFactory1_1Impl.createMessage(SOAPMessageFactory1_1Impl.java:51)
+  	at org.springframework.ws.soap.saaj.SaajSoapMessageFactory.createWebServiceMessage(SaajSoapMessageFactory.java:190)
+  	at org.springframework.ws.soap.saaj.SaajSoapMessageFactory.createWebServiceMessage(SaajSoapMessageFactory.java:62)
+  	at org.springframework.ws.transport.AbstractWebServiceConnection.receive(AbstractWebServiceConnection.java:92)
+  	at org.springframework.ws.client.core.WebServiceTemplate.doSendAndReceive(WebServiceTemplate.java:611)
+  	at org.springframework.ws.client.core.WebServiceTemplate.sendAndReceive(WebServiceTemplate.java:555)
+  	at org.springframework.ws.client.core.WebServiceTemplate.marshalSendAndReceive(WebServiceTemplate.java:390)
+  	at org.springframework.ws.client.core.WebServiceTemplate.marshalSendAndReceive(WebServiceTemplate.java:383)
+  	at org.springframework.ws.client.core.WebServiceTemplate.marshalSendAndReceive(WebServiceTemplate.java:373)
+  	at pl.ks.jdkbug.ws.client.WebServiceProxy.invokeMethod(WebServiceProxy.java:69)
+  	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)
+  	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:215)
+  	at com.sun.proxy.$Proxy51.temp(Unknown Source)
+  	at pl.ks.jdkbug.ws.client.ClientController.get(ClientController.java:22)
+  	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+  	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+  	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+  	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+  	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:197)
+  	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:141)
+  	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:106)
+  	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:894)
+  	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:808)
+  	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+  	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1061)
+  	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:961)
+  	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)
+  	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:898)
+  	at javax.servlet.http.HttpServlet.service(HttpServlet.java:626)
+  	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)
+  	at javax.servlet.http.HttpServlet.service(HttpServlet.java:733)
+  	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)
+  	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+  	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)
+  	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+  	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+  	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+  	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+  	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+  	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+  	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+  	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+  	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+  	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+  	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+  	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+  	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+  	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+  	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:202)
+  	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:97)
+  	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:542)
+  	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:143)
+  	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)
+  	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:78)
+  	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:343)
+  	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:374)
+  	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:65)
+  	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:888)
+  	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1597)
+  	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)
+  	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+  	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+  	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+  	at java.base/java.lang.Thread.run(Thread.java:834)}
+
+)
+javax.net.ssl|ALL|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.644 CET|SSLSessionImpl.java:795|Invalidated session:  Session(1608064020621|TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.644 CET|SSLSocketImpl.java:1360|close the underlying socket
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.644 CET|SSLSocketImpl.java:1379|close the SSL connection (initiative)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.645 CET|SSLEngineOutputRecord.java:266|WRITE: TLS13 application_data, length = 145
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.645 CET|SSLCipher.java:2036|Plaintext before ENCRYPTION (
+  0000: 48 54 54 50 2F 31 2E 31   20 32 30 30 20 0D 0A 54  HTTP/1.1 200 ..T
+  0010: 72 61 6E 73 66 65 72 2D   45 6E 63 6F 64 69 6E 67  ransfer-Encoding
+  0020: 3A 20 63 68 75 6E 6B 65   64 0D 0A 44 61 74 65 3A  : chunked..Date:
+  0030: 20 54 75 65 2C 20 31 35   20 44 65 63 20 32 30 32   Tue, 15 Dec 202
+  0040: 30 20 32 30 3A 32 37 3A   30 30 20 47 4D 54 0D 0A  0 20:27:00 GMT..
+  0050: 4B 65 65 70 2D 41 6C 69   76 65 3A 20 74 69 6D 65  Keep-Alive: time
+  0060: 6F 75 74 3D 36 30 0D 0A   43 6F 6E 6E 65 63 74 69  out=60..Connecti
+  0070: 6F 6E 3A 20 6B 65 65 70   2D 61 6C 69 76 65 0D 0A  on: keep-alive..
+  0080: 0D 0A 61 0D 0A 57 53 20   49 6E 76 6F 6B 65 64 0D  ..a..WS Invoked.
+  0090: 0A 17 00 00 00 00 00 00   00 00 00 00 00 00 00 00  ................
+  00A0: 00 00                                              ..
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.646 CET|SSLEngineOutputRecord.java:282|Raw write (
+  0000: 17 03 03 00 B2 44 84 8A   1F 51 8D C9 96 B6 7E 57  .....D...Q.....W
+  0010: 9C 74 4E AD 8C 08 95 D2   69 31 8A 16 68 F7 C0 5E  .tN.....i1..h..^
+  0020: B3 1F 8E 76 81 6F 44 8D   0F 04 A9 74 97 3D 9F DD  ...v.oD....t.=..
+  0030: 54 76 57 54 77 5C 22 E1   45 D6 80 CA D6 23 D3 9B  TvWTw\".E....#..
+  0040: 80 21 04 B5 78 7C 35 12   41 63 38 C6 D2 FC 83 B8  .!..x.5.Ac8.....
+  0050: 03 38 D7 3E D5 D8 FC 12   9D F3 E6 B0 75 47 F9 E9  .8.>........uG..
+  0060: 1B 90 DF 95 A6 51 8F D3   A0 9B 6D B5 8C 2C 13 9F  .....Q....m..,..
+  0070: 17 7D C3 41 CD A4 4D 56   94 3F 06 9A 26 54 00 79  ...A..MV.?..&T.y
+  0080: 10 81 4A 40 59 06 EF 92   96 FF F1 66 49 C5 B1 DB  ..J@Y......fI...
+  0090: 6D 82 01 56 D8 AC 09 46   0D ED BF AF AE 32 61 D8  m..V...F.....2a.
+  00A0: 1B 63 56 31 F4 70 B3 C7   2D 3D A4 7C DB 08 2C 2E  .cV1.p..-=....,.
+  00B0: 66 E2 A2 BB AC 21 00                               f....!.
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.646 CET|SSLEngineOutputRecord.java:266|WRITE: TLS13 application_data, length = 5
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.646 CET|SSLCipher.java:2036|Plaintext before ENCRYPTION (
+  0000: 30 0D 0A 0D 0A 17 00 00   00 00 00 00 00 00 00 00  0...............
+  0010: 00 00 00 00 00 00                                  ......
+)
+javax.net.ssl|DEBUG|2C|https-jsse-nio-8443-exec-3|2020-12-15 21:27:00.646 CET|SSLEngineOutputRecord.java:282|Raw write (
+  0000: 17 03 03 00 26 B8 F9 FB   E2 4D A1 38 08 BA D7 9B  ....&....M.8....
+  0010: 63 A0 24 4A 2D 6D D8 EB   73 39 0F B8 72 63 DE A0  c.$J-m..s9..rc..
+  0020: A1 8D C7 1B 41 92 E0 E7   DD 33 8E                 ....A....3.
+)
+2020-12-15 21:27:00.645  INFO 8835 --- [nio-8443-exec-3] pl.ks.jdkbug.ws.client.ClientController  : WS Invoked
