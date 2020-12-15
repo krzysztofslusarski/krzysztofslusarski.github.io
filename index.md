@@ -12,6 +12,8 @@ layout: default
 
 [Can G1GC cause outage?](2020/11/29/g1outage.html)
 
+[From one JDK bug to another?](2020/12/14/jdkbugs.html)
+
 ## My open source projects
 ### Aync-profiler utils
 I created some tools that help me with profiling big application with [Async-profiler](https://github.com/jvm-profiling-tools/async-profiler): 
