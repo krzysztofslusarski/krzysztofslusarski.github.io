@@ -20,7 +20,7 @@ I created some tools that help me with profiling big application with [Async-pro
 * [Collapsed stack viewer](https://github.com/krzysztofslusarski/collapsed-stack-viewer)
 * [Collapse JFR](https://github.com/krzysztofslusarski/collapse-jfr)
 
-#$# JVM/GC logs analyzer
+### JVM/GC logs analyzer
 Here is my open source JVM and GC logs analyzer:
 * Source code is available [here](https://github.com/krzysztofslusarski/jvm-gc-logs-analyzer) 
 * Web part is deployed on [gclogs.com](http://gclogs.com/)
