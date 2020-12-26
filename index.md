@@ -19,6 +19,7 @@ layout: default
 I created some tools that help me with profiling big application with [Async-profiler](https://github.com/jvm-profiling-tools/async-profiler): 
 * [Collapsed stack viewer](https://github.com/krzysztofslusarski/collapsed-stack-viewer)
 * [Collapse JFR](https://github.com/krzysztofslusarski/collapse-jfr)
+* [Continuous async-profiler](https://github.com/krzysztofslusarski/continuous-async-profiler)
 
 ### JVM/GC logs analyzer
 Here is my open source JVM and GC logs analyzer:
