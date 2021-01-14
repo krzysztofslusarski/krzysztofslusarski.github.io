@@ -1,10 +1,10 @@
 ---
 layout: default
-title:  "[Java][JVM][Tuning][Profiling][G1] How inefficient algorithm can degrade performance with innocent G1GC in the middle? _Humongous object_ strikes back"
+title:  "[Java][JVM][Tuning][Profiling][G1] How can an inefficient algorithm degrade performance with innocent G1GC in the middle? _Humongous object_ strikes back"
 date:   2021-01-14 09:51:30 +0100
 ---
 
-# [Java][JVM][Tuning][Profiling][G1] How inefficient algorithm can degrade performance with innocent G1GC in the middle? _Humongous object_ strikes back
+# [Java][JVM][Tuning][Profiling][G1] How can an inefficient algorithm degrade performance with innocent G1GC in the middle? _Humongous object_ strikes back
 ## Profiled application
 
 * **JDK 11u6** from Amazon, deployed on Linux
