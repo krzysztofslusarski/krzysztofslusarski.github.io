@@ -14,7 +14,7 @@ layout: default
 
 [From one JDK bug to another?](2020/12/14/jdkbugs.html)
 
-[How inefficient algorithm can degrade performance with innocent G1GC in the middle? _Humongous object_ strikes back](2021/01/14/laziness.html)
+[How inefficient algorithm can degrade performance with innocent G1GC in the middle? _Humongous object_ strikes back](2021/01/14/inefficient.html)
 
 ## My open source projects
 ### Aync-profiler utils
