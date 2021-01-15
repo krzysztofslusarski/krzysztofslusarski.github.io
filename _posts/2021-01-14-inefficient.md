@@ -165,3 +165,36 @@ To fix the problem you have to change ```containsAny``` method to the implementa
         return false;
     }
 ```
+
+## Simplified application - CPU usage with different cache size
+
+If you run simplified application with java arguments mentioned in javadoc you get a following CPU consumption:
+```
+pasq@pasq-MS-7C37:~$ pidstat -p `pgrep -f NewHumongous` 1
+Linux 5.4.0-60-generic (pasq-MS-7C37) 	15.01.2021 	_x86_64_	(24 CPU)
+
+08:24:25      UID       PID    %usr %system  %guest   %wait    %CPU   CPU  Command
+08:24:26     1000     12352  219,00    0,00    0,00    0,00  219,00     4  java
+08:24:27     1000     12352  211,00    1,00    0,00    0,00  212,00     4  java
+08:24:28     1000     12352  224,00    1,00    0,00    0,00  225,00     4  java
+08:24:29     1000     12352  214,00    1,00    0,00    0,00  215,00     4  java
+08:24:30     1000     12352  212,00    4,00    0,00    0,00  216,00     4  java
+08:24:31     1000     12352  213,00    2,00    0,00    0,00  215,00     4  java
+```
+
+Funny part starts when you change ```CACHE``` size from ```50_000``` to ```45_000```. Here is a CPU consumption for such a case:
+
+```
+pasq@pasq-MS-7C37:~$ pidstat -p `pgrep -f NewHumongous` 1
+Linux 5.4.0-60-generic (pasq-MS-7C37) 	15.01.2021 	_x86_64_	(24 CPU)
+
+08:26:00      UID       PID    %usr %system  %guest   %wait    %CPU   CPU  Command
+08:26:01     1000     12539  102,00    0,00    0,00    0,00  102,00     9  java
+08:26:02     1000     12539  102,00    0,00    0,00    0,00  102,00     9  java
+08:26:03     1000     12539  102,00    0,00    0,00    0,00  102,00     9  java
+08:26:04     1000     12539  103,00    0,00    0,00    0,00  103,00     9  java
+08:26:05     1000     12539  101,00    0,00    0,00    0,00  101,00     9  java
+08:26:06     1000     12539  102,00    0,00    0,00    0,00  102,00     9  java
+```  
+ 
+Decreasing ```CACHE``` size made it not _humongous_ and CPU consumption droped from **215%** to **100%**. 
