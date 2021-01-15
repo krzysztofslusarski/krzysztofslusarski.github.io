@@ -25,11 +25,12 @@ In such a situation I like to start with checking how my JVM works at the operat
 * ```pidstat```
 * ...
 
-Let's focus on the last one. After running ```pidstat -t 1``` I can see which **Java thread consumes CPU**. Because this is JVM in **version 11.x** the thread 
-name set in Java is visible from OS level. If you want such a feature in **version 8.x** you have to compile it by your own, here is the
-[tutorial](https://www.infobip.com/blog/fixing-the-tool). Output of the mentioned command (I removed irrelevant part):
+Let's focus on the last one. After running ```pidstat -t 1``` I can see which **Java thread consumes CPU** in 1 second interval. Because this is 
+JVM in **version 11.x** the thread name set in Java is visible from OS level. If you want such a feature in **version 8.x** you have to compile it by your own, 
+here is [the tutorial](https://www.infobip.com/blog/fixing-the-tool). Output of the mentioned command (I removed irrelevant part):
 
 ```
+[root@prod******* ~]# pidstat -t 1
 21:35:02      UID      TGID       TID    %usr %system  %guest   %wait    %CPU   CPU  Command
 21:35:03     1000     10089         -    0,00    3,00    0,00    0,00    3,00     2  pidstat
 21:35:03     1000         -     10089    0,00    3,00    0,00    0,00    3,00     2  |__pidstat
@@ -40,6 +41,10 @@ name set in Java is visible from OS level. If you want such a feature in **versi
 21:35:03     1000         -     10135   25,00    0,00    0,00    0,00   25,00    20  |__G1 Refine#0
 ...
 ```
+
+A little output explanation:
+* **%CPU** - how much one thread consumed CPU in the last second
+* **Command** - from our point of view this is a Java thread name  
 
 What I could see is that ```G1 Conc#0``` thread was consuming **91%** of the CPU (it means **91% of one core**, not the whole CPU). This thread is responsible for 
 marking live objects in _concurrent mark_ phase of the G1 algorithm. This phase should be run when the G1 decides that the _old generation_ should be cleaned soon.
@@ -168,7 +173,7 @@ To fix the problem you have to change ```containsAny``` method to the implementa
 
 ## Simplified application - CPU usage with different cache size
 
-If you run a simplified application with arguments mentioned in the javadoc you get a following CPU consumption:
+If you run a simplified application with arguments mentioned in the javadoc you get a following **CPU** consumption:
 ```
 pasq@pasq-MS-7C37:~$ pidstat -p `pgrep -f NewHumongous` 1
 Linux 5.4.0-60-generic (pasq-MS-7C37) 	15.01.2021 	_x86_64_	(24 CPU)
@@ -182,7 +187,7 @@ Linux 5.4.0-60-generic (pasq-MS-7C37) 	15.01.2021 	_x86_64_	(24 CPU)
 08:24:31     1000     12352  213,00    2,00    0,00    0,00  215,00     4  java
 ```
 
-Funny part starts when you change ```CACHE``` size from ```50_000``` to ```45_000```. Here is a CPU consumption for such a case:
+Funny part starts when you change ```CACHE``` size from ```50_000``` to ```45_000```. Here is a **CPU** consumption for such a case:
 
 ```
 pasq@pasq-MS-7C37:~$ pidstat -p `pgrep -f NewHumongous` 1
@@ -197,4 +202,4 @@ Linux 5.4.0-60-generic (pasq-MS-7C37) 	15.01.2021 	_x86_64_	(24 CPU)
 08:26:06     1000     12539  102,00    0,00    0,00    0,00  102,00     9  java
 ```  
  
-Decreasing ```CACHE``` size made it not _humongous_ and CPU consumption droped from **215%** to **100%**. 
+Decreasing ```CACHE``` size made it not _humongous_ and **CPU** consumption dropped from **215%** to **100%**. 
