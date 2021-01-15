@@ -168,7 +168,7 @@ To fix the problem you have to change ```containsAny``` method to the implementa
 
 ## Simplified application - CPU usage with different cache size
 
-If you run simplified application with java arguments mentioned in javadoc you get a following CPU consumption:
+If you run a simplified application with arguments mentioned in the javadoc you get a following CPU consumption:
 ```
 pasq@pasq-MS-7C37:~$ pidstat -p `pgrep -f NewHumongous` 1
 Linux 5.4.0-60-generic (pasq-MS-7C37) 	15.01.2021 	_x86_64_	(24 CPU)
