@@ -16,6 +16,8 @@ layout: default
 
 [How can inefficient algorithm degrade performance with innocent G1GC in the middle? _Humongous object_ strikes back](2021/01/14/inefficient.html)
 
+[Spring Boot + Spring Security + Apereo CAS + Concurrent Session Control = Heap memory leak](2021/02/26/casboot.html)
+
 ## My open source projects
 ### Aync-profiler utils
 I created some tools that help me with profiling big application with [Async-profiler](https://github.com/jvm-profiling-tools/async-profiler): 
