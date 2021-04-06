@@ -18,6 +18,9 @@ layout: default
 
 [Spring Boot + Spring Security + Apereo CAS + Concurrent Session Control = Heap memory leak](2021/02/26/casboot.html)
 
+## Other articles
+[Spring Boot + good old JSP/Tags = disaster](2021/04/04/bootjsp.html)
+
 ## My open source projects
 ### Aync-profiler utils
 I created some tools that help me with profiling big application with [Async-profiler](https://github.com/jvm-profiling-tools/async-profiler): 
