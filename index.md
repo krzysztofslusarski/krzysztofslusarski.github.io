@@ -18,6 +18,8 @@ layout: default
 
 [Spring Boot + Spring Security + Apereo CAS + Concurrent Session Control = Heap memory leak](2021/02/26/casboot.html)
 
+[Spring Session JDBC + Apereo CAS = Heap memory leak, and it is a documented feature](2021/05/13/casspringjdbc.html)
+
 ## Other articles
 [Spring Boot + good old JSP/Tags = disaster](2021/04/04/bootjsp.html)
 
