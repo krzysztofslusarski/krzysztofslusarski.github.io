@@ -6,7 +6,7 @@ date:   2021-05-13 09:51:30 +0100
 
 # [Java][JVM][Memory leak][Profiling][Spring] Spring Session JDBC + Apereo CAS = Heap memory leak, and it is a documented feature
 ## Before you read this article
-Make sure you have read my [previous article](https://krzysztofslusarski.github.io/2021/02/26/casboot.html) about a Spring + CAS memory leak. 
+Make sure you have read my [previous article](https://krzysztofslusarski.github.io/2021/02/26/casboot.html) about a _Spring_ + _CAS_ memory leak. 
 
 ## How a _CAS client_ removes a _HTTP Session_ from its storage 
 
