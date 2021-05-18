@@ -20,6 +20,8 @@ layout: default
 
 [Spring Session JDBC + Apereo CAS = Heap memory leak, and it is a documented feature](2021/05/13/casspringjdbc.html)
 
+[Full GC every hour after deploying new application version](2021/05/16/fullgc.html)
+
 ## Other articles
 [Spring Boot + good old JSP/Tags = disaster](2021/04/04/bootjsp.html)
 

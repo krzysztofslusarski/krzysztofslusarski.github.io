@@ -89,7 +89,7 @@ public void cleanUpExpiredSessions() {
 
 Possible hacks that I can think of:
 * Create custom implementation of ```SessionRepository``` that extends ```JdbcIndexedSessionRepository``` and change the implementation of that cleaning -
-expired sessions - hard in multi-node deployment, but doable
+hard in multi-node deployment, but doable
 * Create a _trigger_ on _delete_ on DB level, that will store sessions that should be invalidated in a separate table. This also needs some ```@Scheduled```
 job to scan that table in order to invalidate such sessions. 
 
