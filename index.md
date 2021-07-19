@@ -2,7 +2,7 @@
 layout: default
 ---
 
-## Monday with the JVM logs
+## Monday with JVM logs
 
 [Introduction and safepoints logs](2021/07/16/monday-intro.html)
 

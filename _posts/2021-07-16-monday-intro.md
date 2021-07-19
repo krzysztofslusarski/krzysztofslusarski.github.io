@@ -4,7 +4,7 @@ title:  "[Java][JVM Logs] Monday with JVM logs - introduction and safepoints log
 date:   2021-07-16 09:51:30 +0100
 ---
 
-# [Java][JVM Logs] Monday with the JVM logs - introduction and safepoints logs
+# [Java][JVM Logs] Monday with JVM logs - introduction and safepoints logs
 The JVM logs are **a powerful source of knowledge** on how our application works on the virtual machine.
 Unfortunately they are not very well documented. In this series of articles I will try to show you what you can
 read from them. I will not cover how the JVM works, but I will add references if I have one.
