@@ -1,6 +1,11 @@
 ---
 layout: default
 ---
+
+[comment]: <> (## Monday with the JVM logs)
+
+[comment]: <> ([Introduction]&#40;2021/07/16/monday-intro.html&#41;)
+
 ## My articles about JVM performance and tuning
 [Biased lock disabled, again](2020/11/09/biased.html)
 
