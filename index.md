@@ -6,7 +6,7 @@ layout: default
 
 [Introduction and safepoints logs](2021/07/16/monday-intro.html)
 
-[//]: [Heap after GC - do I have a memory leak?](2021/07/17/monday-hagc.html)
+[Heap after GC - do I have a memory leak?](2021/07/17/monday-hagc.html)
 
 ## My articles about JVM performance and tuning
 [Biased lock disabled, again](2020/11/09/biased.html)
