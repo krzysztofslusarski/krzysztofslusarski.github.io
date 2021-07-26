@@ -39,7 +39,7 @@ You can find **three** sizes in such an entry **A->B(C)** that are:
 * **B** - used size of a heap after _GC cycle_
 * **C** - current size of a whole heap
 
-If we take the **A** value from each collection and put it on a chart we can generate _Heap after GC_ chart. From such a chart we can detect if we have a 
+If we take the **B** value from each collection and put it on a chart we can generate _Heap after GC_ chart. From such a chart we can detect if we have a 
 memory leak on a heap. If a chart looks like those (those are charts from **7 days** period):
 
 ![alt text](/assets/monday-2/1.jpg "1")
