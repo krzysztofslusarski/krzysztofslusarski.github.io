@@ -43,8 +43,8 @@ Each chart contains **three** groups of points. Let's focus on the second graph.
 * sometimes between **2,5GB** and **3,5GB**
 
 The third group of _collections_ is done by _concurrent_ part of **G1**. It can be started before _eden_ is filled with _Objects_. The second group
-is done by normal _young collection_ soon after _mixed collections_. It is done by **G1** _ergonomics_ which shrinks the _young generation_ to
-handle _mixed collections_ within **200ms** STW pause time (200ms is the default).
+is done by _mixed collections_. It is done by **G1** _ergonomics_ which shrinks the _young generation_ to handle _mixed collections_ within
+**200ms** STW pause time (200ms is the default).
 
 ## Bad examples
 
