@@ -22,22 +22,29 @@ You can find **three** sizes in such an entry **A->B(C)** that are:
 * **C** - current size of a whole heap
 
 If we take the **A** value from each collection and put it on a chart we can generate _Heap before GC_ chart. From such a chart we can find out when our
-_garbage collector_ starts it work. Hera are examples of such a chart from **G1** _collector_ (those are charts from **7/8days** period):
+_garbage collector_ starts it work.
+
+Here is an example of such a chart from **G1** _collector_ (this chart is from **1 day** period):
+
+![alt text](/assets/monday-3/7.jpg "7")
+
+That's what we would like that graph to look like. Most of the _collections_ are done when heap is almost full. That gap 
+between red and blue line is done by **G1** setting called ```-XX:G1ReservePercent=10```. The value **10** is the
+default value. This setting means that **G1** reserves **10%** of the whole heap as free, so it can copy living _Objects_ from _eden_ to _survivor_ space. 
+Usually that graph looks like:
 
 ![alt text](/assets/monday-3/3.jpg "3")
 
-![alt text](/assets/monday-3/6.jpg "6")
-
 ![alt text](/assets/monday-3/2.jpg "2")
 
-Each chart contains **two** groups of points. Let's focus on the last one. Max heap size is **8GB**, and the **G1** starts:
+Each chart contains **three** groups of points. Let's focus on the second graph. Max heap size is **8GB**, and the **G1** starts:
 * most of the time between **6GB** and **7GB**
 * sometimes between **4GB** and **5GB**
+* sometimes between **2,5GB** and **3,5GB**
 
-The second group of collections is done by _concurrent_ part of **G1**. It can be started before _eden_ is filled with _Objects_. 
-
-Why does **G1** start the _collection_ at **7GB** level? Well, you have one magic **G1** setting called ```-XX:G1ReservePercent=10```. The value **10** is the
-default one. This setting means that **G1** reserves **10%** of the whole heap as free, so it can copy living _Objects_ from _eden_ to _survivor_ space.
+The third group of _collections_ is done by _concurrent_ part of **G1**. It can be started before _eden_ is filled with _Objects_. The second group
+is done by normal _young collection_ soon after _mixed collections_. It is done by **G1** _ergonomics_ which shrinks the _young generation_ to
+handle _mixed collections_ within **200ms** STW pause time (200ms is the default).
 
 ## Bad examples
 
