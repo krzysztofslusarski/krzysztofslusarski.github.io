@@ -8,6 +8,8 @@ layout: default
 
 [Heap after GC - do I have a memory leak?](2021/07/17/monday-hagc.html)
 
+[Heap before GC - is my heap wasted?](2021/07/28/monday-hbgc.html)
+
 ## My articles about JVM performance and tuning
 [Biased lock disabled, again](2020/11/09/biased.html)
 

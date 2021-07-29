@@ -1,12 +1,10 @@
 ---
 layout: default
-title:  "[Java][JVM Logs][GC Logs] Monday with JVM logs - heap before GC"
-date:   2021-07-18 09:51:30 +0100
+title:  "[Java][JVM Logs][GC Logs][G1GC] Monday with JVM logs - heap before GC"
+date:   2021-07-28 09:51:30 +0100
 ---
 
-# [Java][JVM Logs][GC Logs] Monday with JVM logs - heap before GC - is my heap wasted?
-
-**article will be finished by 02.08.2021**
+# [Java][JVM Logs][GC Logs][G1GC] Monday with JVM logs - heap before GC - is my heap wasted?
 
 ## GC logs
 
