@@ -1,2 +1,0 @@
-[2021-07-28T16:16:34.218+0200][494592.129s][24449][info ][gc                   ] GC(9073) Pause Young (Normal) (G1 Evacuation Pause) 4195M->1188M(5120M) 29.701ms
-[2021-07-28T16:16:56.008+0200][494613.918s][24449][info ][gc                   ] GC(9074) Pause Young (Normal) (G1 Evacuation Pause) 4244M->1184M(5120M) 29.930ms
