@@ -1,5 +1,6 @@
 ---
 layout: default
+title: "JVM/Java profiling and tuning"
 ---
 
 ## Monday with JVM logs

@@ -14,3 +14,12 @@
 [2021-07-29T18:09:59.113+0200][1196902.228s][7506][info ][gc,start             ] GC(55651) Pause Remark
 [2021-07-29T18:10:01.466+0200][1196904.581s][7506][info ][gc,start             ] GC(55651) Pause Cleanup
 [2021-07-29T18:10:07.138+0200][1196910.253s][7506][info ][gc,start             ] GC(55652) Pause Young (Normal) (G1 Evacuation Pause)
+
+[2021-07-29T01:52:01.063+0200][1138224.178s][7506][debug][gc,ergo              ] GC(52633) Initiate concurrent cycle (concurrent cycle initiation requested)
+[2021-07-29T01:52:01.063+0200][1138224.178s][7506][info ][gc,start             ] GC(52633) Pause Young (Concurrent Start) (G1 Humongous Allocation)
+[2021-07-29T01:52:01.074+0200][1138224.188s][7506][info ][gc,heap              ] GC(52633) Eden regions: 50->0(405)
+[2021-07-29T01:52:01.074+0200][1138224.188s][7506][info ][gc,heap              ] GC(52633) Survivor regions: 2->2(149)
+[2021-07-29T01:52:01.074+0200][1138224.188s][7506][info ][gc,heap              ] GC(52633) Old regions: 824->824
+[2021-07-29T01:52:01.074+0200][1138224.188s][7506][info ][gc,heap              ] GC(52633) Humongous regions: 419->17
+[2021-07-29T01:52:01.074+0200][1138224.188s][7506][info ][gc,metaspace         ] GC(52633) Metaspace: 195313K->195313K(1228800K)
+[2021-07-29T01:52:01.074+0200][1138224.188s][7506][info ][gc                   ] GC(52633) Pause Young (Concurrent Start) (G1 Humongous Allocation) 2588M->1684M(8192M) 10.861ms
