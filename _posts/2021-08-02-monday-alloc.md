@@ -28,8 +28,15 @@ The first value in the example entries is the **uptime** of the JVM, let's call 
 ```
 
 The value **(A2 - B1) / (T2 - T1)** is called the **allocation rate**. This value means how many **MB per second** our
-application allocates the memory on the heap. If you want you can subtract also the pause time, but it usually makes
+application allocates the memory on the heap. If you want you can also   subtract also the pause time, but it usually makes
 no difference.
+
+In the example above the **allocation rate** is:
+```
+(4244 MB - 1188 MB) / (494613.918 s - 494592.129 s) =
+3056 MB / 21,789 s =
+140,25 MB/s
+``` 
 
 We can put that value on the chart (those are **1 day** charts);
 
@@ -39,7 +46,7 @@ We can put that value on the chart (those are **1 day** charts);
 
 ![alt text](/assets/monday-4/raw-3.jpg "3")
 
-Sometime such a chart is not clear, because spikes of allocation may occur. We can create the **average allocation rate** 
+Sometimes such a chart is not clear, because spikes of allocation may occur. We can create the **average allocation rate** 
 in some time period. Here are the examples:
 
 ![alt text](/assets/monday-4/avg-1.jpg "1")
@@ -62,8 +69,8 @@ Knowing that value, and the size of _young generation_ you can estimate how ofte
 
 First thing you need to understand is that _garbage collection_ **has nothing to do** with the allocation rate. 
 Your application is responsible for the allocation, not the _GC_. If you want to decrease the allocation rate, you need
-to tune your application. To do that, first you need to do is to find what part of your code is responsible for
-the majority of the allocation. On other words you need to find **hotspots** of the allocation. At the production
+to tune your application. To do that, first you need to find what part of your code is responsible for
+the majority of the allocation. In other words you need to find **hotspots** of the allocation. At the production
 environment you can use the **allocation profiler** based on the **JFR events**:
 
 * Java flight recorder / JDK mission control

@@ -11,6 +11,8 @@ title: "JVM/Java profiling and tuning"
 
 [Heap before GC - is my heap wasted?](2021/07/28/monday-hbgc.html)
 
+[Allocation rate](2021/08/02/monday-alloc.html)
+
 ## My articles about JVM performance and tuning
 [Biased lock disabled, again](2020/11/09/biased.html)
 
