@@ -63,7 +63,7 @@ Let's focus on the last one. That application allocates:
 
 ## Why is that value useful?
 
-Knowing that value, and the size of _young generation_ you can estimate how often your _garbage collector_ Knowing that and how long are your GC STW pauses
+Knowing that value, and the size of _young generation_ you can estimate how often your _garbage collector_ will run. Knowing that and how long your GC STW pauses last
 you can calculate responsiveness/SLA of your application.
 
 ## How can you decrease the allocation rate?
