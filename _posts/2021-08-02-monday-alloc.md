@@ -68,7 +68,7 @@ you can calculate responsiveness/SLA of your application.
 
 ## How can you decrease the allocation rate?
 
-First thing you need to understand is that _garbage collection_ **has nothing to do** with the allocation rate. 
+First thing you need to understand is that _garbage collector_ **has nothing to do** with the allocation rate. 
 Your application is responsible for the allocation, not the _GC_. If you want to decrease the allocation rate, you need
 to tune your application. To do that, first you need to find what part of your code is responsible for
 the majority of the allocation. In other words you need to find **hotspots** of the allocation. At the production
