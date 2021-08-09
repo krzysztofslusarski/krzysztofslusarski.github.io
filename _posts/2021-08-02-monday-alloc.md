@@ -28,7 +28,7 @@ The first value in the example entries is the **uptime** of the JVM, let's call 
 ```
 
 The value **(A2 - B1) / (T2 - T1)** is called the **allocation rate**. This value means how many **MB per second** our
-application allocates the memory on the heap. If you want you can also   subtract also the pause time, but it usually makes
+application allocates the memory on the heap. If you want you can also subtract the pause time, but it usually makes
 no difference.
 
 In the example above the **allocation rate** is:
