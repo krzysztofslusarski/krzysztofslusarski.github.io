@@ -50,11 +50,11 @@ In the last brackets you can see **the reason** why the **G1GC** starts the coll
 
 * ```System.gc()``` - pause triggered by calling ```Runtime.gc()``` method (yes ```Runtime```, it is not a mistake)
 * ```Heap Dump Initiated GC``` - pause triggered by request for a _heap dump_
-* ```G1 Evacuation Pause``` - classic reason for the GC, request for creating new object failed because there was not enough space
-* ```Metadata GC Threshold``` - it was a time to clean the _metaspace_
+* ```G1 Evacuation Pause``` - classic reason for the GC, request for creating new object failed because there was not enough space in the __eden__.
+* ```Metadata GC Threshold``` - it was a time to clean the _metaspace_, GC is also responsible for cleaning that area
 * ```G1 Humongous Allocation``` - request for creating new _humongous object_ failed
-* ```GCLocker Initiated GC``` - **G1GC** cannot start immediately when any thread is in the _JNI critical section_, GC had
-to wait for threads to exit such a section
+* ```GCLocker Initiated GC``` - **G1GC** cannot start immediately when any thread is in the _JNI critical section_, GC has
+to wait for threads to exit such a section - such a situation is marked as ```GCLocker Initiated GC```
   
 ## What do we want to see in the log?
 
@@ -74,7 +74,7 @@ Here are count charts of the JVM that had a problem with _humongous allocation_:
 
 ![alt text](/assets/monday-6/reason-1.jpg "1")
 
-**Most** of the collections started with ```G1 Humongous Allocation``` reason. 
+**Most** of the collections started with ```G1 Humongous Allocation``` reasons. 
 
 Example of a pretty healthy application:
 
@@ -82,4 +82,10 @@ Example of a pretty healthy application:
 
 ![alt text](/assets/monday-6/reason-2.jpg "2")
 
-There are **some** collections started with ```G1 Humongous Allocation``` reason, but there is not a lot of them. 
+There are **some** collections started with ```G1 Humongous Allocation``` reasons, but there are not a lot of them. 
+
+Another example of healthy application:
+
+![alt text](/assets/monday-6/count-3.jpg "3")
+
+![alt text](/assets/monday-6/reason-3.jpg "3")
