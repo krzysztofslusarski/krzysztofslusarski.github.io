@@ -5,15 +5,15 @@ title: "JVM/Java profiling and tuning"
 
 ## Monday with JVM logs
 
-[Introduction and safepoints logs](2021/07/16/monday-intro.html)
+[**\[Safepoints\]** Introduction and safepoints logs](2021/07/16/monday-intro.html)
 
-[Heap after GC - do I have a memory leak?](2021/07/17/monday-hagc.html)
+[**\[GC\]** Heap after GC - do I have a memory leak?](2021/07/17/monday-hagc.html)
 
-[Heap before GC - is my heap wasted?](2021/07/28/monday-hbgc.html)
+[**\[GC\]** Allocation rate](2021/08/02/monday-alloc.html)
 
-[Allocation rate](2021/08/02/monday-alloc.html)
+[**\[GC\]\[G1GC\]** Heap before GC - is my heap wasted?](2021/07/28/monday-hbgc.html)
 
-[G1GC Stop-the-world phases](2021/08/10/monday-phases.html)
+[**\[GC\]\[G1GC\]** G1GC Stop-the-world phases](2021/08/10/monday-phases.html)
 
 ## My articles about JVM performance and tuning
 [Biased lock disabled, again](2020/11/09/biased.html)

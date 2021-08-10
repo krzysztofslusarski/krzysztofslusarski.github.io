@@ -50,7 +50,7 @@ In the last brackets you can see **the reason** why the **G1GC** starts the coll
 
 * ```System.gc()``` - pause triggered by calling ```Runtime.gc()``` method (yes ```Runtime```, it is not a mistake)
 * ```Heap Dump Initiated GC``` - pause triggered by request for a _heap dump_
-* ```G1 Evacuation Pause``` - classic reason for the GC, request for creating new object failed because there was not enough space in the __eden__.
+* ```G1 Evacuation Pause``` - classic reason for the GC, request for creating new object failed because there was not enough space in the _eden_.
 * ```Metadata GC Threshold``` - it was a time to clean the _metaspace_, GC is also responsible for cleaning that area
 * ```G1 Humongous Allocation``` - request for creating new _humongous object_ failed
 * ```GCLocker Initiated GC``` - **G1GC** cannot start immediately when any thread is in the _JNI critical section_, GC has
