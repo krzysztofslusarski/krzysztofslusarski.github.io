@@ -13,7 +13,7 @@ title: "JVM/Java profiling and tuning"
 
 [Allocation rate](2021/08/02/monday-alloc.html)
 
-[Allocation rate](2021/08/10/monday-phases.html)
+[G1GC Stop-the-world phases](2021/08/10/monday-phases.html)
 
 ## My articles about JVM performance and tuning
 [Biased lock disabled, again](2020/11/09/biased.html)
