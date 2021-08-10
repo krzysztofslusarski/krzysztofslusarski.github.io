@@ -84,7 +84,7 @@ Example of a pretty healthy application:
 
 There are **some** collections started with ```G1 Humongous Allocation``` reasons, but there are not a lot of them. 
 
-Another example of healthy application:
+Another example of a healthy application:
 
 ![alt text](/assets/monday-6/count-3.jpg "3")
 
