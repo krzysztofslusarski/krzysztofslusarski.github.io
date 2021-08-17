@@ -4,7 +4,7 @@ title:  "[Java][JVM Logs][GC Logs][G1GC] Monday with JVM logs - efficiency of th
 date:   2021-08-16 09:51:30 +0100
 ---
 
-# [Java][JVM Logs][GC Logs][G1GC] Monday with JVM logs - efficiency of the old generation cleanup - is my CPU wasted by the G1GC?
+# [Java][JVM Logs][GC Logs][G1GC] Monday with JVM logs - efficiency of the _old generation_ cleanup - is my CPU wasted by the G1GC?
 
 ## Basics of the **G1GC**
 
