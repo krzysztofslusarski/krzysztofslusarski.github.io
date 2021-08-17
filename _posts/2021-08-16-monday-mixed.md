@@ -104,6 +104,22 @@ Or we can present that at table:
 Let's focus on the first table. The _concurrent cycle_ consumed CPU for **7534441ms**. **94%** of that time was
 completely wasted. **7534440ms * 94% = 7082374,54ms = 118m**. So the CPU was wasted for **118** minutes.
 
+The number of wasted **CPU cores** depends on the ```-XX:ConcGCThreads``` argument. If you want to know the default
+value on your machine you can run:
+
+```shell
+java <your arguments> -XX:+PrintFlagsFinal -version | grep ConcGCThreads
+```
+
+Output:
+```
+pasq@pasq-Precision-7540:~$ java -XX:+PrintFlagsFinal -version | grep ConcGCThreads
+     uint ConcGCThreads                            = 3                                         {product} {ergonomic}
+openjdk version "11.0.6" 2020-01-14
+OpenJDK Runtime Environment AdoptOpenJDK (build 11.0.6+10)
+OpenJDK 64-Bit Server VM AdoptOpenJDK (build 11.0.6+10, mixed mode)
+```
+
 ## Causes
 
 ### Java 8
