@@ -15,6 +15,8 @@ title: "JVM/Java profiling and tuning"
 
 [**\[GC\]\[G1GC\]** G1GC Stop-the-world phases](2021/08/10/monday-phases.html)
 
+[**\[GC\]\[G1GC\]** Efficiency of the old generation cleanup](2021/08/16/monday-mixed.html)
+
 ## My articles about JVM performance and tuning
 [Biased lock disabled, again](2020/11/09/biased.html)
 
