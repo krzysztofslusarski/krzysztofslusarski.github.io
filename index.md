@@ -38,6 +38,8 @@ title: "JVM/Java profiling and tuning"
 
 [Full GC every hour after deploying new application version](2021/05/16/fullgc.html)
 
+[Continuous profiling with async-profiler](2021/08/17/cont-async.html)
+
 ## Other articles
 [Spring Boot + good old JSP/Tags = disaster](2021/04/04/bootjsp.html)
 
