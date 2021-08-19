@@ -15,6 +15,7 @@ Pause Cleanup
 Pause Full (G1 Evacuation Pause)
 Pause Full (G1 Humongous Allocation)
 Pause Full (Heap Dump Initiated GC)
+Pause Full (Heap Inspection Initiated GC)
 Pause Full (System.gc())
 Pause Remark
 Pause Young (Concurrent Start) (G1 Evacuation Pause)
@@ -50,6 +51,7 @@ In the last brackets you can see **the reason** why the **G1GC** starts the coll
 
 * ```System.gc()``` - pause triggered by calling ```Runtime.gc()``` method (yes ```Runtime```, it is not a mistake)
 * ```Heap Dump Initiated GC``` - pause triggered by request for a _heap dump_
+* ```Heap Inspection Initiated GC``` - pause triggered by request for a _class histogram_
 * ```G1 Evacuation Pause``` - classic reason for the GC, request for creating new object failed because there was not enough space in the _eden_.
 * ```Metadata GC Threshold``` - it was a time to clean the _metaspace_, GC is also responsible for cleaning that area
 * ```G1 Humongous Allocation``` - request for creating new _humongous object_ failed
