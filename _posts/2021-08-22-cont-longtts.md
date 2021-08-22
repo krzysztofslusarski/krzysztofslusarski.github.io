@@ -138,7 +138,7 @@ _page faults_.
 
 ## Can code in native stop thread from reaching the _safepoint_?
 
-You can find multiple publications on the internet that executing native code is done at _safepoint_ so it cannot stop
+You can find multiple publications on the internet saying that executing native code is done at _safepoint_ so it cannot stop
 the thread from reaching it. So why does that particular one do? Well, let's try to understand it with an example:
 
 ## Bug reproduction:
