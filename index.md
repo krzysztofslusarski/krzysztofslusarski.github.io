@@ -40,6 +40,8 @@ title: "JVM/Java profiling and tuning"
 
 [Continuous profiling with async-profiler](2021/08/17/cont-async.html)
 
+[Continuous profiling with async-profiler - long _time to safepoint_ - logs vs swap](2021/08/22/cont-longtts.html)
+
 ## Other articles
 [Spring Boot + good old JSP/Tags = disaster](2021/04/04/bootjsp.html)
 
