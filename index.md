@@ -7,6 +7,8 @@ title: "JVM/Java profiling and tuning"
 
 [**\[Safepoints\]** Introduction and safepoints logs](2021/07/16/monday-intro.html)
 
+[**\[JIT\]** JIT logs](2021/08/25/monday-jit.html)
+
 [**\[GC\]** Heap after GC - do I have a memory leak?](2021/07/17/monday-hagc.html)
 
 [**\[GC\]** Allocation rate](2021/08/02/monday-alloc.html)
