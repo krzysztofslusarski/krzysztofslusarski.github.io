@@ -1,6 +1,6 @@
 ---
 layout: default
-title:  "[Java][JVM Logs][GC Logs] Monday with JVM logs - JIT and sweeper logs"
+title:  "[Java][JVM Logs][GC Logs] Monday with JVM logs - JIT logs"
 date:   2021-08-25 09:51:30 +0100
 ---
 
