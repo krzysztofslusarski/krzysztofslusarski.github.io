@@ -23,17 +23,17 @@ If you enable compilation log at debug level (```-Xlog:jit+compilation=debug```)
 Little explanation what these values mean:
 * The first number is the **compilation id**
 * Next columns contain set of **flags**:
- * _%_ - means _on stack replacement_, long story short it is a compilation of a loop, not a method
- * _s_ - compiled method is declared as _synchronized_
- * _!_ - compiled method has at least one exception handler
- * _n_ - compiled method is native
- * _b_ - compilation is blocking application thread from continuing its work
+  * _%_ - means _on stack replacement_, long story short it is a compilation of a loop, not a method
+  * _s_ - compiled method is declared as _synchronized_
+  * _!_ - compiled method has at least one exception handler
+  * _n_ - compiled method is native
+  * _b_ - compilation is blocking application thread from continuing its work
 * Next we have a **tier** number:
- * _0_ - no compilation
- * _1_ - a compilation done by **C1** compiler
- * _2_ - a compilation done by **C1** compiler with counting of a method/loop executions
- * _3_ - a compilation done by **C1** compiler with enabled profiling
- * _4_ - a compilation done by **C2** compiler   
+  * _0_ - no compilation
+  * _1_ - a compilation done by **C1** compiler
+  * _2_ - a compilation done by **C1** compiler with counting of a method/loop executions
+  * _3_ - a compilation done by **C1** compiler with enabled profiling
+  * _4_ - a compilation done by **C2** compiler   
 * Next we have a string with a **method name** (without signature)
 * Next (in brackets) we have bytecode **method size**  
 * At the end we may have a **mark**:
