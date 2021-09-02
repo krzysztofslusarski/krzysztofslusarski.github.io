@@ -9,7 +9,7 @@ title: "JVM/Java profiling and tuning"
 
 [**\[JIT\]** JIT logs](2021/08/25/monday-jit.html)
 
-[**\[Classloader\]** Classloader logs](2021/09/02/monday-class.html)
+[**\[Classloader\]** Classloader logs - can attaching the JFR (and other profilers) cause the outage?](2021/09/02/monday-class.html)
 
 [**\[GC\]** Heap after GC - do I have a memory leak?](2021/07/17/monday-hagc.html)
 
