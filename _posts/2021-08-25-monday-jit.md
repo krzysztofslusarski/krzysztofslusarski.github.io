@@ -20,7 +20,7 @@ If you enable compilation log at debug level (```-Xlog:jit+compilation=debug```)
 [2021-07-23T08:38:40.001+0200] 2376      3       java.util.LinkedList$ListItr::hasNext (20 bytes)   made zombie
 ```
 
-Little explanation what these values mean:
+A little explanation what these values mean:
 * The first number is the **compilation id**
 * Next columns contain set of **flags**:
   * _%_ - means _on stack replacement_, long story short it is a compilation of a loop, not a method
