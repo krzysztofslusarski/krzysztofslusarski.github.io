@@ -1,10 +1,10 @@
 ---
 layout: default
-title:  "[Java][JVM Logs][GC Logs] Monday with JVM logs - Classloader logs, can attaching the JFR (and other profilers) cause the outage?"
+title:  "[Java][JVM Logs] Monday with JVM logs - Classloader logs, can attaching the JFR (and other profilers) cause the outage?"
 date:   2021-09-02 06:51:30 +0100
 ---
 
-# [Java][JVM Logs][GC Logs] Monday with JVM logs - Classloader logs, can attaching the JFR (and other profilers) cause the outage?
+# [Java][JVM Logs] Monday with JVM logs - Classloader logs, can attaching the JFR (and other profilers) cause the outage?
 
 ## JVM logs
            

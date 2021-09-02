@@ -1,10 +1,10 @@
 ---
 layout: default
-title:  "[Java][JVM Logs][GC Logs] Monday with JVM logs - JIT logs"
+title:  "[Java][JVM Logs] Monday with JVM logs - JIT logs"
 date:   2021-08-25 09:51:30 +0100
 ---
 
-# [Java][JVM Logs][GC Logs] Monday with JVM logs - JIT logs
+# [Java][JVM Logs] Monday with JVM logs - JIT logs
 
 ## JVM logs
            
