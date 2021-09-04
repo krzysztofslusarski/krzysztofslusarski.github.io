@@ -7,6 +7,10 @@ title: "JVM/Java profiling and tuning"
 
 [**\[Safepoints\]** Introduction and safepoints logs](2021/07/16/monday-intro.html)
 
+[**\[JIT\]** JIT logs](2021/08/25/monday-jit.html)
+
+[**\[Classloader\]** Classloader logs - can attaching the JFR (and other profilers) cause the outage?](2021/09/02/monday-class.html)
+
 [**\[GC\]** Heap after GC - do I have a memory leak?](2021/07/17/monday-hagc.html)
 
 [**\[GC\]** Allocation rate](2021/08/02/monday-alloc.html)
@@ -39,6 +43,8 @@ title: "JVM/Java profiling and tuning"
 [Full GC every hour after deploying new application version](2021/05/16/fullgc.html)
 
 [Continuous profiling with async-profiler](2021/08/17/cont-async.html)
+
+[Continuous profiling with async-profiler - long _time to safepoint_ - logs vs swap](2021/08/22/cont-longtts.html)
 
 ## Other articles
 [Spring Boot + good old JSP/Tags = disaster](2021/04/04/bootjsp.html)
