@@ -49,6 +49,8 @@ title: "JVM/Java profiling and tuning"
 ## Other articles
 [Spring Boot + good old JSP/Tags = disaster](2021/04/04/bootjsp.html)
 
+[The ultimate monitoring of the JVM application - out of the box](2021/09/04/jmx.html)
+
 ## My open source projects
 ### Aync-profiler utils
 I created some tools that help me with profiling big application with [Async-profiler](https://github.com/jvm-profiling-tools/async-profiler): 
