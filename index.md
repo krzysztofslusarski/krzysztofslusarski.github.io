@@ -51,6 +51,8 @@ title: "JVM/Java profiling and tuning"
 
 [The ultimate monitoring of the JVM application - out of the box](2021/09/04/jmx.html)
 
+[Core dump - the last line of defence during outages](2021/11/14/coredump.html)
+
 ## My open source projects
 ### Aync-profiler utils
 I created some tools that help me with profiling big application with [Async-profiler](https://github.com/jvm-profiling-tools/async-profiler): 
