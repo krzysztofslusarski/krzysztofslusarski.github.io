@@ -105,7 +105,7 @@ The last one suggested to me that there was some memory allocation involved in t
 
 ## JVM sources
 
-File ```io_util.h```:
+File ```io_util.c```:
 
 ```c
 #define BUF_SIZE 8192
