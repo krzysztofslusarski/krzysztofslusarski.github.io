@@ -126,6 +126,7 @@ writeBytes(JNIEnv *env, jobject this, jbyteArray bytes,
     } else {
         buf = stackBuf;
     }
+    (*env)->GetByteArrayRegion(env, bytes, off, len, (jbyte *)buf);
     ...
     if (buf != stackBuf) {
         free(buf);
@@ -270,3 +271,8 @@ What can we do in that application? Here are possible solutions:
 
 * disable _swap_ - at this server there is the _swap_ that is used with **200 MB**, we can easily disable it
 * stop logging so much at one line
+
+## TBC
+
+Check [this article](https://krzysztofslusarski.github.io/2022/03/21/cont-longtts-addition.html){:target="_blank"} 
+for a deeper explanation. 
