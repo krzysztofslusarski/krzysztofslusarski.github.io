@@ -7,7 +7,7 @@ date:   2022-03-21 02:51:30 +0100
 # [Java][Profiling][JVM] Everybody lies, profilers too
 
 There is an excellent presentation on YouTube called [Profilers are lying hobbitses](https://www.youtube.com/watch?v=7IkHIqPeFjY){:target="_blank"}
-by **Nitsan Wakart**. I strongly recommend you to watch it. Here is another examples of lie from profilers.
+by **Nitsan Wakart**. I strongly recommend you to watch it. Here is another example of lie from profilers.
 
 ## Profiled application
 
