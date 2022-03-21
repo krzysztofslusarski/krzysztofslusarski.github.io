@@ -101,4 +101,4 @@ much more complicated than Andrei's, that's why I prefer to show his version. Th
 This bug hurts all profilers that use ```AsyncGetCallTrace``` or ```PerfMapAgent```, so basically every modern profilers
 (Async-profiler, JProfiler in async mode, Perf + PMA, eBpf profiler + PMA, ...).
 
-This bug **is not just an** ``ArrayList``` issue. I encountered multiple parts of my code where profiler lied to me because of that.
+This bug **is not just an** ```ArrayList``` issue. I encountered multiple parts of my code where profiler lied to me because of that.
