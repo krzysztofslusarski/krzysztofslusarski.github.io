@@ -77,7 +77,7 @@ Total samples       : 1020
 
 That means that our ```ArrayList``` executes method ```grow()``` while adding an element. That ```add``` is invoked
 from ```ArrayListGrow.fill```. But **how is it possible**? That list is created with ```new ArrayList<>(SIZE)``` and we are adding
-exactly ```SIZE``` elements. The ```ArrayList``` shouldn't grow in that case. Let's run it in the debugger. Lest create
+exactly ```SIZE``` elements. The ```ArrayList``` shouldn't grow in that case. Let's run it in the debugger. Let's create
 a breakpoint at ```runTest()``` line to skip the ```spoil()``` part first:
 
 ![alt text](/assets/everybody-lies/1.png "1")
