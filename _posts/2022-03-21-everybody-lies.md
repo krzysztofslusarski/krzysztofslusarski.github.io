@@ -93,7 +93,7 @@ This time the debugger has right, but we cannot blame any profiler for that lie 
 
 ## JVM bug
 
-That bug was originally found by me, the original discussion over that topic is
+That bug was originally spotted by me, the original discussion over that topic is
 [here](https://github.com/jvm-profiling-tools/async-profiler/discussions/541){:target="_blank"}. My reconstruction was
 much more complicated than Andrei's, that's why I prefer to show his version. The bug is registered with number
 [JDK-8281677](https://bugs.openjdk.java.net/browse/JDK-8281677){:target="_blank"}.
