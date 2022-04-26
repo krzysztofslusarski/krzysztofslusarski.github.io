@@ -50,6 +50,8 @@ title: "JVM/Java profiling and tuning"
 
 [Everybody lies, profilers too](2022/03/21/everybody-lies.html)
 
+[Tracing a Single Operation in Distributed Systems](2022/04/23/distributed  .html)
+
 ## Other articles
 [Spring Boot + good old JSP/Tags = disaster](2021/04/04/bootjsp.html)
 
