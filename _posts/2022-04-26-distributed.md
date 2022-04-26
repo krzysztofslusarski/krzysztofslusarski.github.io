@@ -1,7 +1,7 @@
 ---
 layout: default
 title:  "[Java][Profiling][JVM] Tracing a Single Operation in Distributed Systems"
-date:   2022-04-23 02:51:30 +0100
+date:   2022-04-26 02:51:30 +0100
 ---
 
 # [Java][Profiling][JVM] Tracing a Single Operation in Distributed Systems
@@ -16,7 +16,6 @@ understanding, you can make the application more efficient.
 But what if we want to solve the problem of knowing _**why a single request is slow**_? It is tough to find a single request in 
 profiler results. Additionally, as we will explore in this article, this problem becomes increasingly complex as we move from 
 monolithic applications toward distributed architectures and distributed systems.
-
 
 ## Profiler mode
 
