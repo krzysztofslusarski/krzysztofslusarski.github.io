@@ -52,6 +52,8 @@ title: "JVM/Java profiling and tuning"
 
 [Tracing a Single Operation in Distributed Systems](2022/04/26/distributed.html)
 
+[Performance tuning of Hazelcast SQL engine](2022/08/25/hz-sql.html)
+
 ## Other articles
 [Spring Boot + good old JSP/Tags = disaster](2021/04/04/bootjsp.html)
 
