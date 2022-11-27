@@ -1,10 +1,10 @@
 ---
 layout: default
-title:  "[Java][Profiling][Memory leak] Finding memory leaks with Async-profiler"
+title:  "[Java][Profiling][Memory leak] Finding heap memory leaks with Async-profiler"
 date:   2022-11-27 02:51:30 +0100
 ---
 
-# [Java][Profiling][Memory leak] Finding memory leaks with Async-profiler
+# [Java][Profiling][Memory leak] Finding heap memory leaks with Async-profiler
 
 **Async-profiler 2.9** was released. The brand-new feature is ```live``` mode, which can help you detect
 heap memory leaks.
@@ -156,4 +156,4 @@ jcmd LeakApplication GC.run
 ![alt text](/assets/async-live/leak-5.png "leak")
 
 **Perfect**. Ladies and gentlemen, we have the first profiler that can help us detect heap memory leaks in our
-production environment. Thank you, Andrei Pangin. 
+production environment (at your own risk, of course). Thank you, Andrei Pangin. 
