@@ -54,6 +54,8 @@ title: "JVM/Java profiling and tuning"
 
 [Performance tuning of Hazelcast SQL engine](2022/08/25/hz-sql.html)
 
+[Finding memory leaks with Async-profiler](2022/11/27/async-live.html)
+
 ## Other articles
 [Spring Boot + good old JSP/Tags = disaster](2021/04/04/bootjsp.html)
 
@@ -64,6 +66,7 @@ title: "JVM/Java profiling and tuning"
 ## My open source projects
 ### Aync-profiler utils
 I created some tools that help me with profiling big application with [Async-profiler](https://github.com/jvm-profiling-tools/async-profiler): 
+* [JFR/Collapsed stack viewer](https://github.com/krzysztofslusarski/jvm-profiling-toolkit)
 * [Collapsed stack viewer](https://github.com/krzysztofslusarski/collapsed-stack-viewer)
 * [Collapse JFR](https://github.com/krzysztofslusarski/collapse-jfr)
 * [Continuous async-profiler](https://github.com/krzysztofslusarski/continuous-async-profiler)
