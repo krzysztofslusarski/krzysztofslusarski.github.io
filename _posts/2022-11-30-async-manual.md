@@ -159,6 +159,39 @@ own open-sourced [JVM profiling toolkit](https://github.com/krzysztofslusarski/j
 which can read JFR files with additional filters and gives me a possibility to add/remove additional
 levels during conversion to flame graph.
 
+## Flame graphs
+
+If you do **sampling profiling** you need to visualize the results. The results are nothing more than a **set of stacktraces**.
+My favorite way of visualization is a **flame graph**. The easiest way to understand what flame graphs are is to understand how
+they are created.
+
+First part is to draw a rectangle for each frame of each stacktrace. The stacktraces are drawn bottom-up and sorted
+alphabetically. For example, such a graph:
+
+![alt text](/assets/hz-sql/flame-1.png "flame")
+
+corresponds to set of stactraces:
+
+* 3 samples - ```a() -> h()```
+* 5 samples - ```b() -> d() -> e() -> f()```
+* 2 samples - ```b() -> d() -> e() -> g()```
+* 2 samples - ```b() -> d()```
+* 2 samples - ```c()```
+
+The next step is **joining** the rectangles with the same method name to one bar:
+
+![alt text](/assets/hz-sql/flame-2.png "flame")
+
+The flame graph usually shows you how some resource is utilized by your application. The resource is utilized
+**by the top methods** of that graph (visualized with green bar):
+
+![alt text](/assets/hz-sql/flame-3.png "flame")
+
+So in this example method ```b()``` is not utilizing the resource at all, it just invokes methods that do it. Flame graphs
+are commonly used to present the **CPU utilization**, but CPU is just one of the resources that we can visualize this way.
+If you use **wall-clock mode** then your resource is **time**. If you use **allocation mode** then your resource is
+**heap**.
+
 ## Basic resources profiling
 
 Before you start any profiler first thing you need to know is what is your goal. Only after that
@@ -289,7 +322,15 @@ The time spent on a socket is just waiting fot the REST endpoint to respond.
 Second execution uses different instance of ```RestTemplate``` that has just 
 **3** connections in the pool. Since the load is generated from **4** threads
 by the ```ab``` then one thread needs to wait for a connection from pool.
+You may think that this is a stupid human error, that someone created a pool with
+too low number of connections. In the real world the problem is with defaults, that
+are quite low. In our testing application default settings for the thread pool are:
 
+- ```maxTotal``` - **25** connections totally in the pool
+- ```defaultMaxPerRoute``` - **5** connections to the same address
+
+That numbers vary between versions. I remember one application with HTTP Client 4.x
+with defaults set to **2**.
 
 ### CPU
 
