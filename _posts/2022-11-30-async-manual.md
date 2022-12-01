@@ -13,6 +13,56 @@ jumps between articles.
 The goal of that post is to give examples. It's not a replacement of project README. If you
 haven't read it, simply do it.
 
+All the examples that you are going to see here are synthetic reproduction of real world 
+problems that I solved during my carrier.
+
+## Profiled application
+
+For a purpose of that post I've created spring boot application, so you can run following examples
+by your own. It's available on
+[my GitHub](https://github.com/krzysztofslusarski/async-profiler-demos){:target="_blank"}.
+To build the application do the following:
+
+```shell
+git clone https://github.com/krzysztofslusarski/async-profiler-demos
+cd async-profiler-demos
+mvn clean package
+```
+
+To run the application you need two terminals where you run (you need 8081 and 8082 ports available):
+
+```shell
+java \
+-XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints \
+-Xms1G -Xmx1G \
+-jar first-application/target/first-application-0.0.1-SNAPSHOT.jar 
+
+java \
+-XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints \
+-Xms1G -Xmx1G \
+-jar second-application/target/second-application-0.0.1-SNAPSHOT.jar
+```
+
+I'm using Corretto 17.0.2:
+
+```shell
+$ java -version
+
+openjdk version "17.0.2" 2022-01-18 LTS
+OpenJDK Runtime Environment Corretto-17.0.2.8.1 (build 17.0.2+8-LTS)
+OpenJDK 64-Bit Server VM Corretto-17.0.2.8.1 (build 17.0.2+8-LTS, mixed mode, sharing)
+```
+
+And to create simple load tests I'm using very old tool:
+
+```shell
+$ ab -V
+
+This is ApacheBench, Version 2.3 <$Revision: 1879490 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+```
+
 ## How to run an Async-profiler
 
 ### Command line
@@ -21,10 +71,11 @@ One of the easiest way of running Async-profiler is using command line. In direc
 profiler you just need to execute
 
 ```shell
-./profiler.sh -e <event type> -d <duration in seconds> -f <output file name> <pid or application name>
+./profiler.sh -e <event type> -d <duration in seconds> \
+-f <output file name> <pid or application name>
 
 # Examples
-./profiler.sh -e cpu -d 10 -f prof.jfr MyApplication
+./profiler.sh -e cpu -d 10 -f prof.jfr first-application-0.0.1-SNAPSHOT.jar
 ./profiler.sh -e wall -d 10 -f prof.html 1234 # where 1234 is a pid of Java process
 ```
 
@@ -93,6 +144,21 @@ profiler.execute(String.format("start,jfr,event=wall,file=%s.jfr", fileName));
 profiler.execute(String.format("stop,file=%s.jfr", fileName));
 ```
 
+## Output formats
+
+Async-profiler gives you a choice how the results should be saved:
+- default - printing results to terminal
+- JFR
+- Collapsed stack
+- Flame graphs
+- ... 
+
+From that list 95% of a time I'm choosing JFR. It's binary format that contain all the information
+gathered by the profiler. That file can be postprocess later by some external tool. I'm using my
+own open-sourced [JVM profiling toolkit](https://github.com/krzysztofslusarski/jvm-profiling-toolkit){:target="_blank"}, 
+which can read JFR files with additional filters and gives me a possibility to add/remove additional
+levels during conversion to flame graph.
+
 ## Basic resources profiling
 
 Before you start any profiler first thing you need to know is what is your goal. Only after that
@@ -101,10 +167,58 @@ you can choose proper mode of Async-profiler. Let's start with basics.
 ### Wall-clock
 
 If your goal is to optimize time then you should run Async-profiler in wall-clock mode. This is a
-most common mistake made by engineers that are starting they journey with profilers. Majority of
-applications that I profiled so far were applications that were working in microservice
+most common mistake made by engineers that are starting their journey with profilers. Majority of
+applications that I profiled so far were applications that were working in distributed
 architecture, using some DBs, MQ, Kafka, ... In such applications majority of time is spent on
 IO - waiting for other service/DB/... to respond. During such action Java is not consuming the CPU. 
+
+```shell
+# warmup
+ab -n 100 -c 4 http://localhost:8081/examples/wall/first
+ab -n 100 -c 4 http://localhost:8081/examples/wall/second
+
+# profiling of first request
+./profiler.sh start -e cpu -f first-cpu.jfr FirstApplication
+ab -n 100 -c 4 http://localhost:8081/examples/wall/first
+./profiler.sh stop -f first-cpu.jfr FirstApplication
+
+./profiler.sh start -e wall -f first-wall.jfr FirstApplication
+ab -n 100 -c 4 http://localhost:8081/examples/wall/first
+./profiler.sh stop -f first-wall.jfr FirstApplication
+
+# profiling of second request
+./profiler.sh start -e cpu -f second-cpu.jfr FirstApplication
+ab -n 100 -c 4 http://localhost:8081/examples/wall/second
+./profiler.sh stop -f second-cpu.jfr FirstApplication
+
+./profiler.sh start -e wall -f second-wall.jfr FirstApplication
+ab -n 100 -c 4 http://localhost:8081/examples/wall/second
+./profiler.sh stop -f second-wall.jfr FirstApplication
+```
+
+In the ```ab``` output we can see that the basic stats are similar for each request:
+
+```shell
+# first request
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.1      0       0
+Processing:   521  654 217.9    528    1055
+Waiting:      521  654 217.9    528    1054
+Total:        521  654 217.9    528    1055
+
+# second request
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.1      0       1
+Processing:   522  665 190.2    548    1028
+Waiting:      522  665 190.1    548    1028
+Total:        522  665 190.2    549    1029
+```
+
+To give you a taste how CPU profile can mislead you here are flame graphs for those two
+executions in CPU mode:
+
 
 ### CPU
 
