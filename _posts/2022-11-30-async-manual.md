@@ -217,7 +217,78 @@ Total:        522  665 190.2    549    1029
 ```
 
 To give you a taste how CPU profile can mislead you here are flame graphs for those two
-executions in CPU mode:
+executions in CPU mode.
+
+**First execution:** ([HTML](/assets/async-demos/wall-cpu-first.html){:target="_blank"})
+![alt text](/assets/async-demos/wall-cpu-first.png "flames")
+
+**Second execution:** ([HTML](/assets/async-demos/wall-cpu-second.html){:target="_blank"})
+![alt text](/assets/async-demos/wall-cpu-second.png "flames")
+
+I agree that they are not identical, but they have one thing in common. They show
+that the most CPU consuming method invoked by my controller is ```WallService.calculateAndExecuteSlow()```.
+It is not a lie, it consumes CPU. But does it consume most of the request time? 
+Look at the flame graphs in wall-clock mode:
+
+**First execution:** ([HTML](/assets/async-demos/wall-wall-first.html){:target="_blank"})
+![alt text](/assets/async-demos/wall-wall-first.png "flames")
+
+**Second execution:** ([HTML](/assets/async-demos/wall-wall-second.html){:target="_blank"})
+![alt text](/assets/async-demos/wall-wall-second.png "flames")
+
+I highlighted the ```WallService.calculateAndExecuteSlow()``` method. Wall-clock 
+mode shows us that this method is responsible just for **~4%** of execution time.
+
+**Thing to remember**: if your goal is to optimize time, and you use external
+systems (including DBs, queues, topics, microservices) or locks, sleeps, disk IO, 
+you should start with wall-clock mode.
+
+In wall-clock mode we can also see that these flame graphs differ. The first 
+execution spends most of its time in ```SocketInputStream.read()```:
+
+![alt text](/assets/async-demos/wall-wall-first-2.png "flames")
+
+Over **95%** of the time is eaten there. But the second execution:
+
+![alt text](/assets/async-demos/wall-wall-second-2.png "flames")
+
+spends just **75%** on the socket. To the right of the method
+```SocketInputStream.read()``` you can spot addition bar. Let's zoom it:
+
+![alt text](/assets/async-demos/wall-wall-second-3.png "flames")
+
+It's ```InternalExecRuntime.acquireEndpoint()``` method which executest 
+```PoolingHttpClientConnectionManager$1.get()``` from Apache Http Client, which 
+in the end executes ```Object.wait()```. What is it? Basically what we are trying
+to do in those two executions is to invoke remote REST service. First execution
+contains HTTP client instance with ```20``` available connections, so no thread
+needs to wait for connection from the pool:
+
+```java
+// FirstApplicationConfiguration
+@Bean("pool20RestTemplate")
+RestTemplate pool20RestTemplate() {
+    return createRestTemplate(20);
+}
+```
+
+```java
+// WallService
+void calculateAndExecuteSlow() {
+    Random random = ThreadLocalRandom.current();
+    CpuConsumer.mathConsumer(random.nextDouble(), CPU_MATH_ITERATIONS);
+
+    invokeWithLogTime(() ->
+        pool20RestTemplate.getForObject(SECOND_APPLICATION_URL + 
+            "/examples/wall/slow", String.class)
+    );
+} 
+```
+
+The time spent on a socket is just waiting fot the REST endpoint to respond.
+Second execution uses different instance of ```RestTemplate``` that has just 
+**3** connections in the pool. Since the load is generated from **4** threads
+by the ```ab``` then one thread needs to wait for a connection from pool.
 
 
 ### CPU
@@ -225,3 +296,7 @@ executions in CPU mode:
 ### Allocation
 
 ### Allocation - live objects
+
+## Notes to remove
+832
+xdotool search localhost windowraise windowmove 50 50 windowsize 876 800

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<!-- saved from url=(0246)http://localhost:8079/stateful-jfr/single/flames/execution?id=8f94191f-c72b-4d3c-850e-fd4d1eb20726&threadFilter=&ecidFilter=&endDate=&endDateDateTimeFormat=dd/MMM/yyyy:HH:mm:ss%20Z&duration=&startTs=&endTs=&warmup=&cooldown=&wdWarmup=&wdDuration= -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <style>
+        body {margin: 0; padding: 10px; background-color: #ffffff}
+        h1 {margin: 5px 0 0 0; font-size: 18px; font-weight: normal; text-align: center}
+        header {margin: -24px 0 5px 0; line-height: 24px}
+        button {font: 12px sans-serif; cursor: pointer}
+        p {margin: 5px 0 5px 0}
+        a {color: #0366d6}
+        #hl {position: absolute; display: none; overflow: hidden; white-space: nowrap; pointer-events: none; background-color: #ffffe0; outline: 1px solid #ffc000; height: 15px}
+        #hl span {padding: 0 3px 0 3px}
+        #status {overflow: hidden; white-space: nowrap}
+        #match {overflow: hidden; white-space: nowrap; display: none; float: right; text-align: right}
+        #reset {cursor: pointer}
+        #canvas {width: 100%; height: 784px}
+    </style>
+</head>
+<body style="font: 12px Verdana, sans-serif">
+<h1>Execution samples</h1>
+<header style="text-align: left"><button id="reverse" title="Reverse">🔻</button>&nbsp;&nbsp;<button id="search" title="Search">🔍</button></header>
+<header style="text-align: right">Produced by <a href="https://github.com/jvm-profiling-tools/async-profiler">async-profiler</a></header>
+<canvas id="canvas" width="1826" height="784" style="width: 1826px;" title=""></canvas>
+<div id="hl" style="left: 10px; width: 1750.44px; top: 142px; display: none;"><span>sun.nio.ch/NioSocketImpl$1.read</span></div>
+<p id="match" style="display: none;">Matched: <span id="matchval">0.00%</span> <span id="reset" title="Clear">❌</span></p>
+<p id="status">&nbsp;</p>
+<script>
+    // Copyright 2020 Andrei Pangin
+    // Licensed under the Apache License, Version 2.0.
+    'use strict';
+    var root, rootLevel, px, pattern;
+    var reverse = false;
+    const levels = Array(49);
+    for (let h = 0; h < levels.length; h++) {
+        levels[h] = [];
+    }
+
+    const canvas = document.getElementById('canvas');
+    const c = canvas.getContext('2d');
+    const hl = document.getElementById('hl');
+    const status = document.getElementById('status');
+
+    const canvasWidth = canvas.offsetWidth;
+    const canvasHeight = canvas.offsetHeight;
+    canvas.style.width = canvasWidth + 'px';
+    canvas.width = canvasWidth * (devicePixelRatio || 1);
+    canvas.height = canvasHeight * (devicePixelRatio || 1);
+    if (devicePixelRatio) c.scale(devicePixelRatio, devicePixelRatio);
+    c.font = document.body.style.font;
+
+    const palette = [
+        [0xb2e1b2, 20, 20, 20],
+        [0x50e150, 30, 30, 30],
+        [0x50cccc, 30, 30, 30],
+        [0xe15a5a, 30, 40, 40],
+        [0xc8c83c, 30, 30, 10],
+        [0xe17d00, 30, 30,  0],
+        [0xcce880, 20, 20, 20],
+    ];
+
+    function getColor(p) {
+        const v = Math.random();
+        return '#' + (p[0] + ((p[1] * v) << 16 | (p[2] * v) << 8 | (p[3] * v))).toString(16);
+    }
+
+    function f(level, left, width, type, title, inln, c1, int) {
+        levels[level].push({left: left, width: width, color: getColor(palette[type]), title: title,
+            details: (int ? ', int=' + int : '') + (c1 ? ', c1=' + c1 : '') + (inln ? ', inln=' + inln : '')
+        });
+    }
+
+    function samples(n) {
+        return n === 1 ? '1 sample' : n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' samples';
+    }
+
+    function pct(a, b) {
+        return a >= b ? '100' : (100 * a / b).toFixed(2);
+    }
+
+    function findFrame(frames, x) {
+        let left = 0;
+        let right = frames.length - 1;
+
+        while (left <= right) {
+            const mid = (left + right) >>> 1;
+            const f = frames[mid];
+
+            if (f.left > x) {
+                right = mid - 1;
+            } else if (f.left + f.width <= x) {
+                left = mid + 1;
+            } else {
+                return f;
+            }
+        }
+
+        if (frames[left] && (frames[left].left - x) * px < 0.5) return frames[left];
+        if (frames[right] && (x - (frames[right].left + frames[right].width)) * px < 0.5) return frames[right];
+
+        return null;
+    }
+
+    function search(r) {
+        if (r === true && (r = prompt('Enter regexp to search:', '')) === null) {
+            return;
+        }
+
+        pattern = r ? RegExp(r) : undefined;
+        const matched = render(root, rootLevel);
+        document.getElementById('matchval').textContent = pct(matched, root.width) + '%';
+        document.getElementById('match').style.display = r ? 'inherit' : 'none';
+    }
+
+    function render(newRoot, newLevel) {
+        if (root) {
+            c.fillStyle = '#ffffff';
+            c.fillRect(0, 0, canvasWidth, canvasHeight);
+        }
+
+        root = newRoot || levels[0][0];
+        rootLevel = newLevel || 0;
+        px = canvasWidth / root.width;
+
+        const x0 = root.left;
+        const x1 = x0 + root.width;
+        const marked = [];
+
+        function mark(f) {
+            return marked[f.left] >= f.width || (marked[f.left] = f.width);
+        }
+
+        function totalMarked() {
+            let total = 0;
+            let left = 0;
+            Object.keys(marked).sort(function(a, b) { return a - b; }).forEach(function(x) {
+                if (+x >= left) {
+                    total += marked[x];
+                    left = +x + marked[x];
+                }
+            });
+            return total;
+        }
+
+        function drawFrame(f, y, alpha) {
+            if (f.left < x1 && f.left + f.width > x0) {
+                c.fillStyle = pattern && f.title.match(pattern) && mark(f) ? '#ee00ee' : f.color;
+                c.fillRect((f.left - x0) * px, y, f.width * px, 15);
+
+                if (f.width * px >= 21) {
+                    const chars = Math.floor(f.width * px / 7);
+                    const title = f.title.length <= chars ? f.title : f.title.substring(0, chars - 2) + '..';
+                    c.fillStyle = '#000000';
+                    c.fillText(title, Math.max(f.left - x0, 0) * px + 3, y + 12, f.width * px - 6);
+                }
+
+                if (alpha) {
+                    c.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                    c.fillRect((f.left - x0) * px, y, f.width * px, 15);
+                }
+            }
+        }
+
+        for (let h = 0; h < levels.length; h++) {
+            const y = reverse ? h * 16 : canvasHeight - (h + 1) * 16;
+            const frames = levels[h];
+            for (let i = 0; i < frames.length; i++) {
+                drawFrame(frames[i], y, h < rootLevel);
+            }
+        }
+
+        return totalMarked();
+    }
+
+    canvas.onmousemove = function() {
+        const h = Math.floor((reverse ? event.offsetY : (canvasHeight - event.offsetY)) / 16);
+        if (h >= 0 && h < levels.length) {
+            const f = findFrame(levels[h], event.offsetX / px + root.left);
+            if (f) {
+                if (f != root) getSelection().removeAllRanges();
+                hl.style.left = (Math.max(f.left - root.left, 0) * px + canvas.offsetLeft) + 'px';
+                hl.style.width = (Math.min(f.width, root.width) * px) + 'px';
+                hl.style.top = ((reverse ? h * 16 : canvasHeight - (h + 1) * 16) + canvas.offsetTop) + 'px';
+                hl.firstChild.textContent = f.title;
+                hl.style.display = 'block';
+                canvas.title = f.title + '\n(' + samples(f.width) + f.details + ', ' + pct(f.width, levels[0][0].width) + '%)';
+                canvas.style.cursor = 'pointer';
+                canvas.onclick = function() {
+                    if (f != root) {
+                        render(f, h);
+                        canvas.onmousemove();
+                    }
+                };
+                status.textContent = 'Function: ' + canvas.title;
+                return;
+            }
+        }
+        canvas.onmouseout();
+    }
+
+    canvas.onmouseout = function() {
+        hl.style.display = 'none';
+        status.textContent = '\xa0';
+        canvas.title = '';
+        canvas.style.cursor = '';
+        canvas.onclick = '';
+    }
+
+    canvas.ondblclick = function() {
+        getSelection().selectAllChildren(hl);
+    }
+
+    document.getElementById('reverse').onclick = function() {
+        reverse = !reverse;
+        render();
+    }
+
+    document.getElementById('search').onclick = function() {
+        search(true);
+    }
+
+    document.getElementById('reset').onclick = function() {
+        search(false);
+    }
+
+    window.onkeydown = function() {
+        if (event.ctrlKey && event.keyCode === 70) {
+            event.preventDefault();
+            search(true);
+        } else if (event.keyCode === 27) {
+            search(false);
+        }
+    }
+
+    f(0,0,1305,3,'all')
+f(1,0,1305,1,'com.example.firstapplication.examples.wall/WallController.first')
+f(2,0,1305,1,'com.example.firstapplication.examples.wall/WallService.calculateAndExecuteSlow')
+f(3,0,1251,1,'com.example.firstapplication.examples.wall/WallService.invokeWithLogTime')
+f(4,0,1251,1,'com.example.firstapplication.examples.wall/WallService$$Lambda$1337.0x000000080141e950.get')
+f(5,0,1251,1,'com.example.firstapplication.examples.wall/WallService.lambda$calculateAndExecuteSlow$0')
+f(6,0,1251,1,'org.springframework.web.client/RestTemplate.getForObject')
+f(7,0,1251,1,'org.springframework.web.client/RestTemplate.execute')
+f(8,0,1251,1,'org.springframework.web.client/RestTemplate.doExecute')
+f(9,0,1251,1,'org.springframework.http.client/AbstractClientHttpRequest.execute')
+f(10,0,1251,1,'org.springframework.http.client/AbstractBufferingClientHttpRequest.executeInternal')
+f(11,0,1251,1,'org.springframework.http.client/HttpComponentsClientHttpRequest.executeInternal')
+f(12,0,1251,1,'org.apache.hc.client5.http.impl.classic/CloseableHttpClient.execute')
+f(13,0,1251,1,'org.apache.hc.client5.http.impl.classic/CloseableHttpClient.execute')
+f(14,0,1251,1,'org.apache.hc.client5.http.impl.classic/InternalHttpClient.doExecute')
+f(15,0,1251,1,'org.apache.hc.client5.http.impl.classic/ExecChainElement.execute')
+f(16,0,1251,1,'org.apache.hc.client5.http.impl.classic/RedirectExec.execute')
+f(17,0,1251,1,'org.apache.hc.client5.http.impl.classic/ExecChainElement$1.proceed')
+f(18,0,1251,1,'org.apache.hc.client5.http.impl.classic/ExecChainElement.execute')
+f(19,0,1251,1,'org.apache.hc.client5.http.impl.classic/ContentCompressionExec.execute')
+f(20,0,1251,1,'org.apache.hc.client5.http.impl.classic/ExecChainElement$1.proceed')
+f(21,0,1251,1,'org.apache.hc.client5.http.impl.classic/ExecChainElement.execute')
+f(22,0,1251,1,'org.apache.hc.client5.http.impl.classic/HttpRequestRetryExec.execute')
+f(23,0,1251,1,'org.apache.hc.client5.http.impl.classic/ExecChainElement$1.proceed')
+f(24,0,1251,1,'org.apache.hc.client5.http.impl.classic/ExecChainElement.execute')
+f(25,0,1251,1,'org.apache.hc.client5.http.impl.classic/ProtocolExec.execute')
+f(26,0,1251,1,'org.apache.hc.client5.http.impl.classic/ExecChainElement$1.proceed')
+f(27,0,1251,1,'org.apache.hc.client5.http.impl.classic/ExecChainElement.execute')
+f(28,0,1251,1,'org.apache.hc.client5.http.impl.classic/ConnectExec.execute')
+f(29,0,1251,1,'org.apache.hc.client5.http.impl.classic/ExecChainElement$1.proceed')
+f(30,0,1251,1,'org.apache.hc.client5.http.impl.classic/ExecChainElement.execute')
+f(31,0,1251,1,'org.apache.hc.client5.http.impl.classic/MainClientExec.execute')
+f(32,0,1251,1,'org.apache.hc.client5.http.impl.classic/InternalExecRuntime.execute')
+f(33,0,1251,1,'org.apache.hc.client5.http.impl.io/PoolingHttpClientConnectionManager$InternalConnectionEndpoint.execute')
+f(34,0,1251,1,'org.apache.hc.core5.http.impl.io/HttpRequestExecutor.execute')
+f(35,0,1251,1,'org.apache.hc.core5.http.impl.io/HttpRequestExecutor.execute')
+f(36,0,1251,1,'org.apache.hc.core5.http.impl.io/DefaultBHttpClientConnection.receiveResponseHeader')
+f(37,0,1251,1,'org.apache.hc.core5.http.impl.io/AbstractMessageParser.parse')
+f(38,0,1251,1,'org.apache.hc.core5.http.impl.io/AbstractMessageParser.parse')
+f(39,0,1251,1,'org.apache.hc.core5.http.impl.io/SessionInputBufferImpl.readLine')
+f(40,0,1251,1,'org.apache.hc.core5.http.impl.io/SessionInputBufferImpl.fillBuffer')
+f(41,0,1251,1,'java.net/Socket$SocketInputStream.read')
+f(42,0,1251,1,'sun.nio.ch/NioSocketImpl$1.read')
+f(43,0,1251,1,'sun.nio.ch/NioSocketImpl.read')
+f(44,0,1251,1,'sun.nio.ch/NioSocketImpl.implRead')
+f(45,0,1251,1,'sun.nio.ch/NioSocketImpl.timedRead')
+f(46,0,1251,1,'sun.nio.ch/NioSocketImpl.park')
+f(47,0,1251,1,'sun.nio.ch/Net.poll')
+f(48,0,1251,3,'__libc_poll')
+f(3,1251,54,1,'com.example.firstapplication/CpuConsumer.mathConsumer')
+f(4,1251,22,3,'libmExp')
+f(4,1273,32,3,'libmSin')
+
+    search();
+</script></body></html>
