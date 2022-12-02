@@ -472,12 +472,49 @@ public void inverse(UUID uuid) {
 }
 ```
 
-So we're basically changing one column in one row in DB. Do we really need Hibernate for
-that?
+So we're basically changing one column in one row in DB. We can do it more efficiently 
+with simple ```update``` query, even with Spring Data JPA repository or simple JDBC.
+Do we really need to use Hibernate everywhere?
 
 ### Allocation
 {: #alloc }
 
+The common use cases where that resource should be tracked are:
+
+- decreasing of GC runs frequency
+- finding allocation outside the TLAB which are done in slow path
+- fighting with single/tens of milliseconds latency, where even heap allocation matters
+
+First let's understand how new objects on a heap are created, so we have a better
+understanding of what the async-profiler shows to us.
+
+A portion of our Java heap is called an **eden**. This is a place where new objects are
+born. Let's assume for a simplicity that eden is a continuous part of memory. The very efficient
+way of allocation in such a case is called **bumping pointer**. We keep a pointer to the first 
+address of a free space:
+
+![alt text](/assets/async-demos/alloc-1.png "alloc")
+
+When we do ```new Object()``` we simply can calculate a space needed for it and to locate 
+next free address we just need to bump the pointer by ```sizeof(Object)```:
+
+![alt text](/assets/async-demos/alloc-2.png "alloc")
+
+But there is one major problem with that technique, we have more than one thread than can 
+create new object at the same time. We need to synchronize those calls somehow or ... we
+can give each thread a portion of eden, that is dedicated to only that thread. That portion 
+is called **TLAB** - thread local allocation buffer. In such case each thread can use
+**bumping pointer** at his own TLAB safely.
+
+Introducing TLABs creates two more issues that JVM needs to deal:
+
+- a thread can allocate an object, but there is not enough space in its TLAB - in that case
+  if there is still a space in eden JVM creates new TLAB for that thread
+- a thread can allocate a big object, so it's not optimal to use TLAB mechanism - in that case
+  JVM will use _slow path_ of allocation that allocates the object directly in eden
+
+What is important to us is that in both this cases JVM emits an event that can be captured
+by a profiler. That's basically how async-profiler samples allocation.
 
 ### Allocation - live objects
 {: #alloc-live }
