@@ -63,6 +63,14 @@ Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
 Licensed to The Apache Software Foundation, http://www.apache.org/
 ```
 
+I will not go through the source code to explain you all the details before I jump into examples.
+It's completely not natural. In my work I often profile applications which source code I haven't 
+seen. Just consider it as a typical microservice build with Spring Boot and Hibernate.
+
+In all the examples I will assume that the application is started with ```java -jar``` command.
+If you are running the application from the IDE then the name of the application is switched 
+from ```first-application-0.0.1-SNAPSHOT.jar``` to ```first-application-0.0.1-SNAPSHOT.jar```
+
 ## How to run an Async-profiler
 
 ### Command line
@@ -211,22 +219,22 @@ ab -n 100 -c 4 http://localhost:8081/examples/wall/first
 ab -n 100 -c 4 http://localhost:8081/examples/wall/second
 
 # profiling of first request
-./profiler.sh start -e cpu -f first-cpu.jfr FirstApplication
+./profiler.sh start -e cpu -f first-cpu.jfr first-application-0.0.1-SNAPSHOT.jar
 ab -n 100 -c 4 http://localhost:8081/examples/wall/first
-./profiler.sh stop -f first-cpu.jfr FirstApplication
+./profiler.sh stop -f first-cpu.jfr first-application-0.0.1-SNAPSHOT.jar
 
-./profiler.sh start -e wall -f first-wall.jfr FirstApplication
+./profiler.sh start -e wall -f first-wall.jfr first-application-0.0.1-SNAPSHOT.jar
 ab -n 100 -c 4 http://localhost:8081/examples/wall/first
-./profiler.sh stop -f first-wall.jfr FirstApplication
+./profiler.sh stop -f first-wall.jfr first-application-0.0.1-SNAPSHOT.jar
 
 # profiling of second request
-./profiler.sh start -e cpu -f second-cpu.jfr FirstApplication
+./profiler.sh start -e cpu -f second-cpu.jfr first-application-0.0.1-SNAPSHOT.jar
 ab -n 100 -c 4 http://localhost:8081/examples/wall/second
-./profiler.sh stop -f second-cpu.jfr FirstApplication
+./profiler.sh stop -f second-cpu.jfr first-application-0.0.1-SNAPSHOT.jar
 
-./profiler.sh start -e wall -f second-wall.jfr FirstApplication
+./profiler.sh start -e wall -f second-wall.jfr first-application-0.0.1-SNAPSHOT.jar
 ab -n 100 -c 4 http://localhost:8081/examples/wall/second
-./profiler.sh stop -f second-wall.jfr FirstApplication
+./profiler.sh stop -f second-wall.jfr first-application-0.0.1-SNAPSHOT.jar
 ```
 
 In the ```ab``` output we can see that the basic stats are similar for each request:
@@ -350,15 +358,15 @@ ab -n 5 -c 1 http://localhost:8081/examples/cpu/inverse
 Profiling time:
 
 ```shell
-./profiler.sh start -e cpu -f cpu.jfr FirstApplication
+./profiler.sh start -e cpu -f cpu.jfr first-application-0.0.1-SNAPSHOT.jar
 ab -n 5 -c 1 http://localhost:8081/examples/cpu/inverse
-./profiler.sh stop -f cpu.jfr FirstApplication
+./profiler.sh stop -f cpu.jfr first-application-0.0.1-SNAPSHOT.jar
 ```
 
 You can check during the benchmark what is the CPU utilization of our JVM:
 
 ```shell
-$ pidstat -p `pgrep -f FirstApplication` 5
+$ pidstat -p `pgrep -f first-application-0.0.1-SNAPSHOT.jar` 5
  
 09:42:49      UID       PID    %usr %system  %guest   %wait    %CPU   CPU  Command
 09:42:54     1000     49813  115,40    0,40    0,00    0,00  115,80     1  java
@@ -368,7 +376,80 @@ $ pidstat -p `pgrep -f FirstApplication` 5
 ```
 
 We are using a bit more than one CPU core. Our load generator executes the load with a single
-thread. 
+thread so that CPU usage is pretty high. Let's see what our CPU is doing while execution our
+spring controller: ([HTML](/assets/async-demos/cpu.html){:target="_blank"})
+
+![alt text](/assets/async-demos/cpu.png "flames")
+
+I know that flame graph is pretty long, but hey, welcome to Spring and Hibernate.
+I highlighted the ```existsById()``` method. You can see that it eats **95%** of the
+CPU. But why? From the code perspective it doesn't look scary at all:
+
+```java
+@Transactional
+public void inverse(UUID uuid) {
+    sampleEntityRepository.findById(uuid).ifPresent(sampleEntity -> {
+        boolean allConfigPresent = true;
+        for (int i = 0; i < 100; i++) {
+            allConfigPresent = allConfigPresent && sampleConfigurationRepository.existsById("key-" + i);
+        }
+        sampleEntity.setFlag(!sampleEntity.isFlag());
+    });
+}
+```
+
+We are just executing ```existsById()``` in Spring Dara JPA repository. The answer 
+why that method is slow is in the beginning of the method:
+
+```java
+sampleEntityRepository.findById(uuid)
+```
+
+and in JPA mapping:
+
+```java
+public class SampleEntity {
+    @Id
+    private UUID id;
+
+    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "fk_entity")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    private Set<SampleSubEntity> subEntities;
+
+    private boolean flag;
+}
+```
+
+What that means is that when we are getting one ```SampleEntity``` by id, we are
+also extracting the ```subEntities``` from the database, because of ```fetch = FetchType.EAGER```.
+THis is not a problem yet. All that JPA entities are loaded into Hibernate session.
+That mechanism is pretty cool, because it gives you the _dirty checking_ functionality.
+The downside however is that the _dirty_ entities needs to be flushed by Hibernate 
+to DB. You have different flush strategies in Hibernate. The default one is ```AUTO```,
+you can read about them in the
+[Javadocs](https://javadoc.io/doc/org.hibernate/hibernate-core/5.6.14.Final/org/hibernate/FlushMode.html){:target="_blank"}.
+
+What can be done about that? Well, first of all IMO it should be forbidden to develop
+a large Hibernate application without reading the 
+[Vlad Mihalcea's book](https://vladmihalcea.com/books/high-performance-java-persistence/){:target="_blank"}.
+If you are developing such an application, but that book, it's great. From my experience
+some engineers has tendency to abuse Hibernate. Let's look at the code sample I pasted 
+before. We are loading a huge ```SampleEntity```. What are we doing with it?
+
+```java
+@Transactional
+public void inverse(UUID uuid) {
+    sampleEntityRepository.findById(uuid).ifPresent(sampleEntity -> {
+        sampleEntity.setFlag(!sampleEntity.isFlag());
+    });
+}
+```
+
+So we basically changing one column in one row in DB. Do we really need Hibernate for
+that?
+
+
 
 ### Allocation
 
