@@ -423,7 +423,7 @@ public class SampleEntity {
 
 What that means is that when we are getting one ```SampleEntity``` by id, we are
 also extracting the ```subEntities``` from the database, because of ```fetch = FetchType.EAGER```.
-THis is not a problem yet. All that JPA entities are loaded into Hibernate session.
+This is not a problem yet. All that JPA entities are loaded into Hibernate session.
 That mechanism is pretty cool, because it gives you the _dirty checking_ functionality.
 The downside however is that the _dirty_ entities needs to be flushed by Hibernate 
 to DB. You have different flush strategies in Hibernate. The default one is ```AUTO```,
