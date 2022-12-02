@@ -334,6 +334,42 @@ with defaults set to **2**.
 
 ### CPU
 
+if you know that your application is CPU intensive and you want to decrease CPU consumption, 
+then the CPU mode is suitable. 
+
+Let's prepare our application:
+
+```shell
+# Execute it once
+curl -v http://localhost:8081/examples/cpu/prepare
+
+# Little warmup
+ab -n 5 -c 1 http://localhost:8081/examples/cpu/inverse
+```
+
+Profiling time:
+
+```shell
+./profiler.sh start -e cpu -f cpu.jfr FirstApplication
+ab -n 5 -c 1 http://localhost:8081/examples/cpu/inverse
+./profiler.sh stop -f cpu.jfr FirstApplication
+```
+
+You can check during the benchmark what is the CPU utilization of our JVM:
+
+```shell
+$ pidstat -p `pgrep -f FirstApplication` 5
+ 
+09:42:49      UID       PID    %usr %system  %guest   %wait    %CPU   CPU  Command
+09:42:54     1000     49813  115,40    0,40    0,00    0,00  115,80     1  java
+09:42:59     1000     49813  111,40    0,60    0,00    0,00  112,00     1  java
+09:43:04     1000     49813  106,80    0,20    0,00    0,00  107,00     1  java
+09:43:09     1000     49813  113,00    0,20    0,00    0,00  113,20     1  java 
+```
+
+We are using a bit more than one CPU core. Our load generator executes the load with a single
+thread. 
+
 ### Allocation
 
 ### Allocation - live objects
