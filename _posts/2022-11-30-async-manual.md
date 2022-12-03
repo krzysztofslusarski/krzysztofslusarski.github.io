@@ -370,10 +370,17 @@ are quite low. In our testing application default settings for the thread pool a
 That numbers vary between versions. I remember one application with HTTP Client 4.x
 with defaults set to **2**.
 
+THere are plenty of tools that log the invocation time of external services. The common
+problem in those tools is that the time of waiting on pool for a connection is usually
+included in the whole time ov invocation which is a lie. I saw in the past when caller 
+had a line in logs that shew execution time of ```X ms```, caller had similar log
+that presented ```1/10 * X ms```. What was those teams doing to understand that? They
+tried to convinced network department that it's a network issue. Big waste of time.
+
 ### CPU - easy-peasy
 {: #cpu-easy }
 
-if you know that your application is CPU intensive and you want to decrease CPU consumption, 
+if you know that your application is CPU intensive, or you want to decrease CPU consumption, 
 then the CPU mode is suitable. 
 
 Let's prepare our application:
@@ -622,6 +629,8 @@ Introducing TLABs creates two more issues that JVM needs to deal:
 
 What is important to us is that in both this cases JVM emits an event that can be captured
 by a profiler. That's basically how async-profiler samples allocation.
+
+### Allocation - humongous objects 
 
 ### Allocation - live objects
 {: #alloc-live }
