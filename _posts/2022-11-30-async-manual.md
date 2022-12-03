@@ -508,7 +508,7 @@ Waiting:     1706 1735  28.9   1735    1786
 Total:       1706 1735  29.0   1735    1786
 ```
 
-TODO flames
+![alt text](/assets/async-demos/cpu-hard-slow.png "flames")
 
 Whole CPU is wasted in method:
 
@@ -541,7 +541,7 @@ Total:        861  888  20.7    890     924
 
 That request is two times faster than the ```matrix-slow```, but if we look at the profile:
 
-TODO flames
+![alt text](/assets/async-demos/cpu-hard-fast.png "flames")
 
 Whole CPU is wasted in method:
 
