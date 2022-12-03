@@ -29,6 +29,11 @@ problems that I solved during my carrier.
   - [CPU - a bit harder](#cpu-hard)
   - [Allocation](#alloc)
   - [Allocation - live objects](#alloc-live)
+- [Methods profiling](#methods)
+  - [Exceptions](#methods-ex)
+  - [G1GC humongous allocation](#methods-g1ha)
+  - [Thread start](#methods-thread)
+  - [Classloading](#methods-classes)
 
 ## Profiled application 
 {: #profiled-application }
@@ -620,6 +625,29 @@ by a profiler. That's basically how async-profiler samples allocation.
 
 ### Allocation - live objects
 {: #alloc-live }
+
+## Methods 
+{: #methods }
+
+### Exceptions
+{: #methods-ex }
+
+```Java_java_lang_Throwable_fillInStackTrace```
+
+### G1GC humongous allocation
+{: #methods-g1ha }
+
+```G1CollectedHeap::humongous_obj_allocate```
+
+### Thread start
+{: #methods-thread }
+
+```JVM_StartThread```
+
+### Classloading
+{: #methods-classes }
+
+```Java_java_lang_ClassLoader_defineClass1```
 
 ## Notes to remove
 832
