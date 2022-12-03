@@ -477,7 +477,7 @@ Do we really need to use Hibernate everywhere?
 ### CPU - a bit harder
 {: #cpu-hard }
 
-Sometimes the results of CPU profiler is just beginning of the fun. Let's consider following example:
+Sometimes the result of CPU profiler is just beginning of the fun. Let's consider following example:
 
 ```shell
 # Little warmup
@@ -508,9 +508,12 @@ Waiting:     1706 1735  28.9   1735    1786
 Total:       1706 1735  29.0   1735    1786
 ```
 
+
+The profile looks like that: ([HTML](/assets/async-demos/cpu-hard-slow.html){:target="_blank"})
+
 ![alt text](/assets/async-demos/cpu-hard-slow.png "flames")
 
-Whole CPU is wasted in method:
+Whole CPU is wasted in method: 
 
 ```java
 public static int[][] matrixMultiplySlow(int[][] a, int[][] b, int size) {
@@ -540,6 +543,7 @@ Total:        861  888  20.7    890     924
 ```
 
 That request is two times faster than the ```matrix-slow```, but if we look at the profile:
+([HTML](/assets/async-demos/cpu-hard-fast.html){:target="_blank"})
 
 ![alt text](/assets/async-demos/cpu-hard-fast.png "flames")
 
