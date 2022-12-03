@@ -25,7 +25,8 @@ problems that I solved during my carrier.
 - [Flame graphs](#flames)
 - [Basic resources profiling](#basic-resources)
   - [Wall-clock](#wall)
-  - [CPU](#cpu)
+  - [CPU - easy-peasy](#cpu-easy)
+  - [CPU - a bit harder](#cpu-hard)
   - [Allocation](#alloc)
   - [Allocation - live objects](#alloc-live)
 
@@ -364,8 +365,8 @@ are quite low. In our testing application default settings for the thread pool a
 That numbers vary between versions. I remember one application with HTTP Client 4.x
 with defaults set to **2**.
 
-### CPU
-{: #cpu }
+### CPU - easy-peasy
+{: #cpu-easy }
 
 if you know that your application is CPU intensive and you want to decrease CPU consumption, 
 then the CPU mode is suitable. 
@@ -378,11 +379,8 @@ curl -v http://localhost:8081/examples/cpu/prepare
 
 # Little warmup
 ab -n 5 -c 1 http://localhost:8081/examples/cpu/inverse
-```
 
-Profiling time:
-
-```shell
+# Profiling time:
 ./profiler.sh start -e cpu -f cpu.jfr first-application-0.0.1-SNAPSHOT.jar
 ab -n 5 -c 1 http://localhost:8081/examples/cpu/inverse
 ./profiler.sh stop -f cpu.jfr first-application-0.0.1-SNAPSHOT.jar
@@ -475,6 +473,106 @@ public void inverse(UUID uuid) {
 So we're basically changing one column in one row in DB. We can do it more efficiently 
 with simple ```update``` query, even with Spring Data JPA repository or simple JDBC.
 Do we really need to use Hibernate everywhere?
+
+### CPU - a bit harder
+{: #cpu-hard }
+
+Sometimes the results of CPU profiler is just beginning of the fun. Let's consider following example:
+
+```shell
+# Little warmup
+ab -n 10 -c 1 http://localhost:8081/examples/cpu/matrix-slow
+
+# Profiling time
+./profiler.sh start -e cpu -f matrix-slow.jfr FirstApplication
+ab -n 10 -c 1 http://localhost:8081/examples/cpu/matrix-slow
+./profiler.sh stop -f matrix-slow.jfr FirstApplication
+
+# Little warmup
+ab -n 10 -c 1 http://localhost:8081/examples/cpu/matrix-fast
+
+# Profiling time
+./profiler.sh start -e cpu -f matrix-fast.jfr FirstApplication
+ab -n 10 -c 1 http://localhost:8081/examples/cpu/matrix-fast
+./profiler.sh stop -f matrix-fast.jfr FirstApplication
+```
+
+Let's see the times of ```matrix-slow``` request:
+
+```shell
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.0      0       0
+Processing:  1706 1735  29.0   1735    1786
+Waiting:     1706 1735  28.9   1735    1786
+Total:       1706 1735  29.0   1735    1786
+```
+
+TODO flames
+
+Whole CPU is wasted in method:
+
+```java
+public static int[][] matrixMultiplySlow(int[][] a, int[][] b, int size) {
+    int[][] result = new int[size][size];
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            int sum = 0;
+            for (int k = 0; k < size; k++) {
+                sum += a[i][k] * b[k][j];
+            }
+            result[i][j] = sum;
+        }
+    }
+    return result;
+}
+```
+
+If we look at the times of ```matrix-fast``` request:
+
+```shell
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.0      0       0
+Processing:   861  888  20.7    890     924
+Waiting:      861  887  20.7    890     924
+Total:        861  888  20.7    890     924
+```
+
+That request is two times faster than the ```matrix-slow```, but if we look at the profile:
+
+TODO flames
+
+Whole CPU is wasted in method:
+
+```java
+public static int[][] matrixMultiplyFaster(int[][] a, int[][] b, int size) {
+    int[][] result = new int[size][size];
+    for (int i = 0; i < size; i++) {
+        for (int k = 0; k < size; k++) {
+            int current = a[i][k];
+            for (int j = 0; j < size; j++) {
+                result[i][j] += current * b[k][j];
+            }
+        }
+    }
+    return result;
+}
+```
+
+Both methods ```matrixMultiplySlow``` and ```matrixMultiplyFaster``` have the same complexity O(n^3). So
+why one is faster than the other? Well, if you want to understand how exactly CPU intensive algorithm is working
+you need to understand how CPU is working, which is far away from the topic of this post. Be aware that if
+you want to optimize such algorithms you will probably need at least one of:
+
+- Knowledge of CPU architecture
+- Top-Down performance analysis methodology
+- Looking at the ASM of generated methods  
+
+Many Java programmers forget that all the execution is done in CPU. To talk to CPU Java needs to use ASM. That's
+basically what JIT compiler is doing, it converts your hot methods and loops into effective ASM. At the assembly level
+you can check if JIT used vectorized instruction for your loops for example. So yes, sometime you need to get dirty 
+with such a low level stuff. For now async-profiler can give you a hint which methods you should focus on.
 
 ### Allocation
 {: #alloc }
