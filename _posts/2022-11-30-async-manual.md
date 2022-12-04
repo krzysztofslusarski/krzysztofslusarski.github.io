@@ -761,7 +761,7 @@ If you have a Spring/SpringBoot application you can just use a starter written b
 <dependency>
     <groupId>com.github.krzysztofslusarski</groupId>
     <artifactId>continuous-async-profiler-spring-starter</artifactId>
-    <version>1.5</version>
+    <version>1.6</version>
 </dependency>
 ```
 
