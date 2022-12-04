@@ -60,19 +60,15 @@ mvn clean package
 To run the application you need three terminals where you run (you need 8081, 8082 and 8083 ports available):
 
 ```shell
-java \
+java -Xms1G -Xmx1G \
 -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints \
--Xms1G -Xmx1G \
+-Xlog:class+load,os+thread,safepoint,gc+humongous=trace \
 -jar first-application/target/first-application-0.0.1-SNAPSHOT.jar 
 
-java \
--XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints \
--Xms1G -Xmx1G \
+java -Xms1G -Xmx1G \
 -jar second-application/target/second-application-0.0.1-SNAPSHOT.jar
 
-java \
--XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints \
--Xms1G -Xmx1G \
+java -Xms1G -Xmx1G \
 -jar third-application/target/third-application-0.0.1-SNAPSHOT.jar
 ```
 
@@ -407,7 +403,46 @@ had a line in logs that shew execution time of ```X ms```, caller had similar lo
 that presented ```1/10 * X ms```. What was those teams doing to understand that? They
 tried to convinced network department that it's a network issue. Big waste of time.
 
-TODO: logi
+I also saw plenty of custom logic that traced external execution time. In our application
+you can see such pattern:
+
+```java
+void calculateAndExecuteFast() {
+    // ...
+    invokeWithLogTime(() ->
+            pool3RestTemplate.getForObject(SECOND_APPLICATION_URL + "/examples/wall/fast", String.class)
+    );
+}
+
+private <T> T invokeWithLogTime(Supplier<T> toInvoke) {
+    StopWatch stopWatch = new StopWatch();
+
+    stopWatch.start();
+    T ret = toInvoke.get();
+    stopWatch.stop();
+
+    log.info("External WS invoked in: {}ms", stopWatch.getTotalTimeMillis());
+    return ret;
+}
+```
+
+That logs don't trace the time on external service, the time also includes all the magic done by
+Spring, including waiting for a connection from the pool. You can easily see that for the second request
+logs like:
+
+```
+External WS invoked in: 937ms
+```
+
+But the second service that is invoked is:
+
+```java
+    @GetMapping("/fast")
+    String fast() throws InterruptedException {
+        Thread.sleep(500);
+        return "OK";
+    }
+```
 
 ### CPU - easy-peasy
 {: #cpu-easy }
@@ -918,6 +953,47 @@ That will also register us the ```@Observed``` aspect. In the end I didn't use i
 remained.
 
 And that's it. Let's try it.
+
+```shell
+# Little warmup
+ab -n 24 -c 1 http://localhost:8081/examples/context/observe
+
+# Profiling time - this time we start profiler from Java
+curl -v http://localhost:8081/examples/context/start
+curl -v http://localhost:8082/examples/context/start
+curl -v http://localhost:8083/examples/context/start
+
+ab -n 24 -c 1 http://localhost:8081/examples/context/observe
+
+# Stopping the profiler
+curl -v http://localhost:8081/examples/context/stop
+curl -v http://localhost:8082/examples/context/stop
+curl -v http://localhost:8083/examples/context/stop
+```
+
+Let's look at the times during profiling (I've cut output to 12 rows):
+
+```shell
+04/gru/2022:20:54:25 +0100 [GET /examples/context/observe HTTP/1.0] [200] [1538 ms] [http-nio-8081-exec-8]
+04/gru/2022:20:54:26 +0100 [GET /examples/context/observe HTTP/1.0] [200] [1537 ms] [http-nio-8081-exec-9]
+04/gru/2022:20:54:29 +0100 [GET /examples/context/observe HTTP/1.0] [200] [3039 ms] [http-nio-8081-exec-10]
+04/gru/2022:20:54:33 +0100 [GET /examples/context/observe HTTP/1.0] [200] [3218 ms] [http-nio-8081-exec-1]
+04/gru/2022:20:54:34 +0100 [GET /examples/context/observe HTTP/1.0] [200] [1538 ms] [http-nio-8081-exec-2]
+04/gru/2022:20:54:37 +0100 [GET /examples/context/observe HTTP/1.0] [200] [3038 ms] [http-nio-8081-exec-3]
+04/gru/2022:20:54:39 +0100 [GET /examples/context/observe HTTP/1.0] [200] [1538 ms] [http-nio-8081-exec-4]
+04/gru/2022:20:54:42 +0100 [GET /examples/context/observe HTTP/1.0] [200] [3270 ms] [http-nio-8081-exec-5]
+04/gru/2022:20:54:45 +0100 [GET /examples/context/observe HTTP/1.0] [200] [3038 ms] [http-nio-8081-exec-6]
+04/gru/2022:20:54:47 +0100 [GET /examples/context/observe HTTP/1.0] [200] [1536 ms] [http-nio-8081-exec-7]
+04/gru/2022:20:54:48 +0100 [GET /examples/context/observe HTTP/1.0] [200] [1536 ms] [http-nio-8081-exec-8]
+04/gru/2022:20:54:53 +0100 [GET /examples/context/observe HTTP/1.0] [200] [4756 ms] [http-nio-8081-exec-9]
+```
+
+We can see that we have three groups of times:
+- ```~1500ms```
+- ```~3000ms```
+- ```~4500ms```
+
+
 
 ## Notes to remove
 832
