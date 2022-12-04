@@ -28,6 +28,7 @@ problems that I solved during my carrier.
   - [CPU - easy-peasy](#cpu-easy)
   - [CPU - a bit harder](#cpu-hard)
   - [Allocation](#alloc)
+  - [Allocation - humongous objects](#alloc-ha)
   - [Allocation - live objects](#alloc-live)
 - [Methods profiling](#methods)
   - [Exceptions](#methods-ex)
@@ -35,11 +36,12 @@ problems that I solved during my carrier.
   - [Thread start](#methods-thread)
   - [Classloading](#methods-classes)
 - [Filtering single request](#single-req)
-- [Contextual profiling](#context-id)
 - [Continuous profiling](#continuous)
   - [Command line](#continuous-cli})
   - [Java](#continuous-java)
   - [Spring Boot](#continuous-spring)
+- [Contextual profiling](#context-id)
+  - [Contextual profiling in Spring Boot microservices](#context-id-spring)
 
 ## Profiled application 
 {: #profiled-application }
@@ -55,7 +57,7 @@ cd async-profiler-demos
 mvn clean package
 ```
 
-To run the application you need two terminals where you run (you need 8081 and 8082 ports available):
+To run the application you need three terminals where you run (you need 8081, 8082 and 8083 ports available):
 
 ```shell
 java \
@@ -67,6 +69,11 @@ java \
 -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints \
 -Xms1G -Xmx1G \
 -jar second-application/target/second-application-0.0.1-SNAPSHOT.jar
+
+java \
+-XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints \
+-Xms1G -Xmx1G \
+-jar third-application/target/third-application-0.0.1-SNAPSHOT.jar
 ```
 
 I'm using Corretto 17.0.2:
@@ -210,7 +217,8 @@ for each sample contains:
 - Timestamp
 - Monitor class - for ```lock``` mode
 - Waiting for lock duration - for ```lock``` mode
-- Allocated object - for ```alloc``` mode
+- Allocated object class - for ```alloc``` mode
+- Allocated object size - for ```alloc``` mode
 - Context ID - if you are using async-profiler with
   [Context ID PR](https://github.com/jvm-profiling-tools/async-profiler/pull/576){:target="_blank"} merged
 
@@ -398,6 +406,8 @@ included in the whole time ov invocation which is a lie. I saw in the past when 
 had a line in logs that shew execution time of ```X ms```, caller had similar log
 that presented ```1/10 * X ms```. What was those teams doing to understand that? They
 tried to convinced network department that it's a network issue. Big waste of time.
+
+TODO: logi
 
 ### CPU - easy-peasy
 {: #cpu-easy }
@@ -653,6 +663,7 @@ What is important to us is that in both this cases JVM emits an event that can b
 by a profiler. That's basically how async-profiler samples allocation.
 
 ### Allocation - humongous objects 
+{: #alloc-ha }
 
 ### Allocation - live objects
 {: #alloc-live }
@@ -683,9 +694,6 @@ by a profiler. That's basically how async-profiler samples allocation.
 ## Filtering single request
 {: #single-req }
 
-## Contextual profiling
-{: #context-id }
-
 ## Continuous profiling
 {: #continuous }
 
@@ -704,6 +712,11 @@ for next crash? No, aviation business has flight recorder on every plane.
 That box records every data it can during the flight. After any disaster that data are ready to be analyzed.
 Can we do similar approach with Java profiling? Yes, we can. We can have profiler attach 24/7 dumping the data
 every fixed interval of time. If anything bad happens to our application, we have the data that we can analyze.
+
+From my personal experience the continuous profiling is the best technique to diagnose degradations
+and outages efficiently. It is also very useful if you want to understand why the performance differs
+between two versions of the same application. You just need to get previous version profiling results
+from some kind of archive and compare it to current one. 
 
 Here are the ways of enabling async-profiler in continuous mode:
 
@@ -767,6 +780,146 @@ If you have a Spring/SpringBoot application you can just use a starter written b
 
 Read **[readme](https://github.com/krzysztofslusarski/continuous-async-profiler){:target="_blank"}** first.
 
+## Contextual profiling
+{: #context-id }
+
+Continuous profiling together with possibility to extract a profile of a single request is very
+powerful. Unfortunately there are applications where that is not enough. Some examples:
+
+- Any work that is delegated to different thread will be missed in that profile
+- If one request is computed by multiple threads/JVMs we need to combine multiple profiles
+- Applications in distributed architecture, even if single request is processed by single thread
+  usually there are remote calls to other services
+
+In the last example we can extract profile for each microservice to understand behaviour of the
+request processing in such a distributed architecture. This is doable, but consumes a lot of time.
+
+All the problems mentioned above can be covered by **contextual profiling**. The concept is pretty trivial.
+Every time when any thread is executing any work, that work is done is some context (eg. in context
+of a single request). Instead of just doing that work we do:
+
+```java
+asyncProfiler.setContextId(contextId);
+actualWork();
+asyncProfiler.clearContextId();
+```
+
+If there is any sample gathered during ```actualWork()``` the profiler can add ```contextId``` to 
+the sample in JFR file. Such a functionality is introduced in
+[Context ID PR](https://github.com/jvm-profiling-tools/async-profiler/pull/576){:target="_blank"}.
+For now that PR is not merged to the master, but it's a matter of paperwork, I hope it will be
+merged soon.
+
+### Contextual profiling in Spring Boot microservices
+{: #context-id-spring }
+
+Let's try to join Spring Boot microservices with the contextual profiling. In Spring Boot 3.0
+we have included **Micrometer Tracing**. One of its functionality is generating **context ID** 
+(called ```traceId```) for every request. That ```traceId``` is passed during execution to
+other Spring Boot microservices. We just need to pass that ```traceId``` to the async-profiler
+and we are done. 
+
+Since that PR is not merged to the master you need to compile async-profiler from sources.
+I compiled it on my Ubuntu x86 with glibc
+[here](https://github.com/krzysztofslusarski/async-profiler-demos/blob/master/libasyncProfiler.so){:target="_blank"}.
+It may not work on every linux on every machine. If it's your case, just compile the
+profiler from sources. It's really easy. 
+
+Ok, let's integrate it with async-profiler. This time I will use Java API. For a start simple
+utility class:
+
+```java
+public abstract class AsyncProfilerUtils {
+    private static volatile AsyncProfiler asyncProfiler;
+    private static final Object MUX = new Object();
+
+    public static AsyncProfiler load() {
+        if (asyncProfiler == null) {
+            synchronized (MUX) {
+                if (asyncProfiler == null) {
+                    asyncProfiler = AsyncProfiler.getInstance("/tmp/libasyncProfiler.so");
+                }
+            }
+        }
+        return asyncProfiler;
+    }
+
+    public static void start(String filename) throws IOException {
+        load().execute("start,jfr,event=wall,file=" + filename);
+    }
+
+    public static void stop(String filename) throws IOException {
+        load().execute("stop,jfr,event=wall,file=" + filename);
+    }
+}
+```
+
+I load the profiler from ```/tmp/libasyncProfiler.so```and use **wall-clock** mode, I believe it is the
+most suitable mode for most of the enterprise applications.
+
+To integrate profiler with the Micrometer Tracing we need to implement ```ObservationHandler```:
+
+```java
+public class AsyncProfilerObservationHandler implements ObservationHandler<Observation.Context> {
+    private static final ThreadLocal<TraceContext> LOCAL_TRACE_CONTEXT = new ThreadLocal<>();
+
+    @Override
+    public boolean supportsContext(Observation.Context context) { return true; }
+
+    @Override
+    public void onStart(Observation.Context context) {
+        TracingContext tracingContext = context.get(TracingContext.class);
+        TraceContext traceContext = tracingContext.getSpan().context();
+        TraceContext currentTraceContext = LOCAL_TRACE_CONTEXT.get();
+
+        if (currentTraceContext == null || 
+                !currentTraceContext.traceId().equals(traceContext.traceId())) {
+            LOCAL_TRACE_CONTEXT.set(traceContext);
+            AsyncProfilerUtils.load().setContextId(lowerHexToUnsignedLong(traceContext.traceId()));
+        }
+    }
+
+    @Override
+    public void onError(Observation.Context context) { }
+
+    @Override
+    public void onEvent(Observation.Event event, Observation.Context context) { }
+
+    @Override
+    public void onStop(Observation.Context context) {
+        TracingContext tracingContext = context.get(TracingContext.class);
+        TraceContext traceContext = tracingContext.getSpan().context();
+        TraceContext currentTraceContext = LOCAL_TRACE_CONTEXT.get();
+        
+        if (currentTraceContext != null && 
+                currentTraceContext.spanId().equals(traceContext.spanId())) {
+            LOCAL_TRACE_CONTEXT.remove();
+            AsyncProfilerUtils.load().clearContextId();
+        }
+    }
+}
+```
+
+**Big fat warning**: don't treat that class as production ready. It's suitable for that example,
+but for sure it will not work with any asynchronous/reactive calls. Mind that ```onStart/onStop```
+can be called multiple times with the same ```traceId``` and different ```spanId```.
+
+Now we need to register that implementation:
+
+```java
+@Bean
+ObservedAspect observedAspect(ObservationRegistry observationRegistry) {
+    observationRegistry.observationConfig().observationHandler(new AsyncProfilerObservationHandler());
+    return new ObservedAspect(observationRegistry);
+}
+```
+
+That will also register us the ```@Observed``` aspect. In the end I didn't use it, but such a configuration
+remained.
+
+And that's it. Let's try it.
+
 ## Notes to remove
 832
 xdotool search localhost windowraise windowmove 50 50 windowsize 876 800
+
