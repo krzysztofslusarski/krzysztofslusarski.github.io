@@ -952,7 +952,7 @@ ObservedAspect observedAspect(ObservationRegistry observationRegistry) {
 That will also register us the ```@Observed``` aspect. In the end I didn't use it, but such a configuration
 remained.
 
-And that's it. Let's try it.
+And that's it. Let's try it out.
 
 ```shell
 # Little warmup
@@ -993,7 +993,94 @@ We can see that we have three groups of times:
 - ```~3000ms```
 - ```~4500ms```
 
+After we executed script above we have three JFR files in ```/tmp``` directory. When we load all three files 
+together to my viewer and check the _Correlation ID stats_ section, we can see:
 
+![alt text](/assets/async-demos/context-1.png "context-1")
+
+So we have similar times from our JFR files. Looking good. Let's filter all the samples by context ID. I's
+called _ECID filter_ in my viewer, let's put a value ```-3264552494855344825``` which took ```4650ms``` 
+according to records in the JFR. Let's also add additional _filename level_. Filename is correlated to
+application name. Here comes the flame graph: ([HTML](/assets/async-demos/context-1.html){:target="_blank"})
+
+![alt text](/assets/async-demos/context-2.png "flames")
+
+All three application on the same flame graph. This is beautiful. Just a reminder: it's not a whole application,
+it's a single request presented here. I highlighted the ```slowPath()``` method
+executed in second and third app, which causes higher latency. You can play with HTML flame graph by your own
+to see what is happening there, or you can just jump into the code. I would like to focus on what context ID 
+functionality gives us. Because, there is more. We've already added additional _filename level_. We can also
+add timestamps as another level. Let's do that. I will present you only the bottom of the graph, since
+that's what is important here: ([HTML](/assets/async-demos/context-2.html){:target="_blank"})
+
+![alt text](/assets/async-demos/context-3.png "flames")
+
+The article resolution may look unclear, you can check [HTML](/assets/async-demos/context-2.html){:target="_blank"}
+version for clarity. In the bottom you can see five brown rectangles. Those are timestamps trimmed to seconds.
+So basically from left to right we can see what was happening to our request second by second. Let's highlight
+when the second application was running during that request:
+
+![alt text](/assets/async-demos/context-4.png "flames")
+
+And the third:
+
+![alt text](/assets/async-demos/context-5.png "flames")
+
+First application is always running since it's entry point to our distributed architecture. The second application
+code that is invoked is:
+
+```java
+@RequiredArgsConstructor
+class ContextService {
+    // ...
+    void doSomething() {
+        if (counter.incrementAndGet() % 3 == 0) {
+            slowPath();
+            return;
+        }
+
+        fastPath();
+    }
+
+    private void fastPath() {
+        // ...
+    }
+
+    private void slowPath() {
+        // ...
+    }
+}
+```
+
+And the third application:
+
+```java
+class ContextService {
+    // ...
+    void doSomething() {
+        if (counter.incrementAndGet() % 4 == 0) {
+            blackhole = slowPath();
+            return;
+        }
+        blackhole = fastPath();
+    }
+
+    private int slowPath() {
+        // ...
+    }
+
+    private int fastPath() {
+        // ...
+    }
+}
+```
+
+So the second application is slower every third request, and the third application is slower every forth request.
+That means that every twelfth request we are slower in both of them.
+
+I strongly believe that contextual profiling is the future in that area. Everything you see here take with a grain of
+salt. My Spring integration and my JFR viewer are far away to something professional. I want to inspire you to
+search for the new possibilities like that. If you find any, share it with the rest of Java performance community.
 
 ## Notes to remove
 832
