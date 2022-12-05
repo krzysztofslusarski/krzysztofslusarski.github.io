@@ -1515,6 +1515,84 @@ I strongly believe that contextual profiling is the future in that area. Everyth
 salt. My Spring integration and my JFR viewer are far away to something professional. I want to inspire you to
 search for the new possibilities like that. If you find any, share it with the rest of Java performance community.
 
+### Contextual profiling in distributed systems
+{: #context-id-hz }
+
+At first let's differentiate distributed architecture from distributed system. For a purpose of this post let's assume
+following:
+
+- distributed architecture is a set of applications that works together - like microservices
+- distributed system is one application that is deployed on more than one JVM and to service some request
+  it distributes the work to more than one instance
+
+One example of distributed system may be Hazelcast. I've applied the context ID functionality to trace tail of
+the latency in SQL queries.
+
+Sample benchmark details:
+
+* Hazelcast cluster size: **4**
+* Machines with **Intel Xeon CPU E5-2687W**
+* Heap size: **10 GB**
+* **JDK17**
+* SQL query that is benchmarked: ```select count(*) form iMap```
+* iMap size – **1 million** java serialized objects
+* Benchmark duration: **8 minutes**
+
+The latency distribution for that benchmark:
+
+![alt text](/assets/distributed/dist.png "dist")
+
+The **50th** percentile is **1470 ms**, whereas the **99.9th** is **3718 ms**. Let’s now analyze the **JFR** outputs with my tool.
+I’ve created a table with the longest queries in the files:
+
+![alt text](/assets/distributed/cid.png "cid")
+
+Let’s analyze a single query using context ID functionality. The full flame graph:
+
+![alt text](/assets/distributed/1.png "1")
+
+Let’s focus on the bottom rows:
+
+![alt text](/assets/distributed/2.png "2")
+
+Let’s start with timestamps and highlight them one by one:
+
+![alt text](/assets/distributed/3.png "3")
+![alt text](/assets/distributed/4.png "4")
+![alt text](/assets/distributed/5.png "5")
+![alt text](/assets/distributed/6.png "6")
+![alt text](/assets/distributed/7.png "7")
+
+Summing that up:
+
+* **41.91%** of samples were gathered between 14:47:19 and 14:47:20
+* **35.79%** of samples were gathered between 14:47:20 and 14:47:21
+* **6.68%** of samples were gathered between 14:47:21 and 14:47:22
+* **12.37%** of samples were gathered between 14:47:22 and 14:47:23
+* **3.34%** of samples were gathered between 14:47:23 and 14:47:24
+
+Let’s highlight the filenames (which are named with the **IP** of the server) one by one:
+
+![alt text](/assets/distributed/8.png "8")
+![alt text](/assets/distributed/9.png "9")
+![alt text](/assets/distributed/10.png "10")
+![alt text](/assets/distributed/11.png "11")
+
+A little summary:
+
+* **25.42%** of samples are from node 10.212.1.101
+* **23,75%** of samples are from node 10.212.1.102
+* **21.07%** of samples are from node 10.212.1.103
+* **29.77%** of samples are from node 10.212.1.104
+
+Since brown bars are sorted alphabetically by timestamps, we can conclude that the **10.212.1.104** server is doing any work
+in the last seconds of processing.
+
+I checked five more long latency requests and the results were the same, confirming that the **10.212.1.104** server is 
+the problem. I spent a lot of time trying to figure out what is wrong with that machine. My biggest suspect was a 
+difference in meltdown/spectre patches in the kernel. In the end we reinstalled Linux on those machines which solved
+the problem with **10.212.1.104** server.
+
 ## Notes to remove
 832
 xdotool search localhost windowraise windowmove 50 50 windowsize 876 800
