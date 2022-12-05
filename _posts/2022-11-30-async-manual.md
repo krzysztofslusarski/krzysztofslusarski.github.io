@@ -104,7 +104,7 @@ seen. Just consider it as a typical microservice build with Spring Boot and Hibe
 
 In all the examples I will assume that the application is started with ```java -jar``` command.
 If you are running the application from the IDE then the name of the application is switched 
-from ```first-application-0.0.1-SNAPSHOT.jar``` to ```first-application-0.0.1-SNAPSHOT.jar```
+from ```first-application-0.0.1-SNAPSHOT.jar``` to ```FirstApplication```.
 
 ## How to run an Async-profiler 
 {: #how-to }
