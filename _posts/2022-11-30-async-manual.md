@@ -1121,8 +1121,45 @@ In the access logs we can spot faster and slower requests:
 [05/Dec/2022:18:41:59 +0100] [GET /examples/filtering/ HTTP/1.0] [200] [2829 ms] [http-nio-8081-exec-7]
 [05/Dec/2022:18:41:59 +0100] [GET /examples/filtering/ HTTP/1.0] [200] [1058 ms] [http-nio-8081-exec-1]
 ```
+ 
+Let's load the JFR to m viewer and look at the flame graph of a whole application:
+([HTML](/assets/async-demos/filtering-1.html){:target="_blank"})
 
-TODO dokończyć 
+![alt text](/assets/async-demos/filtering-1.png "flames")
+
+It's hard to guess from that why some requests are slower than the others. We can see two different
+methods executed at the top of the flame graph:
+
+- ```matrixMultiplySlow()```
+- ```matrixMultiplyFaster()```
+
+We cannot conclude from that which one is responsible for worse latency. Let's add filters to that
+graph to understand latency of second request from pasted access log:
+
+```
+[05/Dec/2022:18:41:57 +0100] [GET /examples/filtering/ HTTP/1.0] [200] [2779 ms] [http-nio-8081-exec-5]
+```
+
+- _Access log filter_:
+  - _End date_ - ```05/Dec/2022:18:41:57 +0100```
+  - _End date format_ - let's keep the default one
+  - _Duration_ - ```2779```
+  - _Locale language_ - ```EN```
+- _Thread filter_ - ```http-nio-8081-exec-5```
+
+Now the flame graph is obvious:
+([HTML](/assets/async-demos/filtering-2.html){:target="_blank"})
+
+![alt text](/assets/async-demos/filtering-2.png "flames")
+
+We can check this way few more requests, and we can figure our that:
+
+- In every slow request we executed ```matrixMultiplySlow()```
+- In every fast request we executed ```matrixMultiplyFaster()```
+
+That technique is great to fight with the tail of the latency. We can focus our work on longest
+operations. That may lead us to some nice fixes.
+
 ## Continuous profiling
 {: #continuous }
 
