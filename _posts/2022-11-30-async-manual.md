@@ -14,13 +14,15 @@ The goal of that post is to give examples. It's not a replacement of project REA
 haven't read it, simply do it.
 
 All the examples that you are going to see here are synthetic reproduction of real world 
-problems that I solved during my carrier.
+problems that I solved during my carrier. Even if some example looks like "it's too stupid
+to happen anywhere", well, it isn't. 
 
 - [Profiled application](#profiled-application)
 - [How to run an Async-profiler](#how-to)
   - [Command line](#how-to-cl)
   - [During JVM startup](#how-to-jvm)
   - [From Java API](#how-to-java)
+  - [From JMH benchmark](#how-to-jmh)
 - [Output formats](#out)
 - [Flame graphs](#flames)
 - [Basic resources profiling](#basic-resources)
@@ -30,11 +32,13 @@ problems that I solved during my carrier.
   - [Allocation](#alloc)
   - [Allocation - humongous objects](#alloc-ha)
   - [Allocation - live objects](#alloc-live)
+  - [Locks](#locks)
 - [Methods profiling](#methods)
   - [Exceptions](#methods-ex)
   - [G1GC humongous allocation](#methods-g1ha)
   - [Thread start](#methods-thread)
   - [Classloading](#methods-classes)
+- [Perf events](#perf)
 - [Filtering single request](#single-req)
 - [Continuous profiling](#continuous)
   - [Command line](#continuous-cli})
@@ -62,7 +66,8 @@ To run the application you need three terminals where you run (you need 8081, 80
 ```shell
 java -Xms1G -Xmx1G \
 -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints \
--Xlog:class+load,os+thread,safepoint,gc+humongous=trace \
+-Duser.language=en-US \
+-Xlog:safepoint,gc+humongous=trace \
 -jar first-application/target/first-application-0.0.1-SNAPSHOT.jar 
 
 java -Xms1G -Xmx1G \
@@ -187,6 +192,11 @@ profiler.execute(String.format("start,jfr,event=wall,file=%s.jfr", fileName));
 // do something, like sleep
 profiler.execute(String.format("stop,file=%s.jfr", fileName));
 ```
+
+### From JMH benchmark
+{: #how-to-jmh }
+
+TODO
 
 ## Output formats
 {: #out }
@@ -664,7 +674,7 @@ The common use cases where that resource should be tracked are:
 
 - decreasing of GC runs frequency
 - finding allocation outside the TLAB which are done in slow path
-- fighting with single/tens of milliseconds latency, where even heap allocation matters
+- fighting with single/tens of milliseconds latency, where even heap object creation matters
 
 First let's understand how new objects on a heap are created, so we have a better
 understanding of what the async-profiler shows to us.
@@ -695,39 +705,286 @@ Introducing TLABs creates two more issues that JVM needs to deal:
   JVM will use _slow path_ of allocation that allocates the object directly in eden
 
 What is important to us is that in both this cases JVM emits an event that can be captured
-by a profiler. That's basically how async-profiler samples allocation.
+by a profiler. That's basically how async-profiler samples allocation:
+
+- if allocation of an object needed a new TLAB - we see aqua frame for that
+- if allocation was done outside the TLAB - we see brown frame
+
+In real world systems the frequency of GC can be monitored by systems like Grafana or Zabbix.
+Here we have a synthetic application, so let's measure the allocation size differently:
+
+```shell
+# Little warmup
+ab -n 2 -c 1 http://localhost:8081/examples/alloc/
+
+# Measuring a heap allocation of a request
+jcmd FirstApplication GC.run
+jcmd FirstApplication GC.heap_info
+ab -n 10 -c 1 http://localhost:8081/examples/alloc/
+jcmd FirstApplication GC.heap_info
+
+# Profiling time
+./profiler.sh start -e alloc -f alloc.jfr FirstApplication
+ab -n 1000 -c 1 http://localhost:8081/examples/alloc/
+./profiler.sh stop -f alloc.jfr FirstApplication
+```
+
+Let's see at the output of ```GC.heap_info``` commands:
+
+```shell
+ garbage-first heap   total 1048576K, used 41926K [0x00000000c0000000, 0x0000000100000000)
+  region size 1024K, 2 young (2048K), 0 survivors (0K)
+ Metaspace       used 67317K, committed 67904K, reserved 1114112K
+  class space    used 9868K, committed 10176K, reserved 1048576K
+
+ garbage-first heap   total 1048576K, used 110018K [0x00000000c0000000, 0x0000000100000000)
+  region size 1024K, 8 young (8192K), 0 survivors (0K)
+ Metaspace       used 67317K, committed 67904K, reserved 1114112K
+  class space    used 9868K, committed 10176K, reserved 1048576K
+```
+
+We executed ```alloc``` request ten times and our used heap usage wa increased from **41926K** to **110018K**.
+So we are creating over **6MB** of objects per request on a heap. If we look at the controller source code
+it's hard to justice that:
+
+```java
+@RestController
+@RequestMapping("/examples/alloc")
+@RequiredArgsConstructor
+class AllocController {
+    @GetMapping("/")
+    String get() {
+        return "OK";
+    }
+}
+```
+
+Let's look at the flame graph of allocation size: ([HTML](/assets/async-demos/alloc.html){:target="_blank"})
+
+![alt text](/assets/async-demos/alloc.png "flames")
+
+The class ```AbstractRequestLoggingFilter``` is responsible for over **99%** of recorder allocations. 
+How to find where it is created will be done in [Methods profiling](#methods) section, feel free to skip it for now.
+Here is an answer:
+
+```java
+@Bean
+CommonsRequestLoggingFilter requestLoggingFilter() {
+    CommonsRequestLoggingFilter loggingFilter = new CommonsRequestLoggingFilter() {
+        @Override
+        protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+            return !request.getRequestURI().contains("alloc");
+        }
+    };
+
+    loggingFilter.setIncludeClientInfo(true);
+    loggingFilter.setIncludeQueryString(true);
+    loggingFilter.setIncludePayload(true);
+    loggingFilter.setMaxPayloadLength(5 * 1024 * 1024);
+    loggingFilter.setIncludeHeaders(true);
+    return loggingFilter;
+}
+```
+
+I saw that code many times, this ```CommonsRequestLoggingFilter``` is a class that helps you log
+the REST endpoint communication. The ```setMaxPayloadLength()``` method sets the max size that we want
+to log. You can browse over Spring source code to see that the implementation creates bytes array of
+such size in the constructor. No matter how big the payload is, we always create **5MB** array here.
+
+The advice that I gave to users of that code was to create its own filter that will do the same job
+but allocate the array lazily.
 
 ### Allocation - humongous objects 
 {: #alloc-ha }
 
+If you are using G1 garbage collector, which is JVM's default since JDK 9, your heap is divided into
+regions. If you are trying to allocate the object that is larger or equal to half of the region size then
+you are doing humongous allocation. Long story short it has been, and it is a pain in the ass. 
+It is allocated directly in the old generation, but it is also cleared during minor GCs. I saw situations
+where G1 GC needed to invoke FullGC phase because of the humongous allocation. If you are doing a 
+lot of it G1 will also invoke more concurrent collections, which can waste your CPU.
+
+While running previous example you could spot in ```FirstApplication``` logs:
+
+```shell
+...
+[70,149s][debug][gc,humongous] GC(34) Reclaimed humongous region 436 (object size 5242896 @ 0x00000000db400000)
+[70,149s][debug][gc,humongous] GC(34) Reclaimed humongous region 442 (object size 5242896 @ 0x00000000dba00000)
+[70,149s][debug][gc,humongous] GC(34) Reclaimed humongous region 448 (object size 5242896 @ 0x00000000dc000000)
+[70,149s][debug][gc,humongous] GC(34) Reclaimed humongous region 454 (object size 5242896 @ 0x00000000dc600000)
+...
+```
+
+Those are GC logs that tell us that some humongous object of size ```5242896``` was reclaimed. The very nice thing
+of JFR files is that they also keep the size of sampled allocations. So with that we should be able to find out
+the stacktrace that has created that object.
+
+We don't need sophisticated JFR viewer for that. With JDK distribution we've got ```jfr``` command. Let's use it:
+
+```shell
+$ jfr summary alloc.jfr
+...
+ Event Type                          Count  Size (bytes) 
+=========================================================
+ jdk.ObjectAllocationOutsideTLAB      1013         19220
+ jdk.ObjectAllocationInNewTLAB         359          6719
+...
+```
+
+Let's focus on allocations outside TLAB, it is unlikely to allocate humongous object in the TLAB. 
+
+```shell
+$ jfr print --events jdk.ObjectAllocationOutsideTLAB --stack-depth 10 alloc.jfr
+...
+jdk.ObjectAllocationOutsideTLAB {
+  startTime = 2022-12-05T08:56:04.354766183Z
+  objectClass = byte[] (classLoader = null)
+  allocationSize = 5242896
+  eventThread = "http-nio-8081-exec-9" (javaThreadId = 49)
+  stackTrace = [
+    java.io.ByteArrayOutputStream.<init>(int) line: 81
+    org.springframework.web.util.ContentCachingRequestWrapper.<init>(HttpServletRequest, int) line: 90
+    org.springframework.web.filter.AbstractRequestLoggingFilter.doFilterInternal(HttpServletRequest, HttpServletResponse, FilterChain) line: 281
+    org.springframework.web.filter.OncePerRequestFilter.doFilter(ServletRequest, ServletResponse, FilterChain) line: 116
+    org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ServletRequest, ServletResponse) line: 185
+    org.apache.catalina.core.ApplicationFilterChain.doFilter(ServletRequest, ServletResponse) line: 158
+    org.springframework.web.filter.RequestContextFilter.doFilterInternal(HttpServletRequest, HttpServletResponse, FilterChain) line: 100
+    org.springframework.web.filter.OncePerRequestFilter.doFilter(ServletRequest, ServletResponse, FilterChain) line: 116
+    org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ServletRequest, ServletResponse) line: 185
+    org.apache.catalina.core.ApplicationFilterChain.doFilter(ServletRequest, ServletResponse) line: 158
+    ...
+  ]
+}
+...
+```
+
+We can easily match ```allocationSize = 5242896``` with the object size from GC logs, so using that 
+technique we can find and eliminate humongous allocations.
+
 ### Allocation - live objects
 {: #alloc-live }
+
+TODO
+
+### Locks
+{: #locks }
+
+TODO
 
 ## Methods 
 {: #methods }
 
+Async-profiler can instrument us a method, so we can see all the stacktraces that invoked that method.
+To achieve that async-profiler uses instrumentation.
+
+**Big fat warning**: It's already pointed in the README of the profiler that if you are not running
+the profiler from ```agentpath``` then the first instrumentation of Java method can result in code
+cache flush. It's no a fault of async-profiler, it's a nature of all instrumentation based profilers
+combined with JVM's code. Here is a comment from JVM sources:
+
+> Deoptimize all compiled code that depends on this class.
+>
+> If the can_redefine_classes capability is obtained in the onload
+>  phase then the compiler has recorded all dependencies from startup.
+>  In that case we need only deoptimize and throw away all compiled code
+> that depends on the class.
+>
+> If can_redefine_classes is obtained sometime after the onload
+> phase then the dependency information may be incomplete. In that case
+> the first call to RedefineClasses causes all compiled code to be
+> thrown away. As can_redefine_classes has been obtained then
+> all future compilations will record dependencies so second and
+> subsequent calls to RedefineClasses need only throw away code
+> that depends on the class.
+
+You can check the [README PR](https://github.com/jvm-profiling-tools/async-profiler/pull/483#discussion_r735019623){:target="_blank"}
+discussion for more information on that. For now let's focus on the usage of the mode for our purposes.
+In this case we could easily do it with plain IDE debugger, but there are situations where something
+is happening only on one environment, or we are tracing some issue that we do not know how to reproduce.
+
+Since Spring beans are usually created during applications startup let's run our application that way:
+
+```shell
+java \
+-agentpath:/path/to/libasyncProfiler.so=start,event="org.springframework.web.filter.AbstractRequestLoggingFilter.<init>" \
+-jar first-application/target/first-application-0.0.1-SNAPSHOT.jar
+```
+
+The ```AbstractRequestLoggingFilter.<init>``` is simply a constructor. We are trying to find out
+where such an object is created. After our application is started we can execute such a command
+in the profiler directory:
+
+```shell
+./profiler.sh stop first-application-0.0.1-SNAPSHOT.jar
+```
+
+It will print us to standard output one stacktrace:
+
+```shell
+--- Execution profile ---
+Total samples       : 1
+
+--- 1 calls (100.00%), 1 sample
+  [ 0] org.springframework.web.filter.AbstractRequestLoggingFilter.<init>
+  [ 1] org.springframework.web.filter.CommonsRequestLoggingFilter.<init>
+  [ 2] com.example.firstapplication.examples.alloc.AllocConfiguration$1.<init>
+  [ 3] com.example.firstapplication.examples.alloc.AllocConfiguration.requestLoggingFilter
+  [ 4] com.example.firstapplication.examples.alloc.AllocConfiguration$$SpringCGLIB$$0.CGLIB$requestLoggingFilter$0
+  [ 5] com.example.firstapplication.examples.alloc.AllocConfiguration$$SpringCGLIB$$2.invoke
+...
+  [24] org.springframework.beans.factory.support.AbstractBeanFactory.getBean
+...
+  [33] org.springframework.boot.web.embedded.tomcat.TomcatStarter.onStartup
+...
+  [58] org.springframework.boot.web.embedded.tomcat.TomcatWebServer.<init>
+...
+  [78] org.springframework.boot.loader.JarLauncher.main
+
+       calls  percent  samples  top
+  ----------  -------  -------  ---
+           1  100.00%        1  org.springframework.web.filter.AbstractRequestLoggingFilter.<init>
+```
+
+We have all the information that we need. The object is created in ```AllocConfiguration``` during
+creation of ```CommonsRequestLoggingFilter``` bean.
+
 ### Exceptions
 {: #methods-ex }
 
-```Java_java_lang_Throwable_fillInStackTrace```
+Method: ```Java_java_lang_Throwable_fillInStackTrace```
+
+TODO
 
 ### G1GC humongous allocation
 {: #methods-g1ha }
 
-```G1CollectedHeap::humongous_obj_allocate```
+Method: ```G1CollectedHeap::humongous_obj_allocate```
+
+TODO
 
 ### Thread start
 {: #methods-thread }
 
-```JVM_StartThread```
+Method: ```JVM_StartThread```
+
+TODO
 
 ### Classloading
 {: #methods-classes }
 
-```Java_java_lang_ClassLoader_defineClass1```
+Method: ```Java_java_lang_ClassLoader_defineClass1```
+
+TODO
+
+## Perf events
+{: #perf }
+
+TODO
 
 ## Filtering single request
 {: #single-req }
+
+TODO
 
 ## Continuous profiling
 {: #continuous }
@@ -954,6 +1211,8 @@ remained.
 
 And that's it. Let's try it out.
 
+TODO spring boot profile
+
 ```shell
 # Little warmup
 ab -n 24 -c 1 http://localhost:8081/examples/context/observe
@@ -1006,7 +1265,7 @@ application name. Here comes the flame graph: ([HTML](/assets/async-demos/contex
 ![alt text](/assets/async-demos/context-2.png "flames")
 
 All three application on the same flame graph. This is beautiful. Just a reminder: it's not a whole application,
-it's a single request presented here. I highlighted the ```slowPath()``` method
+it's a **single request** presented here. I highlighted the ```slowPath()``` method
 executed in second and third app, which causes higher latency. You can play with HTML flame graph by your own
 to see what is happening there, or you can just jump into the code. I would like to focus on what context ID 
 functionality gives us. Because, there is more. We've already added additional _filename level_. We can also
@@ -1015,7 +1274,7 @@ that's what is important here: ([HTML](/assets/async-demos/context-2.html){:targ
 
 ![alt text](/assets/async-demos/context-3.png "flames")
 
-The article resolution may look unclear, you can check [HTML](/assets/async-demos/context-2.html){:target="_blank"}
+The article image resolution may look unclear, you can check [HTML](/assets/async-demos/context-2.html){:target="_blank"}
 version for clarity. In the bottom you can see five brown rectangles. Those are timestamps trimmed to seconds.
 So basically from left to right we can see what was happening to our request second by second. Let's highlight
 when the second application was running during that request:
@@ -1086,3 +1345,4 @@ search for the new possibilities like that. If you find any, share it with the r
 832
 xdotool search localhost windowraise windowmove 50 50 windowsize 876 800
 
+zmiana na jar
