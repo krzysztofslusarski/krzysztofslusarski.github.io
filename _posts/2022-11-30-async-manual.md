@@ -982,7 +982,21 @@ If you want to check where humongous objects are allocated you can use method mo
 with event ```G1CollectedHeap::humongous_obj_allocate```. This approach may have lower
 overhead, but won't give you sizes of allocated objects.
 
-TODO example
+```shell
+# Little warmup
+ab -n 2 -c 1 http://localhost:8081/examples/alloc/
+
+# Profiling time
+./profiler.sh start -e "G1CollectedHeap::humongous_obj_allocate" -f humongous.jfr FirstApplication
+ab -n 1000 -c 1 http://localhost:8081/examples/alloc/
+./profiler.sh stop -f humongous.jfr FirstApplication
+```
+
+Flame graph is almost the same as in ```alloc``` mode, but this time we also
+can see some JVM yellow frames:
+([HTML](/assets/async-demos/humongous.html){:target="_blank"})
+
+![alt text](/assets/async-demos/humongous.png "flames")
 
 ### Thread start
 {: #methods-thread }
@@ -1003,7 +1017,38 @@ If you monitor that value and the chart like that:
 Then you may check who is creating those short living threads. You can find out that
 with method mode of async-profiler using ```JVM_StartThread``` event.
 
-TODO example?
+```shell
+# Little warmup
+ab -n 100 -c 1 http://localhost:8081/examples/thread/
+
+# Profiling time
+./profiler.sh start -e "JVM_StartThread" -f threads.jfr FirstApplication
+ab -n 1000 -c 1 http://localhost:8081/examples/thread/
+./profiler.sh stop -f threads.jfr FirstApplication
+```
+
+The flame graph:
+([HTML](/assets/async-demos/threads.html){:target="_blank"})
+
+![alt text](/assets/async-demos/threads-1.png "flames")
+
+You may see that such a flame graph is not really complicated. In real life such use cases 
+like thread creation looks similar to this one. The code responsible for that thread creation:
+
+```java
+@SneakyThrows
+@GetMapping("/")
+String doInNewThread() {
+    ExecutorService threadPool = Executors.newFixedThreadPool(1);
+    return threadPool.submit(() -> {
+        return "OK";
+    }).get();
+}
+```
+
+And yes, I saw such a thing in real production application. The intention was to have
+fixed thread pool and delegate tasks to it, but by mistake someone created that pool
+every request.
 
 ### Classloading
 {: #methods-classes }
@@ -1034,8 +1079,50 @@ TODO
 ## Filtering single request
 {: #single-req }
 
-TODO
+So far we were looking at the profile of a whole application. But what if app is working well
+but from time to time there is some slower requests, and we want to know why? In such an application,
+where one request is handled by one thread, we can extract profile of a single request. The JFR file contains
+all the information needed, we just need to filter them out. To do it, we need to have a log
+that will tell us which thread was responsible for execution of the request with time of the
+execution. Tomcat that is embedded into Spring Boot has access logs that have all that information.
 
+I configured our example application with access logs in format:
+
+```shell
+[%t] [%r] [%s] [%D ms] [%I]
+```
+
+Short explanation of that magic:
+- ```%t``` - time of finishing handling of the request
+- ```%r``` - requested URI
+- ```%s``` - response status code
+- ```%D``` - duration time in milliseconds
+- ```%I``` - thread that handled request
+
+Let's see it in action
+
+```shell
+# warmup
+ab -n 20 -c 4 http://localhost:8081/examples/filtering/
+
+# profiling of first request
+./profiler.sh start -e wall -f filtering.jfr FirstApplication
+ab -n 50 -c 4 http://localhost:8081/examples/filtering/
+./profiler.sh stop -f filtering.jfr FirstApplication
+```
+
+In the access logs we can spot faster and slower requests:
+
+```shell
+[05/Dec/2022:18:41:57 +0100] [GET /examples/filtering/ HTTP/1.0] [200] [1044 ms] [http-nio-8081-exec-2]
+[05/Dec/2022:18:41:57 +0100] [GET /examples/filtering/ HTTP/1.0] [200] [2779 ms] [http-nio-8081-exec-5]
+[05/Dec/2022:18:41:58 +0100] [GET /examples/filtering/ HTTP/1.0] [200] [1048 ms] [http-nio-8081-exec-8]
+[05/Dec/2022:18:41:58 +0100] [GET /examples/filtering/ HTTP/1.0] [200] [1052 ms] [http-nio-8081-exec-9]
+[05/Dec/2022:18:41:59 +0100] [GET /examples/filtering/ HTTP/1.0] [200] [2829 ms] [http-nio-8081-exec-7]
+[05/Dec/2022:18:41:59 +0100] [GET /examples/filtering/ HTTP/1.0] [200] [1058 ms] [http-nio-8081-exec-1]
+```
+
+TODO dokończyć 
 ## Continuous profiling
 {: #continuous }
 
