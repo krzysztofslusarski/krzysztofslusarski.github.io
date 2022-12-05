@@ -46,6 +46,7 @@ to happen anywhere", well, it isn't.
   - [Spring Boot](#continuous-spring)
 - [Contextual profiling](#context-id)
   - [Contextual profiling in Spring Boot microservices](#context-id-spring)
+  - [Contextual profiling in distributed systems](#context-id-hz)
 
 ## Profiled application 
 {: #profiled-application }
@@ -1374,6 +1375,7 @@ Now we need to register that implementation:
 
 ```java
 @Bean
+@Profile("context")
 ObservedAspect observedAspect(ObservationRegistry observationRegistry) {
     observationRegistry.observationConfig().observationHandler(new AsyncProfilerObservationHandler());
     return new ObservedAspect(observationRegistry);
@@ -1383,9 +1385,24 @@ ObservedAspect observedAspect(ObservationRegistry observationRegistry) {
 That will also register us the ```@Observed``` aspect. In the end I didn't use it, but such a configuration
 remained.
 
-And that's it. Let's try it out.
+And that's it. Let's try it out. We need to rerun the Spring Boot applications with additional profile:
 
-TODO spring boot profile
+```shell
+java -Xms1G -Xmx1G \
+-Dspring.profiles.active=context \
+-XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints \
+-jar first-application/target/first-application-0.0.1-SNAPSHOT.jar 
+
+java -Xms1G -Xmx1G \
+-Dspring.profiles.active=context \
+-jar second-application/target/second-application-0.0.1-SNAPSHOT.jar
+
+java -Xms1G -Xmx1G \
+-Dspring.profiles.active=context \
+-jar third-application/target/third-application-0.0.1-SNAPSHOT.jar
+```
+
+And now the applications will look for async-profiler in ```/tmp/libasyncProfiler.so```.
 
 ```shell
 # Little warmup
