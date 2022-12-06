@@ -197,7 +197,13 @@ profiler.execute(String.format("stop,file=%s.jfr", fileName));
 ### From JMH benchmark
 {: #how-to-jmh }
 
-TODO
+It's worth mentioning that async-profiler is supported in JMH benchmarks. If you have one you just need to run:
+
+```shell
+java -jar benchmarks.jar -prof async:libPath=/path/to/libasyncProfiler.so\;output=jfr\;event=cpu
+```
+
+JMH will take care about every magic, and you get nice JFR output from async-profiler.
 
 ## Output formats
 {: #out }
@@ -334,7 +340,7 @@ executions in CPU mode.
 ![alt text](/assets/async-demos/wall-cpu-second.png "flames")
 
 I agree that they are not identical, but they have one thing in common. They show
-that the most CPU consuming method invoked by my controller is ```WallService.calculateAndExecuteSlow()```.
+that the most CPU consuming method invoked by my controller is ```CpuConsumer.mathConsumer()```.
 It is not a lie, it consumes CPU. But does it consume most of the request time? 
 Look at the flame graphs in wall-clock mode:
 
@@ -344,7 +350,7 @@ Look at the flame graphs in wall-clock mode:
 **Second execution:** ([HTML](/assets/async-demos/wall-wall-second.html){:target="_blank"})
 ![alt text](/assets/async-demos/wall-wall-second.png "flames")
 
-I highlighted the ```WallService.calculateAndExecuteSlow()``` method. Wall-clock 
+I highlighted the ```CpuConsumer.mathConsumer()`` method. Wall-clock 
 mode shows us that this method is responsible just for **~4%** of execution time.
 
 **Thing to remember**: if your goal is to optimize time, and you use external
@@ -968,10 +974,74 @@ Unfortunately I saw application that used exception-control-flow approach. Throw
 exception is a CPU consuming operation, since by default it fills the stack trace. 
 The number one application in that category that I saw consumed **~15%** of CPU on just
 creating new exception. If you want to see where exception with stack trace is created 
-you can use async-profiler in method mode with event
-```Java_java_lang_Throwable_fillInStackTrace```
+you can use async-profiler in method mode with 
+event ```Java_java_lang_Throwable_fillInStackTrace```. 
 
-TODO example
+Let's start our application with profiler enabled from a start to see also how many
+exceptions are thrown during startup of Spring Boot application, just for fun:
+
+```shell
+java \
+-agentpath:/path/to/libasyncProfiler.so=start,jfr,file=exceptions.jfr,event="Java_java_lang_Throwable_fillInStackTrace" \
+-jar first-application/target/first-application-0.0.1-SNAPSHOT.jar
+```
+
+After the startup let's do:
+
+```shell
+ab -n 100 -c 1 http://localhost:8081/examples/exc/
+./profiler.sh stop -f exceptions.jfr first-application-0.0.1-SNAPSHOT.jar
+```
+
+The flame graph is too large to post it here as an image, sorry. Spring Boot in that case
+threw **12478** exceptions. You can play with [HTML](/assets/async-demos/exceptions.html){:target="_blank"}.
+Let's focus on our controller, if those were also caught:
+
+![alt text](/assets/async-demos/exceptions.png "flames")
+
+Source code of the controller:
+```java
+@GetMapping("/")
+String flowControl() {
+    ThreadLocalRandom random = ThreadLocalRandom.current();
+    try {
+        if (!random.nextBoolean()) {
+            throw new IllegalArgumentException("Random returned false");
+        }
+    } catch (IllegalArgumentException e) {
+        return "EXC";
+    }
+
+    return "OK";
+}
+```
+
+If you care about performance, don't use exception-control-flow approach. If you really need such a code,
+you have an exception constructor that doesn't fill the stack trace:
+
+```java
+/**
+ * Constructs a new exception with the specified detail message,
+ * cause, suppression enabled or disabled, and writable stack
+ * trace enabled or disabled.
+ *
+ * @param  message the detail message.
+ * @param cause the cause.  (A {@code null} value is permitted,
+ * and indicates that the cause is nonexistent or unknown.)
+ * @param enableSuppression whether or not suppression is enabled
+ *                          or disabled
+ * @param writableStackTrace whether or not the stack trace should
+ *                           be writable
+ * @since 1.7
+ */
+protected Exception(String message, Throwable cause,
+                    boolean enableSuppression,
+                    boolean writableStackTrace) {
+    super(message, cause, enableSuppression, writableStackTrace);
+}
+```
+
+Just set ```writableStackTrace``` to ```false```. I will be also ugly, but faster.
 
 ### G1GC humongous allocation
 {: #methods-g1ha }
@@ -1067,8 +1137,8 @@ attribute=TotalLoadedClassCount
 There are some internals of JVM (like reflection) or some frameworks that can generate you
 some new class definitions during runtime, so increasing of that number (even after warmup) 
 doesn't mean that we have a problem already. But if ```TotalLoadedClassCount``` is much higher 
-than ```LoadedClassCount```, you can check who is creating those classes with method mode and event:
-```Java_java_lang_ClassLoader_defineClass1```.
+than ```LoadedClassCount```, you can check who is creating those classes with method mode and 
+event: ```Java_java_lang_ClassLoader_defineClass1```.
 
 TODO example?
 
