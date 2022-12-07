@@ -39,6 +39,8 @@ to happen anywhere", well, it isn't.
   - [Thread start](#methods-thread)
   - [Classloading](#methods-classes)
 - [Perf events](#perf)
+- [Page faults](#perf-pf)
+- [Cycles](#perf-cycles)
 - [Filtering single request](#single-req)
 - [Continuous profiling](#continuous)
   - [Command line](#continuous-cli})
@@ -1311,6 +1313,23 @@ that there is such possibility.
 
 ## Perf events
 {: #perf }
+
+Async-profiler can also help you with low-level diagnosis where you want to correlate perf
+events with Java code. For example you can use events:
+
+- ```context-switches``` - to find out which parts of your Java code does context switching
+- ```cache-misses``` - which part of your code can stall due to cache misses - if you have many
+  context switches that information is harder to analyze
+- ```LLC-load-misses```- which part of your code needs something from RAM memory
+- ...
+
+I want to describe two in more details.
+
+### Page faults
+{: #perf-pf }
+
+### Cycles
+{: #perf-cycles }
 
 TODO
 
