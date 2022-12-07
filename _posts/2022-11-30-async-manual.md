@@ -33,14 +33,15 @@ to happen anywhere", well, it isn't.
   - [Allocation - humongous objects](#alloc-ha)
   - [Allocation - live objects](#alloc-live)
   - [Locks](#locks)
+- [Time to safepoint](#tts)
 - [Methods profiling](#methods)
   - [Exceptions](#methods-ex)
   - [G1GC humongous allocation](#methods-g1ha)
   - [Thread start](#methods-thread)
   - [Classloading](#methods-classes)
 - [Perf events](#perf)
-- [Page faults](#perf-pf)
-- [Cycles](#perf-cycles)
+  - [Page faults](#perf-pf)
+  - [Cycles](#perf-cycles)
 - [Filtering single request](#single-req)
 - [Continuous profiling](#continuous)
   - [Command line](#continuous-cli})
@@ -67,16 +68,16 @@ mvn clean package
 To run the application you need three terminals where you run (you need 8081, 8082 and 8083 ports available):
 
 ```shell
-java -Xms1G -Xmx1G \
+java -Xms1G -Xmx1G -XX:+AlwaysPreTouch \
 -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints \
 -Duser.language=en-US \
 -Xlog:safepoint,gc+humongous=trace \
 -jar first-application/target/first-application-0.0.1-SNAPSHOT.jar 
 
-java -Xms1G -Xmx1G \
+java -Xms1G -Xmx1G -XX:+AlwaysPreTouch \
 -jar second-application/target/second-application-0.0.1-SNAPSHOT.jar
 
-java -Xms1G -Xmx1G \
+java -Xms1G -Xmx1G -XX:+AlwaysPreTouch \
 -jar third-application/target/third-application-0.0.1-SNAPSHOT.jar
 ```
 
@@ -1047,6 +1048,11 @@ It is worth mentioning that ```--live``` option is available since **async-profi
 
 TODO
 
+## Time to safepoint
+{: #tts }
+
+TODO
+
 ## Methods 
 {: #methods }
 
@@ -1328,10 +1334,95 @@ I want to describe two in more details.
 ### Page faults
 {: #perf-pf }
 
+![alt text](/assets/async-demos/page-fault-1.png "page")
+
+Every process that is running on Linux contains its own virtual memory. If a process needs more
+memory it invokes function like ```malloc``` or ```mmap```. Returning from that function gives
+a guarantee from OS that the process can now read/write from/to that memory.
+But that returning doesn't mean that eny byte from RAM was reserved by the process. 
+
+Whe we are touching a page of memory for the first time, in the kernel ```page fault``` happens.
+Now OS is smart enough to detect if that fault should be converted to SEGFAULT or should kernel
+map RAM do virtual memory, because it was previously promised to the process.
+
+Java is a process from OS perspective, nothing less, nothing more. Knowing that we can trace
+```page fault``` event to detect why our application consumes more RAM. I may be native memory 
+leak, or some framework/library/JVM bug.
+
+For now, it is not perfect for tracing leaks since it shows every need of additional RAM,
+including the one that may be freed in the future. I know that Andrei Pangin is working
+on native memory leak detector that will trace allocations that hasn't been freed, but for
+now that feature is not in the latest release.
+
+As an example let's run our application with and without ```-XX:+AlwaysPreTouch``` and see 
+where Java needs more RAM after startup. We will use our heap memory leak that we used
+before:
+
+```shell
+java -Xmx1G -Xms1G -XX:+AlwaysPreTouch \
+-jar first-application/target/first-application-0.0.1-SNAPSHOT.jar
+```
+
+In the other console lets do:
+
+```shell
+ab -n 10000 -c 4 http://localhost:8081/examples/leak/do-leak
+
+./profiler.sh start -e page-faults -f page-faults-apt-on.jfr first-application-0.0.1-SNAPSHOT.jar
+ab -n 1000000 -c 4 http://localhost:8081/examples/leak/do-leak
+./profiler.sh stop -f page-faults-apt-on.jfr first-application-0.0.1-SNAPSHOT.jar
+```
+
+Now let's do the same without ```-XX:+AlwaysPreTouch```: 
+
+```shell
+java -Xmx1G -Xms1G \
+-jar first-application/target/first-application-0.0.1-SNAPSHOT.jar
+```
+
+In the other console lets do:
+
+```shell
+ab -n 10000 -c 4 http://localhost:8081/examples/leak/do-leak
+
+./profiler.sh start -e page-faults -f page-faults-apt-off.jfr first-application-0.0.1-SNAPSHOT.jar
+ab -n 1000000 -c 4 http://localhost:8081/examples/leak/do-leak
+./profiler.sh stop -f page-faults-apt-off.jfr first-application-0.0.1-SNAPSHOT.jar
+```
+
+TODO: dokończyć
+
 ### Cycles
 {: #perf-cycles }
 
-TODO
+If you need a better visibility of what your kernel is doing then you may consider choosing
+```cycles``` event instead of ```cpu``` one. This may be useful for low latency applications
+or while chasing bug in kernel (those also exist). Let's see the difference: 
+
+```shell
+# Warmup
+curl -v http://localhost:8081/examples/cycles/
+
+# Profiling
+./profiler.sh start -e cpu -f cycles-cpu.jfr FirstApplication
+curl -v http://localhost:8081/examples/cycles/
+./profiler.sh stop -f cycles-cpu.jfr FirstApplication
+./profiler.sh start -e cycles -f cycles-cycles.jfr FirstApplication
+curl -v http://localhost:8081/examples/cycles/
+./profiler.sh stop -f cycles-cycles.jfr FirstApplication
+```
+
+The flame graph for ```cpu``` profiling:
+([HTML](/assets/async-demos/cycles-cpu.html){:target="_blank"})
+
+![alt text](/assets/async-demos/cycles-cpu.png "flames")
+
+Corresponding profile for ```cycles``` event:
+([HTML](/assets/async-demos/cycles-cycles.html){:target="_blank"})
+
+![alt text](/assets/async-demos/cycles-cycles.html "flames")
+
+As we can see, the ```cycles``` profiled is more detailed. 
 
 ## Filtering single request
 {: #single-req }
