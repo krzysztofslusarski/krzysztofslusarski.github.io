@@ -53,8 +53,9 @@ to happen anywhere", well, it isn't.
   - [Java](#continuous-java)
   - [Spring Boot](#continuous-spring)
 - [Contextual profiling](#context-id)
-  - [Contextual profiling in Spring Boot microservices](#context-id-spring)
-  - [Contextual profiling in distributed systems](#context-id-hz)
+  - [Spring Boot microservices](#context-id-spring)
+  - [Distributed systems](#context-id-hz)
+- [Random thoughts](#random)
 
 ## Profiled application 
 {: #profiled-application }
@@ -216,12 +217,19 @@ JMH will take care about every magic, and you get nice JFR output from async-pro
 ### AP Loader
 {: #how-to-apl }
 
-TODO
+There is a pretty fresh project called [AP Loader](https://github.com/jvm-profiling-tools/ap-loader){:target="_blank"},
+that can be also helpful to you. This project packages the native distribution to a single JAR, so
+if you deploy on different CPU architectures it may be really handy. With this loader you can also use
+the Java API without carrying where the binary of the profiler is located. I really recommend to read
+the README of that project, it may be suitable to you.
 
 ### IntelliJ Idea
 {: #how-to-idea }
 
-TODO
+If you are using IntelliJ Idea then you have build-in async-profiler already. You can profile any JVM
+that is running on your machine and get the results visualized in many forms. Honestly I don't use it that
+much. Most of the time I'm running profiler on remote machine, and I've got used to it so badly, that I 
+run profiler same way on my localhost.
 
 ## Output formats
 {: #out }
@@ -585,6 +593,8 @@ The downside however is that the _dirty_ entities needs to be flushed by Hiberna
 to DB. You have different flush strategies in Hibernate. The default one is ```AUTO```,
 you can read about them in the
 [Javadocs](https://javadoc.io/doc/org.hibernate/hibernate-core/5.6.14.Final/org/hibernate/FlushMode.html){:target="_blank"}.
+What you see in the flame graph is exactly Hibernate looking for a dirty entities that
+should be flushed.
 
 What can be done about that? Well, first of all, it should be forbidden to develop
 a large Hibernate application without reading the 
@@ -1080,12 +1090,145 @@ It is worth mentioning that ```--live``` option is available since **async-profi
 ### Locks
 {: #locks }
 
-TODO
+When we need better knowledge about lock contention in our application the lock mode may be useful.
+Let's try to use it and understand internals of ```ConcurrentHashMap```. It is commonly known that
+```get()``` method is lock free, but what about ```computeIfAbsent()```? Let's profile such a code:
+
+```java
+class LockService {
+    private final Map<String, String> map = new ConcurrentHashMap<>();
+  
+    LockService() {
+        String a = "AaAa";
+        String b = "BBBB";
+        log.info("Hashcode equals: {}", a.hashCode() == b.hashCode()); // true
+        map.computeIfAbsent(a, s -> a);
+        map.computeIfAbsent(b, s -> b);
+    }
+  
+    void withLock(String key) {
+        map.computeIfAbsent(key, s -> key);
+    }
+  
+    void withoutLock(String key) {
+        if (map.get(key) == null) {
+            map.computeIfAbsent(key, s -> key);
+        }
+    }
+}
+```
+
+Let's use lock mode to profile that:
+
+```shell
+# preparation
+ab -n 100 -c 1 http://localhost:8081/examples/lock/with-lock
+ab -n 100 -c 1 http://localhost:8081/examples/lock/without-lock
+
+# profiling
+./profiler.sh start -e lock -f lock.jfr FirstApplication
+ab -n 100000 -c 100 http://localhost:8081/examples/lock/with-lock
+ab -n 100000 -c 100 http://localhost:8081/examples/lock/without-lock
+./profiler.sh stop -f lock.jfr FirstApplication
+```
+
+The flame graph: ([HTML](/assets/async-demos/lock.html){:target="_blank"})
+
+![alt text](/assets/async-demos/lock-1.png "flames")
+
+I highlighted the ```LockController``` occurance. Let's zoom it:
+
+![alt text](/assets/async-demos/lock-2.png "flames")
+
+So we see only locking in ```withLock()``` method. You can study the internals of ```computeIfAbsent()``` method,
+when you have a hash collision it may lock. If you have a huge lock contention on this method, and most of the 
+time a key is already in the map, then you may consider approach used in ```withoutLock()``` method.
+
 
 ## Time to safepoint
 {: #tts }
 
-TODO
+The common knowledge in the Java developers world is that _garbage collectors_ need Stop-the-world (STW) phase to clean dead objects.
+First of all, **not only GC needs it**. There are other internal mechanisms that need to do some work, that require application threads to be hanged.
+For example JIT compiler needs STW phase to _deoptimize_ some compilations and to revoke _biased locks_. Let's get a closer look on
+how STW phase works.
+
+On our JVM there are running some application threads:
+
+![alt text](/assets/stw/1.png "chart 1")
+
+While running those threads from time to time JVM needs to do some work in the STW phase. So it start it with
+_global safepoint request_, which is an information for every thread to go to "sleep":
+
+![alt text](/assets/stw/2.png "chart 2")
+
+Every thread has to find out about this information. Checking if it needs to fall asleep is simply a line on assembly code
+generated by the JIT compiler and a simple step in the interpreter. Of course every thread can now execute a different method/JIT compilation,
+so time in which threads are going to be aware of STW phase is different for every thread.   
+Every thread has to wait for the slowest one. Time between starting STW phase, and the slowest thread finding that information is called
+_time to safepoint_:
+
+![alt text](/assets/stw/3.png "chart 3")
+
+Only after every thread is asleep, JVM threads can do the work that needed STW phase. A time when application threads were sleeping
+is called _safepoint operation time_:
+
+![alt text](/assets/stw/4.png "chart 4")
+
+When JVM finishes its work application threads are waken up:
+
+![alt text](/assets/stw/5.png "chart 5")
+
+If the JVM application suffers from long STW phases most of the time those are GC cycles, and that information can be found
+in GC logs. But if the application has one thread that slows down every other from reaching the safepoint then 
+the situation is more tricky.
+
+```shell
+# preparation
+curl http://localhost:8081/examples/tts/start
+ab -n 100 -c 1 http://localhost:8081/examples/tts/execute
+
+# profiling
+./profiler.sh start --ttsp -f tts.jfr FirstApplication
+ab -n 100 -c 1 http://localhost:8081/examples/tts/execute
+./profiler.sh stop -f tts.jfr FirstApplication
+```
+
+In safepoint logs (you need to run your JVM with ```-Xlog:safepoint``` flag) we can see:
+```shell
+[105,372s][info ][safepoint   ] Safepoint "ThreadDump", Time since last: 156842 ns, Reaching safepoint: 13381 ns, At safepoint: 120662 ns, Total: 134043 ns
+[105,372s][info ][safepoint   ] Safepoint "ThreadDump", Time since last: 157113 ns, Reaching safepoint: 14738 ns, At safepoint: 120252 ns, Total: 134990 ns
+[105,373s][info ][safepoint   ] Safepoint "ThreadDump", Time since last: 157676 ns, Reaching safepoint: 13700 ns, At safepoint: 120487 ns, Total: 134187 ns
+[105,402s][info ][safepoint   ] Safepoint "ThreadDump", Time since last: 159020 ns, Reaching safepoint: 29524545 ns, At safepoint: 160702 ns, Total: 29685247 ns
+```
+
+The _Reaching safepoint_ contains time to safepoint. Most of the time it is **>15k ns** but there is some much longer:
+**29ms**. Async-profiler in ```--ttsp``` mode collects samples between:
+
+- ```SafepointSynchronize::begin```, and
+- ```RuntimeService::record_safepoint_synchronized```
+
+During that time our application threads are trying to reach safepoint:
+([HTML](/assets/async-demos/tts.html){:target="_blank"})
+
+![alt text](/assets/async-demos/tts.png "flames")
+
+You can see that most of the gathered samples are executing ```arraycopy``` invoked from ```TtsController```.
+The time to safepoint issues that I approach so far:
+
+- **arraycopy** - as in our example
+- **old JDK + loops** - since JDK 11u4 we have _loop strip mining_ optimization working correctly, before that if you had
+  a counted loop, it could be compiled without any check for safepoint
+- **swap** - when your application thread executes some work in _thread_in_vm_ state (after calling some native method),  
+  and during that execution it waits for some pages to be swapped in/out, that can slow down reaching the safepoint
+
+For the **arraycopy** issue the solution is to copy the array by some custom method. It will be a bit slower,
+but will not slow down all the threads but one.
+
+For the **old JDK + loops** you can upgrade or change the counted loop int uncounted one. More information about that
+[here](http://psy-lob-saw.blogspot.com/2016/02/wait-for-it-counteduncounted-loops.html){:target="_blank"}.
+
+For the **swap** issue, just disable swap.
 
 ## Methods 
 {: #methods }
@@ -1798,7 +1941,7 @@ the sample in JFR file. Such a functionality is introduced in
 For now that PR is not merged to the master, but it's a matter of paperwork, I hope it will be
 merged soon.
 
-### Contextual profiling in Spring Boot microservices
+### Spring Boot microservices
 {: #context-id-spring }
 
 Let's try to join Spring Boot microservices with the contextual profiling. In Spring Boot 3.0
@@ -2053,7 +2196,7 @@ I strongly believe that contextual profiling is the future in that area. Everyth
 salt. My Spring integration and my JFR viewer are far away to something professional. I want to inspire you to
 search for the new possibilities like that. If you find any, share it with the rest of Java performance community.
 
-### Contextual profiling in distributed systems
+### Distributed systems
 {: #context-id-hz }
 
 At first let's differentiate distributed architecture from distributed system. For a purpose of this post let's assume
@@ -2130,6 +2273,18 @@ I checked five more long latency requests and the results were the same, confirm
 the problem. I spent a lot of time trying to figure out what is wrong with that machine. My biggest suspect was a 
 difference in meltdown/spectre patches in the kernel. In the end we reinstalled Linux on those machines which solved
 the problem with **10.212.1.104** server.
+
+## Random thoughts
+{: #random }
+
+1. You need to remember that EVERY profiler lies in some way. The async-profiler is vulnerable to
+[JDK-8281677](https://bugs.openjdk.org/browse/JDK-8281677){:target="_blank"}. There is nothing that profiler
+can do, JVM is lying to the profiler, so that lie is passed to the end user. You can change the mechanism
+that is used by a profiler, but you will be lied too, maybe in different way.
+2. You can run async-profiler to collect more than one event. It is allowed to gather ```lock``` and ```alloc```
+together with one of the modes that gathers execution samples, like ```cpu```, ```wall```, ```method```...
+3. You can run async-profiler with ```jfrsync``` option that will gather more information, that are exposed 
+by the JVM.
 
 ## Notes to remove
 832
