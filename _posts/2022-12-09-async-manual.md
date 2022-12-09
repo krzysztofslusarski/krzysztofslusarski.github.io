@@ -1,10 +1,10 @@
 ---
 layout: default
-title:  "[Java][Profiling] Async-profiler manual by use cases"
-date:   2022-11-30 02:51:30 +0100
+title:  "[Java][Profiling][Work in progress] Async-profiler manual by use cases"
+date:   2022-12-09 02:51:30 +0100
 ---
 
-# [Java][Profiling] Async-profiler manual by use cases
+# [Java][Profiling][Work in progress] Async-profiler manual by use cases
 
 This blog post contains examples of Async-profiler usages that I have found useful in my job.
 Some content of this post is copy-pasted from previous entries, I just wanted to avoid unnecessary
