@@ -10,11 +10,11 @@ This blog post contains examples of Async-profiler usages that I have found usef
 Some content of this post is copy-pasted from previous entries, I just wanted to avoid unnecessary
 jumps between articles. 
 
-The goal of that post is to give examples. It's not a replacement of project README. If you
+The goal of that post is to give examples. It's not a replacement for project README. If you
 haven't read it, simply do it.
 
-All the examples that you are going to see here are synthetic reproduction of real world 
-problems that I solved during my carrier. Even if some example looks like "it's too stupid
+All the examples that you are going to see here are synthetic reproductions of real world 
+problems that I solved during my career. Even if some example looks like "it's too stupid
 to happen anywhere", well, it isn't. 
 
 - [Profiled application](#profiled-application)
@@ -1391,7 +1391,7 @@ protected Exception(String message, Throwable cause,
 }
 ```
 
-Just set ```writableStackTrace``` to ```false```. I will be also ugly, but faster.
+Just set ```writableStackTrace``` to ```false```. I will also be ugly, but faster.
 
 ### G1GC humongous allocation
 {: #methods-g1ha }
@@ -1467,7 +1467,7 @@ String doInNewThread() {
 }
 ```
 
-And yes, I saw such a thing in a real production application. The intention was to have
+And yes, I saw such a thing in a real production application. The intention was to have a
 fixed thread pool and delegate tasks to it, but by mistake someone created that pool
 every request.
 
