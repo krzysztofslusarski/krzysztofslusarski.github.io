@@ -22,6 +22,8 @@ url: "https://krzysztofslusarski.github.io" # the base hostname & protocol for y
 google_analytics: UA-183103577-1
 # Build settings
 markdown: kramdown
+kramdown:
+  auto_ids: true
 theme: jekyll-theme-cayman
 plugins:
   - jekyll-feed

@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='utf-8'>
+    <style>
+        body {margin: 0; padding: 10px; background-color: #ffffff}
+        h1 {margin: 5px 0 0 0; font-size: 18px; font-weight: normal; text-align: center}
+        header {margin: -24px 0 5px 0; line-height: 24px}
+        button {font: 12px sans-serif; cursor: pointer}
+        p {margin: 5px 0 5px 0}
+        a {color: #0366d6}
+        #hl {position: absolute; display: none; overflow: hidden; white-space: nowrap; pointer-events: none; background-color: #ffffe0; outline: 1px solid #ffc000; height: 15px}
+        #hl span {padding: 0 3px 0 3px}
+        #status {overflow: hidden; white-space: nowrap}
+        #match {overflow: hidden; white-space: nowrap; display: none; float: right; text-align: right}
+        #reset {cursor: pointer}
+        #canvas {width: 100%; height: 1664px}
+    </style>
+</head>
+<body style='font: 12px Verdana, sans-serif'>
+<h1>Execution samples</h1>
+<header style='text-align: left'><button id='reverse' title='Reverse'>&#x1f53b;</button>&nbsp;&nbsp;<button id='search' title='Search'>&#x1f50d;</button></header>
+<header style='text-align: right'>Produced by <a href='https://github.com/jvm-profiling-tools/async-profiler'>async-profiler</a></header>
+<canvas id='canvas'></canvas>
+<div id='hl'><span></span></div>
+<p id='match'>Matched: <span id='matchval'></span> <span id='reset' title='Clear'>&#x274c;</span></p>
+<p id='status'>&nbsp;</p>
+<script>
+    // Copyright 2020 Andrei Pangin
+    // Licensed under the Apache License, Version 2.0.
+    'use strict';
+    var root, rootLevel, px, pattern;
+    var reverse = false;
+    const levels = Array(104);
+    for (let h = 0; h < levels.length; h++) {
+        levels[h] = [];
+    }
+
+    const canvas = document.getElementById('canvas');
+    const c = canvas.getContext('2d');
+    const hl = document.getElementById('hl');
+    const status = document.getElementById('status');
+
+    const canvasWidth = canvas.offsetWidth;
+    const canvasHeight = canvas.offsetHeight;
+    canvas.style.width = canvasWidth + 'px';
+    canvas.width = canvasWidth * (devicePixelRatio || 1);
+    canvas.height = canvasHeight * (devicePixelRatio || 1);
+    if (devicePixelRatio) c.scale(devicePixelRatio, devicePixelRatio);
+    c.font = document.body.style.font;
+
+    const palette = [
+        [0xb2e1b2, 20, 20, 20],
+        [0x50e150, 30, 30, 30],
+        [0x50cccc, 30, 30, 30],
+        [0xe15a5a, 30, 40, 40],
+        [0xc8c83c, 30, 30, 10],
+        [0xe17d00, 30, 30,  0],
+        [0xcce880, 20, 20, 20],
+    ];
+
+    function getColor(p) {
+        const v = Math.random();
+        return '#' + (p[0] + ((p[1] * v) << 16 | (p[2] * v) << 8 | (p[3] * v))).toString(16);
+    }
+
+    function f(level, left, width, type, title, inln, c1, int) {
+        levels[level].push({left: left, width: width, color: getColor(palette[type]), title: title,
+            details: (int ? ', int=' + int : '') + (c1 ? ', c1=' + c1 : '') + (inln ? ', inln=' + inln : '')
+        });
+    }
+
+    function samples(n) {
+        return n === 1 ? '1 sample' : n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' samples';
+    }
+
+    function pct(a, b) {
+        return a >= b ? '100' : (100 * a / b).toFixed(2);
+    }
+
+    function findFrame(frames, x) {
+        let left = 0;
+        let right = frames.length - 1;
+
+        while (left <= right) {
+            const mid = (left + right) >>> 1;
+            const f = frames[mid];
+
+            if (f.left > x) {
+                right = mid - 1;
+            } else if (f.left + f.width <= x) {
+                left = mid + 1;
+            } else {
+                return f;
+            }
+        }
+
+        if (frames[left] && (frames[left].left - x) * px < 0.5) return frames[left];
+        if (frames[right] && (x - (frames[right].left + frames[right].width)) * px < 0.5) return frames[right];
+
+        return null;
+    }
+
+    function search(r) {
+        if (r === true && (r = prompt('Enter regexp to search:', '')) === null) {
+            return;
+        }
+
+        pattern = r ? RegExp(r) : undefined;
+        const matched = render(root, rootLevel);
+        document.getElementById('matchval').textContent = pct(matched, root.width) + '%';
+        document.getElementById('match').style.display = r ? 'inherit' : 'none';
+    }
+
+    function render(newRoot, newLevel) {
+        if (root) {
+            c.fillStyle = '#ffffff';
+            c.fillRect(0, 0, canvasWidth, canvasHeight);
+        }
+
+        root = newRoot || levels[0][0];
+        rootLevel = newLevel || 0;
+        px = canvasWidth / root.width;
+
+        const x0 = root.left;
+        const x1 = x0 + root.width;
+        const marked = [];
+
+        function mark(f) {
+            return marked[f.left] >= f.width || (marked[f.left] = f.width);
+        }
+
+        function totalMarked() {
+            let total = 0;
+            let left = 0;
+            Object.keys(marked).sort(function(a, b) { return a - b; }).forEach(function(x) {
+                if (+x >= left) {
+                    total += marked[x];
+                    left = +x + marked[x];
+                }
+            });
+            return total;
+        }
+
+        function drawFrame(f, y, alpha) {
+            if (f.left < x1 && f.left + f.width > x0) {
+                c.fillStyle = pattern && f.title.match(pattern) && mark(f) ? '#ee00ee' : f.color;
+                c.fillRect((f.left - x0) * px, y, f.width * px, 15);
+
+                if (f.width * px >= 21) {
+                    const chars = Math.floor(f.width * px / 7);
+                    const title = f.title.length <= chars ? f.title : f.title.substring(0, chars - 2) + '..';
+                    c.fillStyle = '#000000';
+                    c.fillText(title, Math.max(f.left - x0, 0) * px + 3, y + 12, f.width * px - 6);
+                }
+
+                if (alpha) {
+                    c.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                    c.fillRect((f.left - x0) * px, y, f.width * px, 15);
+                }
+            }
+        }
+
+        for (let h = 0; h < levels.length; h++) {
+            const y = reverse ? h * 16 : canvasHeight - (h + 1) * 16;
+            const frames = levels[h];
+            for (let i = 0; i < frames.length; i++) {
+                drawFrame(frames[i], y, h < rootLevel);
+            }
+        }
+
+        return totalMarked();
+    }
+
+    canvas.onmousemove = function() {
+        const h = Math.floor((reverse ? event.offsetY : (canvasHeight - event.offsetY)) / 16);
+        if (h >= 0 && h < levels.length) {
+            const f = findFrame(levels[h], event.offsetX / px + root.left);
+            if (f) {
+                if (f != root) getSelection().removeAllRanges();
+                hl.style.left = (Math.max(f.left - root.left, 0) * px + canvas.offsetLeft) + 'px';
+                hl.style.width = (Math.min(f.width, root.width) * px) + 'px';
+                hl.style.top = ((reverse ? h * 16 : canvasHeight - (h + 1) * 16) + canvas.offsetTop) + 'px';
+                hl.firstChild.textContent = f.title;
+                hl.style.display = 'block';
+                canvas.title = f.title + '\n(' + samples(f.width) + f.details + ', ' + pct(f.width, levels[0][0].width) + '%)';
+                canvas.style.cursor = 'pointer';
+                canvas.onclick = function() {
+                    if (f != root) {
+                        render(f, h);
+                        canvas.onmousemove();
+                    }
+                };
+                status.textContent = 'Function: ' + canvas.title;
+                return;
+            }
+        }
+        canvas.onmouseout();
+    }
+
+    canvas.onmouseout = function() {
+        hl.style.display = 'none';
+        status.textContent = '\xa0';
+        canvas.title = '';
+        canvas.style.cursor = '';
+        canvas.onclick = '';
+    }
+
+    canvas.ondblclick = function() {
+        getSelection().selectAllChildren(hl);
+    }
+
+    document.getElementById('reverse').onclick = function() {
+        reverse = !reverse;
+        render();
+    }
+
+    document.getElementById('search').onclick = function() {
+        search(true);
+    }
+
+    document.getElementById('reset').onclick = function() {
+        search(false);
+    }
+
+    window.onkeydown = function() {
+        if (event.ctrlKey && event.keyCode === 70) {
+            event.preventDefault();
+            search(true);
+        } else if (event.keyCode === 27) {
+            search(false);
+        }
+    }
+
+    f(0,0,168,3,'all')
+f(1,0,94,2,'firstApp.jfr.gz')
+f(2,0,94,1,'java.lang/Thread.run')
+f(3,0,94,1,'org.apache.tomcat.util.threads/TaskThread$WrappingRunnable.run')
+f(4,0,94,1,'org.apache.tomcat.util.threads/ThreadPoolExecutor$Worker.run')
+f(5,0,94,1,'org.apache.tomcat.util.threads/ThreadPoolExecutor.runWorker')
+f(6,0,94,1,'org.apache.tomcat.util.net/SocketProcessorBase.run')
+f(7,0,94,1,'org.apache.tomcat.util.net/NioEndpoint$SocketProcessor.doRun')
+f(8,0,94,1,'org.apache.coyote/AbstractProtocol$ConnectionHandler.process')
+f(9,0,94,1,'org.apache.coyote/AbstractProcessorLight.process')
+f(10,0,94,1,'org.apache.coyote.http11/Http11Processor.service')
+f(11,0,94,1,'org.apache.catalina.connector/CoyoteAdapter.service')
+f(12,0,94,1,'org.apache.catalina.core/StandardEngineValve.invoke')
+f(13,0,94,1,'org.apache.catalina.valves/ErrorReportValve.invoke')
+f(14,0,94,1,'org.apache.catalina.core/StandardHostValve.invoke')
+f(15,0,94,1,'ch.qos.logback.access.tomcat/LogbackValve.invoke')
+f(16,0,94,1,'org.apache.catalina.authenticator/AuthenticatorBase.invoke')
+f(17,0,94,1,'org.apache.catalina.core/StandardContextValve.invoke')
+f(18,0,94,1,'org.apache.catalina.core/StandardWrapperValve.invoke')
+f(19,0,94,1,'org.apache.catalina.core/ApplicationFilterChain.doFilter')
+f(20,0,94,1,'org.apache.catalina.core/ApplicationFilterChain.internalDoFilter')
+f(21,0,94,1,'org.springframework.web.filter/OncePerRequestFilter.doFilter')
+f(22,0,94,1,'org.springframework.web.filter/CharacterEncodingFilter.doFilterInternal')
+f(23,0,94,1,'org.apache.catalina.core/ApplicationFilterChain.doFilter')
+f(24,0,94,1,'org.apache.catalina.core/ApplicationFilterChain.internalDoFilter')
+f(25,0,94,1,'org.springframework.web.filter/OncePerRequestFilter.doFilter')
+f(26,0,94,1,'org.springframework.web.filter/ServerHttpObservationFilter.doFilterInternal')
+f(27,0,94,1,'org.apache.catalina.core/ApplicationFilterChain.doFilter')
+f(28,0,94,1,'org.apache.catalina.core/ApplicationFilterChain.internalDoFilter')
+f(29,0,94,1,'org.springframework.web.filter/OncePerRequestFilter.doFilter')
+f(30,0,94,1,'org.springframework.web.filter/FormContentFilter.doFilterInternal')
+f(31,0,94,1,'org.apache.catalina.core/ApplicationFilterChain.doFilter')
+f(32,0,94,1,'org.apache.catalina.core/ApplicationFilterChain.internalDoFilter')
+f(33,0,94,1,'org.springframework.web.filter/OncePerRequestFilter.doFilter')
+f(34,0,94,1,'org.springframework.web.filter/RequestContextFilter.doFilterInternal')
+f(35,0,94,1,'org.apache.catalina.core/ApplicationFilterChain.doFilter')
+f(36,0,94,1,'org.apache.catalina.core/ApplicationFilterChain.internalDoFilter')
+f(37,0,94,1,'org.springframework.web.filter/OncePerRequestFilter.doFilter')
+f(38,0,94,1,'org.apache.catalina.core/ApplicationFilterChain.doFilter')
+f(39,0,94,1,'org.apache.catalina.core/ApplicationFilterChain.internalDoFilter')
+f(40,0,94,1,'org.apache.tomcat.websocket.server/WsFilter.doFilter')
+f(41,0,94,1,'org.apache.catalina.core/ApplicationFilterChain.doFilter')
+f(42,0,94,1,'org.apache.catalina.core/ApplicationFilterChain.internalDoFilter')
+f(43,0,94,1,'jakarta.servlet.http/HttpServlet.service')
+f(44,0,94,1,'org.springframework.web.servlet/FrameworkServlet.service')
+f(45,0,94,1,'jakarta.servlet.http/HttpServlet.service')
+f(46,0,94,1,'org.springframework.web.servlet/FrameworkServlet.doGet')
+f(47,0,94,1,'org.springframework.web.servlet/FrameworkServlet.processRequest')
+f(48,0,94,1,'org.springframework.web.servlet/DispatcherServlet.doService')
+f(49,0,94,1,'org.springframework.web.servlet/DispatcherServlet.doDispatch')
+f(50,0,94,1,'org.springframework.web.servlet.mvc.method/AbstractHandlerMethodAdapter.handle')
+f(51,0,94,1,'org.springframework.web.servlet.mvc.method.annotation/RequestMappingHandlerAdapter.handleInternal')
+f(52,0,94,1,'org.springframework.web.servlet.mvc.method.annotation/RequestMappingHandlerAdapter.invokeHandlerMethod')
+f(53,0,94,1,'org.springframework.web.servlet.mvc.method.annotation/ServletInvocableHandlerMethod.invokeAndHandle')
+f(54,0,94,1,'org.springframework.web.method.support/InvocableHandlerMethod.invokeForRequest')
+f(55,0,94,1,'org.springframework.web.method.support/InvocableHandlerMethod.doInvoke')
+f(56,0,94,1,'java.lang.reflect/Method.invoke')
+f(57,0,94,1,'jdk.internal.reflect/DelegatingMethodAccessorImpl.invoke')
+f(58,0,94,1,'jdk.internal.reflect/GeneratedMethodAccessor26.invoke')
+f(59,0,94,1,'com.example.firstapplication.examples.context/ContextController.observe')
+f(60,0,94,1,'com.example.firstapplication.examples.context/ContextService.observed')
+f(61,0,20,1,'java.lang/Thread.sleep')
+f(62,0,20,3,'__futex_abstimed_wait_common')
+f(61,20,74,1,'org.springframework.web.client/RestTemplate.getForObject')
+f(62,20,74,1,'org.springframework.web.client/RestTemplate.execute')
+f(63,20,74,1,'org.springframework.web.client/RestTemplate.doExecute')
+f(64,20,74,1,'org.springframework.http.client/AbstractClientHttpRequest.execute')
+f(65,20,74,1,'org.springframework.http.client/AbstractBufferingClientHttpRequest.executeInternal')
+f(66,20,74,1,'org.springframework.http.client/HttpComponentsClientHttpRequest.executeInternal')
+f(67,20,74,1,'org.apache.hc.client5.http.impl.classic/CloseableHttpClient.execute')
+f(68,20,74,1,'org.apache.hc.client5.http.impl.classic/CloseableHttpClient.execute')
+f(69,20,74,1,'org.apache.hc.client5.http.impl.classic/InternalHttpClient.doExecute')
+f(70,20,74,1,'org.apache.hc.client5.http.impl.classic/ExecChainElement.execute')
+f(71,20,74,1,'org.apache.hc.client5.http.impl.classic/RedirectExec.execute')
+f(72,20,74,1,'org.apache.hc.client5.http.impl.classic/ExecChainElement$1.proceed')
+f(73,20,74,1,'org.apache.hc.client5.http.impl.classic/ExecChainElement.execute')
+f(74,20,74,1,'org.apache.hc.client5.http.impl.classic/ContentCompressionExec.execute')
+f(75,20,74,1,'org.apache.hc.client5.http.impl.classic/ExecChainElement$1.proceed')
+f(76,20,74,1,'org.apache.hc.client5.http.impl.classic/ExecChainElement.execute')
+f(77,20,74,1,'org.apache.hc.client5.http.impl.classic/HttpRequestRetryExec.execute')
+f(78,20,74,1,'org.apache.hc.client5.http.impl.classic/ExecChainElement$1.proceed')
+f(79,20,74,1,'org.apache.hc.client5.http.impl.classic/ExecChainElement.execute')
+f(80,20,74,1,'org.apache.hc.client5.http.impl.classic/ProtocolExec.execute')
+f(81,20,74,1,'org.apache.hc.client5.http.impl.classic/ExecChainElement$1.proceed')
+f(82,20,74,1,'org.apache.hc.client5.http.impl.classic/ExecChainElement.execute')
+f(83,20,74,1,'org.apache.hc.client5.http.impl.classic/ConnectExec.execute')
+f(84,20,74,1,'org.apache.hc.client5.http.impl.classic/ExecChainElement$1.proceed')
+f(85,20,74,1,'org.apache.hc.client5.http.impl.classic/ExecChainElement.execute')
+f(86,20,74,1,'org.apache.hc.client5.http.impl.classic/MainClientExec.execute')
+f(87,20,74,1,'org.apache.hc.client5.http.impl.classic/InternalExecRuntime.execute')
+f(88,20,74,1,'org.apache.hc.client5.http.impl.io/PoolingHttpClientConnectionManager$InternalConnectionEndpoint.execute')
+f(89,20,74,1,'org.apache.hc.core5.http.impl.io/HttpRequestExecutor.execute')
+f(90,20,74,1,'org.apache.hc.core5.http.impl.io/HttpRequestExecutor.execute')
+f(91,20,74,1,'org.apache.hc.core5.http.impl.io/DefaultBHttpClientConnection.receiveResponseHeader')
+f(92,20,74,1,'org.apache.hc.core5.http.impl.io/AbstractMessageParser.parse')
+f(93,20,74,1,'org.apache.hc.core5.http.impl.io/AbstractMessageParser.parse')
+f(94,20,74,1,'org.apache.hc.core5.http.impl.io/SessionInputBufferImpl.readLine')
+f(95,20,74,1,'org.apache.hc.core5.http.impl.io/SessionInputBufferImpl.fillBuffer')
+f(96,20,74,1,'java.net/Socket$SocketInputStream.read')
+f(97,20,74,1,'sun.nio.ch/NioSocketImpl$1.read')
+f(98,20,74,1,'sun.nio.ch/NioSocketImpl.read')
+f(99,20,74,1,'sun.nio.ch/NioSocketImpl.implRead')
+f(100,20,74,1,'sun.nio.ch/NioSocketImpl.timedRead')
+f(101,20,74,1,'sun.nio.ch/NioSocketImpl.park')
+f(102,20,74,1,'sun.nio.ch/Net.poll')
+f(103,20,74,3,'__libc_poll')
+f(1,94,40,2,'secondApp.jfr.gz')
+f(2,94,40,1,'java.lang/Thread.run')
+f(3,94,40,1,'org.apache.tomcat.util.threads/TaskThread$WrappingRunnable.run')
+f(4,94,40,1,'org.apache.tomcat.util.threads/ThreadPoolExecutor$Worker.run')
+f(5,94,40,1,'org.apache.tomcat.util.threads/ThreadPoolExecutor.runWorker')
+f(6,94,40,1,'org.apache.tomcat.util.net/SocketProcessorBase.run')
+f(7,94,40,1,'org.apache.tomcat.util.net/NioEndpoint$SocketProcessor.doRun')
+f(8,94,40,1,'org.apache.coyote/AbstractProtocol$ConnectionHandler.process')
+f(9,94,40,1,'org.apache.coyote/AbstractProcessorLight.process')
+f(10,94,40,1,'org.apache.coyote.http11/Http11Processor.service')
+f(11,94,40,1,'org.apache.catalina.connector/CoyoteAdapter.service')
+f(12,94,40,1,'org.apache.catalina.core/StandardEngineValve.invoke')
+f(13,94,40,1,'org.apache.catalina.valves/ErrorReportValve.invoke')
+f(14,94,40,1,'org.apache.catalina.core/StandardHostValve.invoke')
+f(15,94,40,1,'org.apache.catalina.authenticator/AuthenticatorBase.invoke')
+f(16,94,40,1,'org.apache.catalina.core/StandardContextValve.invoke')
+f(17,94,40,1,'org.apache.catalina.core/StandardWrapperValve.invoke')
+f(18,94,40,1,'org.apache.catalina.core/ApplicationFilterChain.doFilter')
+f(19,94,40,1,'org.apache.catalina.core/ApplicationFilterChain.internalDoFilter')
+f(20,94,40,1,'org.springframework.web.filter/OncePerRequestFilter.doFilter')
+f(21,94,40,1,'org.springframework.web.filter/CharacterEncodingFilter.doFilterInternal')
+f(22,94,40,1,'org.apache.catalina.core/ApplicationFilterChain.doFilter')
+f(23,94,40,1,'org.apache.catalina.core/ApplicationFilterChain.internalDoFilter')
+f(24,94,40,1,'org.springframework.web.filter/OncePerRequestFilter.doFilter')
+f(25,94,40,1,'org.springframework.web.filter/ServerHttpObservationFilter.doFilterInternal')
+f(26,94,40,1,'org.apache.catalina.core/ApplicationFilterChain.doFilter')
+f(27,94,40,1,'org.apache.catalina.core/ApplicationFilterChain.internalDoFilter')
+f(28,94,40,1,'org.springframework.web.filter/OncePerRequestFilter.doFilter')
+f(29,94,40,1,'org.springframework.web.filter/FormContentFilter.doFilterInternal')
+f(30,94,40,1,'org.apache.catalina.core/ApplicationFilterChain.doFilter')
+f(31,94,40,1,'org.apache.catalina.core/ApplicationFilterChain.internalDoFilter')
+f(32,94,40,1,'org.springframework.web.filter/OncePerRequestFilter.doFilter')
+f(33,94,40,1,'org.springframework.web.filter/RequestContextFilter.doFilterInternal')
+f(34,94,40,1,'org.apache.catalina.core/ApplicationFilterChain.doFilter')
+f(35,94,40,1,'org.apache.catalina.core/ApplicationFilterChain.internalDoFilter')
+f(36,94,40,1,'org.apache.tomcat.websocket.server/WsFilter.doFilter')
+f(37,94,40,1,'org.apache.catalina.core/ApplicationFilterChain.doFilter')
+f(38,94,40,1,'org.apache.catalina.core/ApplicationFilterChain.internalDoFilter')
+f(39,94,40,1,'jakarta.servlet.http/HttpServlet.service')
+f(40,94,40,1,'org.springframework.web.servlet/FrameworkServlet.service')
+f(41,94,40,1,'jakarta.servlet.http/HttpServlet.service')
+f(42,94,40,1,'org.springframework.web.servlet/FrameworkServlet.doGet')
+f(43,94,40,1,'org.springframework.web.servlet/FrameworkServlet.processRequest')
+f(44,94,40,1,'org.springframework.web.servlet/DispatcherServlet.doService')
+f(45,94,40,1,'org.springframework.web.servlet/DispatcherServlet.doDispatch')
+f(46,94,40,1,'org.springframework.web.servlet.mvc.method/AbstractHandlerMethodAdapter.handle')
+f(47,94,40,1,'org.springframework.web.servlet.mvc.method.annotation/RequestMappingHandlerAdapter.handleInternal')
+f(48,94,40,1,'org.springframework.web.servlet.mvc.method.annotation/RequestMappingHandlerAdapter.invokeHandlerMethod')
+f(49,94,40,1,'org.springframework.web.servlet.mvc.method.annotation/ServletInvocableHandlerMethod.invokeAndHandle')
+f(50,94,40,1,'org.springframework.web.method.support/InvocableHandlerMethod.invokeForRequest')
+f(51,94,40,1,'org.springframework.web.method.support/InvocableHandlerMethod.doInvoke')
+f(52,94,40,1,'java.lang.reflect/Method.invoke')
+f(53,94,40,1,'jdk.internal.reflect/DelegatingMethodAccessorImpl.invoke')
+f(54,94,40,1,'jdk.internal.reflect/GeneratedMethodAccessor11.invoke')
+f(55,94,40,1,'com.example.secondapplication.examples.context/ContextController$$SpringCGLIB$$0.doSomething')
+f(56,94,40,1,'org.springframework.aop.framework/CglibAopProxy$DynamicAdvisedInterceptor.intercept')
+f(57,94,40,1,'org.springframework.aop.framework/CglibAopProxy$CglibMethodInvocation.proceed')
+f(58,94,40,1,'org.springframework.aop.framework/ReflectiveMethodInvocation.proceed')
+f(59,94,40,1,'org.springframework.aop.interceptor/ExposeInvocationInterceptor.invoke')
+f(60,94,40,1,'org.springframework.aop.framework/CglibAopProxy$CglibMethodInvocation.proceed')
+f(61,94,40,1,'org.springframework.aop.framework/ReflectiveMethodInvocation.proceed')
+f(62,94,40,1,'org.springframework.aop.aspectj/AspectJAroundAdvice.invoke')
+f(63,94,40,1,'org.springframework.aop.aspectj/AbstractAspectJAdvice.invokeAdviceMethod')
+f(64,94,40,1,'org.springframework.aop.aspectj/AbstractAspectJAdvice.invokeAdviceMethodWithGivenArgs')
+f(65,94,40,1,'java.lang.reflect/Method.invoke')
+f(66,94,40,1,'jdk.internal.reflect/DelegatingMethodAccessorImpl.invoke')
+f(67,94,40,1,'jdk.internal.reflect/GeneratedMethodAccessor14.invoke')
+f(68,94,40,1,'io.micrometer.observation.aop/ObservedAspect.observeClass')
+f(69,94,40,1,'io.micrometer.observation.aop/ObservedAspect.observe')
+f(70,94,40,1,'io.micrometer.observation/Observation.observeChecked')
+f(71,94,40,1,'io.micrometer.observation.aop/ObservedAspect$$Lambda$1361.0x0000000801448000.call')
+f(72,94,40,1,'io.micrometer.observation.aop/ObservedAspect.lambda$observe$2')
+f(73,94,40,1,'org.springframework.aop.aspectj/MethodInvocationProceedingJoinPoint.proceed')
+f(74,94,40,1,'org.springframework.aop.framework/CglibAopProxy$CglibMethodInvocation.proceed')
+f(75,94,40,1,'org.springframework.aop.framework/ReflectiveMethodInvocation.proceed')
+f(76,94,40,1,'org.springframework.aop.framework/ReflectiveMethodInvocation.invokeJoinpoint')
+f(77,94,40,1,'org.springframework.aop.support/AopUtils.invokeJoinpointUsingReflection')
+f(78,94,40,1,'java.lang.reflect/Method.invoke')
+f(79,94,40,1,'jdk.internal.reflect/DelegatingMethodAccessorImpl.invoke')
+f(80,94,40,1,'jdk.internal.reflect/GeneratedMethodAccessor11.invoke')
+f(81,94,40,1,'com.example.secondapplication.examples.context/ContextController.doSomething')
+f(82,94,40,1,'com.example.secondapplication.examples.context/ContextService.doSomething')
+f(83,94,40,1,'com.example.secondapplication.examples.context/ContextService.slowPath')
+f(84,94,40,1,'java.lang/Thread.sleep')
+f(85,94,40,3,'__futex_abstimed_wait_common')
+f(1,134,34,2,'thirdApp.jfr.gz')
+f(2,134,1,3,'GC_active')
+f(3,134,1,3,'__futex_abstimed_wait_common')
+f(2,135,33,1,'java.lang/Thread.run')
+f(3,135,33,1,'org.apache.tomcat.util.threads/TaskThread$WrappingRunnable.run')
+f(4,135,33,1,'org.apache.tomcat.util.threads/ThreadPoolExecutor$Worker.run')
+f(5,135,33,1,'org.apache.tomcat.util.threads/ThreadPoolExecutor.runWorker')
+f(6,135,33,1,'org.apache.tomcat.util.net/SocketProcessorBase.run')
+f(7,135,33,1,'org.apache.tomcat.util.net/NioEndpoint$SocketProcessor.doRun')
+f(8,135,33,1,'org.apache.coyote/AbstractProtocol$ConnectionHandler.process')
+f(9,135,33,1,'org.apache.coyote/AbstractProcessorLight.process')
+f(10,135,33,1,'org.apache.coyote.http11/Http11Processor.service')
+f(11,135,33,1,'org.apache.catalina.connector/CoyoteAdapter.service')
+f(12,135,33,1,'org.apache.catalina.core/StandardEngineValve.invoke')
+f(13,135,33,1,'org.apache.catalina.valves/ErrorReportValve.invoke')
+f(14,135,33,1,'org.apache.catalina.core/StandardHostValve.invoke')
+f(15,135,33,1,'org.apache.catalina.authenticator/AuthenticatorBase.invoke')
+f(16,135,33,1,'org.apache.catalina.core/StandardContextValve.invoke')
+f(17,135,33,1,'org.apache.catalina.core/StandardWrapperValve.invoke')
+f(18,135,33,1,'org.apache.catalina.core/ApplicationFilterChain.doFilter')
+f(19,135,33,1,'org.apache.catalina.core/ApplicationFilterChain.internalDoFilter')
+f(20,135,33,1,'org.springframework.web.filter/OncePerRequestFilter.doFilter')
+f(21,135,33,1,'org.springframework.web.filter/CharacterEncodingFilter.doFilterInternal')
+f(22,135,33,1,'org.apache.catalina.core/ApplicationFilterChain.doFilter')
+f(23,135,33,1,'org.apache.catalina.core/ApplicationFilterChain.internalDoFilter')
+f(24,135,33,1,'org.springframework.web.filter/OncePerRequestFilter.doFilter')
+f(25,135,33,1,'org.springframework.web.filter/ServerHttpObservationFilter.doFilterInternal')
+f(26,135,33,1,'org.apache.catalina.core/ApplicationFilterChain.doFilter')
+f(27,135,33,1,'org.apache.catalina.core/ApplicationFilterChain.internalDoFilter')
+f(28,135,33,1,'org.springframework.web.filter/OncePerRequestFilter.doFilter')
+f(29,135,33,1,'org.springframework.web.filter/FormContentFilter.doFilterInternal')
+f(30,135,33,1,'org.apache.catalina.core/ApplicationFilterChain.doFilter')
+f(31,135,33,1,'org.apache.catalina.core/ApplicationFilterChain.internalDoFilter')
+f(32,135,33,1,'org.springframework.web.filter/OncePerRequestFilter.doFilter')
+f(33,135,33,1,'org.springframework.web.filter/RequestContextFilter.doFilterInternal')
+f(34,135,33,1,'org.apache.catalina.core/ApplicationFilterChain.doFilter')
+f(35,135,33,1,'org.apache.catalina.core/ApplicationFilterChain.internalDoFilter')
+f(36,135,33,1,'org.apache.tomcat.websocket.server/WsFilter.doFilter')
+f(37,135,33,1,'org.apache.catalina.core/ApplicationFilterChain.doFilter')
+f(38,135,33,1,'org.apache.catalina.core/ApplicationFilterChain.internalDoFilter')
+f(39,135,33,1,'jakarta.servlet.http/HttpServlet.service')
+f(40,135,33,1,'org.springframework.web.servlet/FrameworkServlet.service')
+f(41,135,33,1,'jakarta.servlet.http/HttpServlet.service')
+f(42,135,33,1,'org.springframework.web.servlet/FrameworkServlet.doGet')
+f(43,135,33,1,'org.springframework.web.servlet/FrameworkServlet.processRequest')
+f(44,135,33,1,'org.springframework.web.servlet/DispatcherServlet.doService')
+f(45,135,33,1,'org.springframework.web.servlet/DispatcherServlet.doDispatch')
+f(46,135,33,1,'org.springframework.web.servlet.mvc.method/AbstractHandlerMethodAdapter.handle')
+f(47,135,33,1,'org.springframework.web.servlet.mvc.method.annotation/RequestMappingHandlerAdapter.handleInternal')
+f(48,135,33,1,'org.springframework.web.servlet.mvc.method.annotation/RequestMappingHandlerAdapter.invokeHandlerMethod')
+f(49,135,33,1,'org.springframework.web.servlet.mvc.method.annotation/ServletInvocableHandlerMethod.invokeAndHandle')
+f(50,135,33,1,'org.springframework.web.method.support/InvocableHandlerMethod.invokeForRequest')
+f(51,135,33,1,'org.springframework.web.method.support/InvocableHandlerMethod.doInvoke')
+f(52,135,33,1,'java.lang.reflect/Method.invoke')
+f(53,135,33,1,'jdk.internal.reflect/DelegatingMethodAccessorImpl.invoke')
+f(54,135,33,1,'jdk.internal.reflect/GeneratedMethodAccessor11.invoke')
+f(55,135,33,1,'com.example.thirdapplication.examples.context/ContextController$$SpringCGLIB$$0.doSomething')
+f(56,135,33,1,'org.springframework.aop.framework/CglibAopProxy$DynamicAdvisedInterceptor.intercept')
+f(57,135,33,1,'org.springframework.aop.framework/CglibAopProxy$CglibMethodInvocation.proceed')
+f(58,135,33,1,'org.springframework.aop.framework/ReflectiveMethodInvocation.proceed')
+f(59,135,33,1,'org.springframework.aop.interceptor/ExposeInvocationInterceptor.invoke')
+f(60,135,33,1,'org.springframework.aop.framework/CglibAopProxy$CglibMethodInvocation.proceed')
+f(61,135,33,1,'org.springframework.aop.framework/ReflectiveMethodInvocation.proceed')
+f(62,135,33,1,'org.springframework.aop.aspectj/AspectJAroundAdvice.invoke')
+f(63,135,33,1,'org.springframework.aop.aspectj/AbstractAspectJAdvice.invokeAdviceMethod')
+f(64,135,33,1,'org.springframework.aop.aspectj/AbstractAspectJAdvice.invokeAdviceMethodWithGivenArgs')
+f(65,135,33,1,'java.lang.reflect/Method.invoke')
+f(66,135,33,1,'jdk.internal.reflect/DelegatingMethodAccessorImpl.invoke')
+f(67,135,33,1,'jdk.internal.reflect/GeneratedMethodAccessor15.invoke')
+f(68,135,33,1,'io.micrometer.observation.aop/ObservedAspect.observeClass')
+f(69,135,33,1,'io.micrometer.observation.aop/ObservedAspect.observe')
+f(70,135,33,1,'io.micrometer.observation/Observation.observeChecked')
+f(71,135,33,1,'io.micrometer.observation.aop/ObservedAspect$$Lambda$1361.0x000000080142a800.call')
+f(72,135,33,1,'io.micrometer.observation.aop/ObservedAspect.lambda$observe$2')
+f(73,135,33,1,'org.springframework.aop.aspectj/MethodInvocationProceedingJoinPoint.proceed')
+f(74,135,33,1,'org.springframework.aop.framework/CglibAopProxy$CglibMethodInvocation.proceed')
+f(75,135,33,1,'org.springframework.aop.framework/ReflectiveMethodInvocation.proceed')
+f(76,135,33,1,'org.springframework.aop.framework/ReflectiveMethodInvocation.invokeJoinpoint')
+f(77,135,33,1,'org.springframework.aop.support/AopUtils.invokeJoinpointUsingReflection')
+f(78,135,33,1,'java.lang.reflect/Method.invoke')
+f(79,135,33,1,'jdk.internal.reflect/DelegatingMethodAccessorImpl.invoke')
+f(80,135,33,1,'jdk.internal.reflect/GeneratedMethodAccessor11.invoke')
+f(81,135,33,1,'com.example.thirdapplication.examples.context/ContextController.doSomething')
+f(82,135,33,1,'com.example.thirdapplication.examples.context/ContextService.doSomething')
+f(83,135,33,1,'com.example.thirdapplication.examples.context/ContextService.slowPath')
+f(84,135,1,3,'g1_post_barrier_slow')
+f(84,136,31,1,'java.util/ArrayList.sort')
+f(85,136,31,1,'java.util/Arrays.sort')
+f(86,136,31,1,'java.util/TimSort.sort')
+f(87,136,3,1,'java.util/TimSort.binarySort')
+f(88,137,1,3,'itable stub')
+f(88,138,1,3,'oop_arraycopy')
+f(89,138,1,4,'G1BarrierSet::invalidate')
+f(90,138,1,3,'_dl_update_slotinfo')
+f(87,139,22,1,'java.util/TimSort.mergeCollapse')
+f(88,139,22,1,'java.util/TimSort.mergeAt')
+f(89,139,3,1,'java.util/TimSort.mergeHi')
+f(90,139,2,1,'com.example.thirdapplication.examples.context/ContextService$$Lambda$1371.0x0000000801431418.compare')
+f(90,141,1,3,'g1_post_barrier_slow')
+f(89,142,19,1,'java.util/TimSort.mergeLo')
+f(90,146,10,1,'com.example.thirdapplication.examples.context/ContextService$$Lambda$1371.0x0000000801431418.compare')
+f(91,155,1,1,'java.lang/Integer.compareTo')
+f(92,155,1,1,'java.lang/Integer.compare')
+f(90,156,5,3,'g1_post_barrier_slow')
+f(87,161,6,1,'java.util/TimSort.mergeForceCollapse')
+f(88,161,6,1,'java.util/TimSort.mergeAt')
+f(89,161,6,1,'java.util/TimSort.mergeHi')
+f(90,163,3,1,'com.example.thirdapplication.examples.context/ContextService$$Lambda$1371.0x0000000801431418.compare')
+f(90,166,1,3,'g1_post_barrier_slow')
+f(84,167,1,1,'java.util/Random.nextInt')
+f(85,167,1,1,'java.util/Random.next')
+f(86,167,1,1,'java.util.concurrent.atomic/AtomicLong.compareAndSet')
+
+    search();
+</script></body></html>

@@ -1,0 +1,11 @@
+--2022-12-02 12:24:04--  http://localhost:8079/stateful-jfr/single/flames/execution?id=dd196f95-9cf9-4754-afbb-93b2271b13c1
+Translacja localhost (localhost)... 127.0.0.1
+Łączenie się z localhost (localhost)|127.0.0.1|:8079... połączono.
+Żądanie HTTP wysłano, oczekiwanie na odpowiedź... 200 
+Długość: 143948 (141K) [application/octet-stream]
+Zapis do: ‘execution?id=dd196f95-9cf9-4754-afbb-93b2271b13c1’
+
+execution?id=dd196f95-9cf9-4754-afbb-93b2271b13c1                             0%[                                                                                                                                                                                           ]       0  --.-KB/s               execution?id=dd196f95-9cf9-4754-afbb-93b2271b13c1                           100%[==========================================================================================================================================================================================>] 140,57K  --.-KB/s    w 0,001s   
+
+2022-12-02 12:24:05 (125 MB/s) - zapisano ‘execution?id=dd196f95-9cf9-4754-afbb-93b2271b13c1’ [143948/143948]
+
