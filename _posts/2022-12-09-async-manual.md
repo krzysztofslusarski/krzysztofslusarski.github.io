@@ -1165,16 +1165,38 @@ I highlighted the ```LockController``` occurrence. Let's zoom it:
 
 ![alt text](/assets/async-demos/lock-2.png "flames")
 
-So we see only locking in ```withLock()``` method. You can study the internals of ```computeIfAbsent()``` method,
-when you have a hash collision it may lock. If you have a huge lock contention on this method, and most of the 
-time a key is already in the map, then you may consider the approach used in ```withoutLock()``` method.
+So we see only locking in ```withLock()``` method. You can study the internals of the ```computeIfAbsent()``` method,
+when you have a hash collision it may lock. The easiest way to check it is just by debugging ```computeIfAbsent()```
+method using this code:
 
+```java
+public static void main(String[] args) {
+    Map<String, String> map = new ConcurrentHashMap<>();
+    String a = "AaAa";
+    String b = "BBBB";
+
+    map.computeIfAbsent(a, s -> a);
+
+    // it enters synchronized section here
+    map.computeIfAbsent(b, s -> b);
+
+    // it enters synchronized section here, and all the following
+    // execution of computeIfAbsent with "BBBB" as a key.
+    map.computeIfAbsent(b, s -> b);
+    map.computeIfAbsent(b, s -> b);
+    map.computeIfAbsent(b, s -> b);
+    map.computeIfAbsent(b, s -> b);
+}
+```
+
+If you have a huge lock contention on this method, and most of the 
+time a key is already in the map, then you may consider the approach used in ```withoutLock()``` method.
 
 ## Time to safepoint
 {: #tts }
 
 The common knowledge in the Java developers world is that _garbage collectors_ need Stop-the-world (STW) phase to clean dead objects.
-First of all, **not only GC needs it**. There are other internal mechanisms that need to do some work, that require application threads to be hanged.
+First of all, **not only GC needs it**. There are other internal mechanisms that need to do some work, that require application threads to be paused.
 For example JVM needs STW phase to _deoptimize_ some compilations and to revoke _biased locks_. Let's get a closer look at how the
 STW phase works.
 
@@ -1604,8 +1626,8 @@ allocates arrays. Elements ```a[i][k + 0]``` ... ```a[i][k + 3]``` are very clos
 sequentially. This is the way the CPU likes to load data. 
 
 Access pattern to table  ```b``` is completely different. THe ```b[k + x]``` is just a pointer to a table. It is 
-somewhere on a heap, but where exactly? Well, we cannot control that. Element ```b[k + 0][j]``` may be in completely
-different place than ```b[k + 1][j]```. That's the way CPU doesn't like to load the data. 
+somewhere on a heap, but where exactly? Well, we cannot control that. Element ```b[k + 0][j]``` may be in a completely
+different place than ```b[k + 1][j]```. That's the way the CPU doesn't like to load the data. 
 
 The memory access pattern is the key here. The ```matrixMultiplyFaster``` algorithm is mostly sequential, that's why it's much faster.
 
@@ -2371,7 +2393,28 @@ the problem with the **10.212.1.104** server.
 ## Stability and overhead
 {: #stability-overhead }
 
-TODO
+Can attaching a profiler crash a JVM? Yes, it can happen. You need to know that there is some risk. Bugs happen, and I'm
+not talking only about profilers, but also about the JVM. A bug in JVM code can manifest itself after attaching a 
+profiler. Async-profiler is a very mature product already. It also has tons of workarounds to overcome issues in
+different JVMs. I know a few companies
+that are running async-profiler in continuous mode 24/7. For two years I heard about one production crash there caused by
+a profiler. It is working with **40** JVMs at least in wall-clock mode there. I didn't have any crash on any system 
+where I was attaching this profiler this year.
+From my perspective the risk is so small that it can be ignored,
+but you've been warned.
+
+In terms of additional overhead. In the application where the profiler is running in continuous mode on production the 
+overhead (in terms of response time) was between **0%** and **2%**. That number is a comparison of response times 
+before and after introducing continuous profiling there. A bit of context:
+
+- Spring and Spring Boot applications
+- Mostly services that handles HTTP requests
+- Not really CPU intensive - I would say that on average **60%** of the time was spent off-CPU (waiting for DB/other service)
+- JDK 11 and 17 - HotSpot from various vendors
+
+But you should measure the overhead in your application by yourself.
+
+TODO - waiting for additional input from Johannes Bechberger.
 
 ## Random thoughts
 {: #random }
