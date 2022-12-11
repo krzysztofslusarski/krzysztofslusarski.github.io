@@ -2403,6 +2403,10 @@ where I was attaching this profiler this year.
 From my perspective the risk is so small that it can be ignored,
 but you've been warned.
 
+But please, if you have any profiler related crash file a GitHub issue. This is also a way of contribution to open-sourced
+projects. During the crash the ```hs_err.<pid>``` file is generated. It may be very useful for finding the root
+cause of a problem.
+
 In terms of additional overhead. In the application where the profiler is running in continuous mode on production the 
 overhead (in terms of response time) was between **0%** and **2%**. That number is a comparison of response times 
 before and after introducing continuous profiling there. A bit of context:
