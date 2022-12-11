@@ -1543,7 +1543,7 @@ Let's go back to the example with matrix multiplication from [CPU - a bit harder
 To see what our CPU is doing in both cases I usually start with looking at basic CPU performance counters.
 To have my focus on the right place I like to start with JMH test.
 
-I've prepared such a benchmark in ```jmh-suite```. Let's run it with perf profiler:
+I've prepared such a benchmark in ```jmh-suite``` module. Let's run it with perf profiler:
 
 ```shell
 java -jar jmh-suite/target/benchmarks.jar -prof perf
@@ -1578,9 +1578,32 @@ java -jar jmh-suite/target/benchmarks.jar -prof async:libPath==/path/to/libasync
 java -jar jmh-suite/target/benchmarks.jar -prof async:libPath==/path/to/libasyncProfiler.so\;event=LLC-load-misses\;output=jfr
 ```
 
-All three flame graphs are very similar, let's look at ```cache-misses``` one:
+All three flame graphs are very similar, let's look at ```cache-misses``` one: ([HTML](/assets/async-demos/cache-misses.html){:target="_blank"})
+![alt text](/assets/async-demos/cache-misses.png "flames")
 
-TODO - work in progress.
+This time I added the line numbers, so we could see exactly where is the problem. **!82%** of cache misses
+is done in the same line:
+
+```java
+sum += a[i][k] * b[k][j];
+```
+
+That line is present inside three loops. The order of loop is ```i, j, k```. If we unroll the last loop four times
+we would get:
+
+```java
+sum += a[i][k + 0] * b[k + 0][j];
+sum += a[i][k + 1] * b[k + 1][j];
+sum += a[i][k + 2] * b[k + 2][j];
+sum += a[i][k + 3] * b[k + 3][j];
+```
+
+Let's look at this code from memory layout. The array ```a[i]``` is a contiguous part of memory. That's how Java
+is allocating arrays. Elements ```a[i][k + 0]``` ... ```a[i][k + 3]``` are very close to each other.
+
+Fetching elements from table ```a``` is efficient, since ```a[i][k + 0]```, ```a[i][k + 1]```, ... are layed out 
+
+TODO Work in progress
 
 ### Page faults
 {: #perf-pf }
