@@ -659,12 +659,11 @@ ab -n 10 -c 1 http://localhost:8081/examples/cpu/matrix-fast
 Let's see the times of ```matrix-slow``` request:
 
 ```shell
-Connection Times (ms)
               min  mean[+/-sd] median   max
 Connect:        0    0   0.0      0       0
-Processing:  1706 1735  29.0   1735    1786
-Waiting:     1706 1735  28.9   1735    1786
-Total:       1706 1735  29.0   1735    1786
+Processing:  1601 1795 181.5   1785    2078
+Waiting:     1600 1794 181.5   1785    2077
+Total:       1601 1795 181.5   1786    2078
 ```
 
 
@@ -693,15 +692,14 @@ public static int[][] matrixMultiplySlow(int[][] a, int[][] b, int size) {
 If we look at the times of ```matrix-fast``` request:
 
 ```shell
-Connection Times (ms)
               min  mean[+/-sd] median   max
 Connect:        0    0   0.0      0       0
-Processing:   861  888  20.7    890     924
-Waiting:      861  887  20.7    890     924
-Total:        861  888  20.7    890     924
+Processing:   107  114   6.5    114     128
+Waiting:      106  113   6.5    113     128
+Total:        107  114   6.5    114     128
 ```
 
-That request is two times faster than the ```matrix-slow```, but if we look at the profile:
+That request is **18 times faster** than the ```matrix-slow```, but if we look at the profile:
 ([HTML](/assets/async-demos/cpu-hard-fast.html){:target="_blank"})
 
 ![alt text](/assets/async-demos/cpu-hard-fast.png "flames")
@@ -736,6 +734,8 @@ Many Java programmers forget that all the execution is done in CPU. To talk to C
 basically what the JIT compiler is doing, it converts your hot methods and loops into effective ASM. At the assembly level
 you can check if JIT used vectorized instruction for your loops for example. So yes, sometimes you need to get dirty 
 with such low level stuff. For now async-profiler can give you a hint which methods you should focus on.
+
+We will go back to this example in [Cache misses](#perf-cache) section.
 
 ### Allocation
 {: #alloc }
@@ -1539,7 +1539,48 @@ I want to describe the three in more detail.
 ### Cache misses
 {: #perf-cache }
 
-TODO
+Let's go back to the example with matrix multiplication from [CPU - a bit harder](#cpu-hard) section.
+To see what our CPU is doing in both cases I usually start with looking at basic CPU performance counters.
+To have my focus on the right place I like to start with JMH test.
+
+I've prepared such a benchmark in ```jmh-suite```. Let's run it with perf profiler:
+
+```shell
+java -jar jmh-suite/target/benchmarks.jar -prof perf
+```
+
+The fast algorithm (I've cut the output to the most interesting metrics):
+
+```
+         20 544,42 msec task-clock                       #    1,008 CPUs utilized          
+    49 510 157 799      L1-dcache-loads                  #    2,410 G/sec                    (38,55%)
+     9 300 675 824      L1-dcache-load-misses            #   18,79% of all L1-dcache accesses  (38,55%)
+     1 635 877 333      LLC-loads                        #   79,626 M/sec                    (30,80%)
+        27 833 149      LLC-load-misses                  #    1,70% of all LL-cache accesses  (30,76%)
+```
+
+The slow one:
+
+```
+         22 291,74 msec task-clock                       #    1,008 CPUs utilized          
+    71 632 332 204      L1-dcache-loads                  #    3,213 G/sec                    (38,51%)
+    29 718 804 848      L1-dcache-load-misses            #   41,49% of all L1-dcache accesses  (38,50%)
+     6 909 042 687      LLC-loads                        #  309,937 M/sec                    (30,79%)
+        10 043 405      LLC-load-misses                  #    0,15% of all LL-cache accesses  (30,79%)
+```
+
+The slower algorithm has **three times** more L1 data cache misses and over **four times** more last level
+cache load. We can use now async-profiler in three different modes:
+
+```shell
+java -jar jmh-suite/target/benchmarks.jar -prof async:libPath=/path/to/libasyncProfiler.so\;event=cache-misses\;output=jfr
+java -jar jmh-suite/target/benchmarks.jar -prof async:libPath==/path/to/libasyncProfiler.so\;event=L1-dcache-load-misses\;output=jfr
+java -jar jmh-suite/target/benchmarks.jar -prof async:libPath==/path/to/libasyncProfiler.so\;event=LLC-load-misses\;output=jfr
+```
+
+All three flame graphs are very similar, let's look at ```cache-misses``` one:
+
+TODO - work in progress.
 
 ### Page faults
 {: #perf-pf }
