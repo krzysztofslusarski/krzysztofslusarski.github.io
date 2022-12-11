@@ -1335,13 +1335,14 @@ heap dump I knew which object is leaking and with method profiling I could know 
 of that type were created. That method is obsolete, since now we have a [dedicated mode](#alloc-live) to
 do it.
 
-There are some methods that are worth mentioning, that can be traced with that mode, 
-let's cover them quickly.
-
 ## Native functions
 {: #methods-native }
 
-TODO - some description
+Not only can you trace Java code with the async-profiler but also a native one. That way of profiling doesn't cause
+deoptimizations.
+
+There are some native functions that are worth a better look,
+let's cover them quickly.
 
 ### Exceptions
 {: #methods-ex }
@@ -1541,9 +1542,9 @@ I want to describe the three in more detail.
 
 Let's go back to the example with matrix multiplication from [CPU - a bit harder](#cpu-hard) section.
 To see what our CPU is doing in both cases I usually start with looking at basic CPU performance counters.
-To have my focus on the right place I like to start with JMH test.
+To have my focus on the right place I like to start with the JMH test.
 
-I've prepared such a benchmark in ```jmh-suite``` module. Let's run it with perf profiler:
+I've prepared such a benchmark in the ```jmh-suite``` module. Let's run it with perf profiler:
 
 ```shell
 java -jar jmh-suite/target/benchmarks.jar -prof perf
@@ -1578,17 +1579,17 @@ java -jar jmh-suite/target/benchmarks.jar -prof async:libPath==/path/to/libasync
 java -jar jmh-suite/target/benchmarks.jar -prof async:libPath==/path/to/libasyncProfiler.so\;event=LLC-load-misses\;output=jfr
 ```
 
-All three flame graphs are very similar, let's look at ```cache-misses``` one: ([HTML](/assets/async-demos/cache-misses.html){:target="_blank"})
+All three flame graphs are very similar, let's take a look at ```cache-misses``` one: ([HTML](/assets/async-demos/cache-misses.html){:target="_blank"})
 ![alt text](/assets/async-demos/cache-misses.png "flames")
 
-This time I added the line numbers, so we could see exactly where is the problem. **!82%** of cache misses
+This time I added the line numbers, so we could see exactly where the problem was. **~82%** of cache misses
 is done in the same line:
 
 ```java
 sum += a[i][k] * b[k][j];
 ```
 
-That line is present inside three loops. The order of loop is ```i, j, k```. If we unroll the last loop four times
+That line is present inside three loops. The order of loops is ```i, j, k```. If we unroll the last loop four times
 we would get:
 
 ```java
@@ -1598,12 +1599,15 @@ sum += a[i][k + 2] * b[k + 2][j];
 sum += a[i][k + 3] * b[k + 3][j];
 ```
 
-Let's look at this code from memory layout. The array ```a[i]``` is a contiguous part of memory. That's how Java
-is allocating arrays. Elements ```a[i][k + 0]``` ... ```a[i][k + 3]``` are very close to each other.
+Let's look at this code from a memory layout perspective. The array ```a[i]``` is a contiguous part of memory. That's how Java
+allocates arrays. Elements ```a[i][k + 0]``` ... ```a[i][k + 3]``` are very close to each other and are loaded 
+sequentially. This is the way the CPU likes to load data. 
 
-Fetching elements from table ```a``` is efficient, since ```a[i][k + 0]```, ```a[i][k + 1]```, ... are layed out 
+Access pattern to table  ```b``` is completely different. THe ```b[k + x]``` is just a pointer to a table. It is 
+somewhere on a heap, but where exactly? Well, we cannot control that. Element ```b[k + 0][j]``` may be in completely
+different place than ```b[k + 1][j]```. That's the way CPU doesn't like to load the data. 
 
-TODO Work in progress
+The memory access pattern is the key here. The ```matrixMultiplyFaster``` algorithm is mostly sequential, that's why it's much faster.
 
 ### Page faults
 {: #perf-pf }
