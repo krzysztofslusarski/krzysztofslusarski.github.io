@@ -38,11 +38,13 @@ to happen anywhere", well, it isn't.
   - [Locks](#locks)
 - [Time to safepoint](#tts)
 - [Methods profiling](#methods)
+- [Native functions](#methods-native)
   - [Exceptions](#methods-ex)
   - [G1GC humongous allocation](#methods-g1ha)
   - [Thread start](#methods-thread)
   - [Classloading](#methods-classes)
 - [Perf events](#perf)
+  - [Cache misses](#perf-cache)
   - [Page faults](#perf-pf)
   - [Cycles](#perf-cycles)
 - [Filtering single request](#single-req)
@@ -55,6 +57,7 @@ to happen anywhere", well, it isn't.
 - [Contextual profiling](#context-id)
   - [Spring Boot microservices](#context-id-spring)
   - [Distributed systems](#context-id-hz)
+- [Stability and overhead](#stability-overhead)
 - [Random thoughts](#random)
 
 ## Profiled application 
@@ -163,7 +166,9 @@ java -agentpath:/path/to/libasyncProfiler.so=start,event=cpu,file=prof.jfr
 ```
 
 The parameters passed this way differ from the switches used in the command line approach.
-Mapping between those you can find in
+The list of parameters you can find
+[here](https://github.com/jvm-profiling-tools/async-profiler/blob/v2.9/src/arguments.cpp#L52){:target="_blank"}
+and the mapping between those you can find in
 [profiler.sh](https://github.com/jvm-profiling-tools/async-profiler/blob/master/profiler.sh#L149){:target="_blank"}
 source code.
 
@@ -186,13 +191,7 @@ The Java API is published to maven central. All you need to do is to include a d
 That gives you an API where you can use Async-profiler from Java code. Example of usage:
 
 ```java
-// If the profiler is loaded with agentpath or the libasyncProfiler.so is 
-// placed in one of directory: /usr/java/packages/lib /usr/lib64 /lib64
-// /lib /usr/lib
 AsyncProfiler profiler = AsyncProfiler.getInstance(); 
-
-// If the profiler is placed elsewhere:
-AsyncProfiler profiler = AsyncProfiler.getInstance("/path/to/libasyncProfiler.so");
 ```
 
 That gives you an instance of ```AsyncProfiler``` object, where you can send orders to the profiler:
@@ -201,6 +200,21 @@ That gives you an instance of ```AsyncProfiler``` object, where you can send ord
 profiler.execute(String.format("start,jfr,event=wall,file=%s.jfr", fileName));
 // do something, like sleep
 profiler.execute(String.format("stop,file=%s.jfr", fileName));
+```
+
+Since async-profiler 2.9 the ```AsyncProfiler.getInstance()``` extracts and loads the ```libasyncProfiler.so``` from the JAR .
+In previous version that file needed to be in one of directories:
+
+- ```/usr/java/packages/lib```
+- ```/usr/lib64```
+- ```/lib64```
+- ```/lib```
+- ```/usr/lib```
+
+You can also point any location of that file with API:
+
+```java
+AsyncProfiler profiler = AsyncProfiler.getInstance("/path/to/libasyncProfiler.so");
 ```
 
 ### From JMH benchmark
@@ -246,7 +260,8 @@ gathered by the profiler. That file can be postprocess later by some external to
 own open-sourced [JVM profiling toolkit](https://github.com/krzysztofslusarski/jvm-profiling-toolkit){:target="_blank"}, 
 which can read JFR files with additional filters and gives me a possibility to add/remove additional
 levels during conversion to flame graph. In that post I will use the naming of filters from my viewer.
-There are other products that can visualize the JFR output, you should use the tool that works
+There are other products (including the ```jfr2flame``` converter that is a part of async-profiler) 
+that can visualize the JFR output, you should use the tool that works
 for you. There was none that worked for me, so I wrote my own, but it doesn't mean that it would
 be the best choice for everybody.
 
@@ -298,7 +313,8 @@ The flame graph usually shows you how some resource is utilized by your applicat
 So in this example method ```b()``` is not utilizing the resource at all, it just invokes methods that do it. Flame graphs
 are commonly used to present the **CPU utilization**, but CPU is just one of the resources that we can visualize this way.
 If you use **wall-clock mode** then your resource is **time**. If you use **allocation mode** then your resource is
-**heap**.
+**heap**. If you want to learn more about flame graphs you can check the 
+[Brendan's Gregg video](https://www.youtube.com/watch?v=D53T1Ejig1Q){:target="_blank"}.
 
 ## Basic resources profiling
 {: #basic-resources }
@@ -643,12 +659,11 @@ ab -n 10 -c 1 http://localhost:8081/examples/cpu/matrix-fast
 Let's see the times of ```matrix-slow``` request:
 
 ```shell
-Connection Times (ms)
               min  mean[+/-sd] median   max
 Connect:        0    0   0.0      0       0
-Processing:  1706 1735  29.0   1735    1786
-Waiting:     1706 1735  28.9   1735    1786
-Total:       1706 1735  29.0   1735    1786
+Processing:  1601 1795 181.5   1785    2078
+Waiting:     1600 1794 181.5   1785    2077
+Total:       1601 1795 181.5   1786    2078
 ```
 
 
@@ -677,15 +692,14 @@ public static int[][] matrixMultiplySlow(int[][] a, int[][] b, int size) {
 If we look at the times of ```matrix-fast``` request:
 
 ```shell
-Connection Times (ms)
               min  mean[+/-sd] median   max
 Connect:        0    0   0.0      0       0
-Processing:   861  888  20.7    890     924
-Waiting:      861  887  20.7    890     924
-Total:        861  888  20.7    890     924
+Processing:   107  114   6.5    114     128
+Waiting:      106  113   6.5    113     128
+Total:        107  114   6.5    114     128
 ```
 
-That request is two times faster than the ```matrix-slow```, but if we look at the profile:
+That request is **18 times faster** than the ```matrix-slow```, but if we look at the profile:
 ([HTML](/assets/async-demos/cpu-hard-fast.html){:target="_blank"})
 
 ![alt text](/assets/async-demos/cpu-hard-fast.png "flames")
@@ -720,6 +734,8 @@ Many Java programmers forget that all the execution is done in CPU. To talk to C
 basically what the JIT compiler is doing, it converts your hot methods and loops into effective ASM. At the assembly level
 you can check if JIT used vectorized instruction for your loops for example. So yes, sometimes you need to get dirty 
 with such low level stuff. For now async-profiler can give you a hint which methods you should focus on.
+
+We will go back to this example in [Cache misses](#perf-cache) section.
 
 ### Allocation
 {: #alloc }
@@ -852,7 +868,16 @@ but allocate the array lazily.
 {: #alloc-ha }
 
 If you are using G1 garbage collector, which is JVM's default since JDK 9, your heap is divided into
-regions. If you are trying to allocate the object that is larger or equal to half of the region size then
+regions. Region sizes vary from **1 MB** to **32 MB** depending on the heap size. The goal is to have no more than **2048** regions.
+You can check the region size for different heap sizes with:
+
+```shell
+java -Xms1G -Xmx1G -Xlog:gc,exit*=debug -version
+```
+
+In the output there is a line containing a ```region size 1024K``` information.
+
+If you are trying to allocate the object that is larger or equal to half of the region size then
 you are doing humongous allocation. Long story short it has been, and it is a pain in the ass. 
 It is allocated directly in the old generation, but it is also cleared during minor GCs. I saw situations
 where G1 GC needed to invoke FullGC phase because of the humongous allocation. If you are doing a 
@@ -1136,21 +1161,43 @@ The flame graph: ([HTML](/assets/async-demos/lock.html){:target="_blank"})
 
 ![alt text](/assets/async-demos/lock-1.png "flames")
 
-I highlighted the ```LockController``` occurance. Let's zoom it:
+I highlighted the ```LockController``` occurrence. Let's zoom it:
 
 ![alt text](/assets/async-demos/lock-2.png "flames")
 
-So we see only locking in ```withLock()``` method. You can study the internals of ```computeIfAbsent()``` method,
-when you have a hash collision it may lock. If you have a huge lock contention on this method, and most of the 
-time a key is already in the map, then you may consider the approach used in ```withoutLock()``` method.
+So we see only locking in ```withLock()``` method. You can study the internals of the ```computeIfAbsent()``` method,
+when you have a hash collision it may lock. The easiest way to check it is just by debugging ```computeIfAbsent()```
+method using this code:
 
+```java
+public static void main(String[] args) {
+    Map<String, String> map = new ConcurrentHashMap<>();
+    String a = "AaAa";
+    String b = "BBBB";
+
+    map.computeIfAbsent(a, s -> a);
+
+    // it enters synchronized section here
+    map.computeIfAbsent(b, s -> b);
+
+    // it enters synchronized section here, and all the following
+    // execution of computeIfAbsent with "BBBB" as a key.
+    map.computeIfAbsent(b, s -> b);
+    map.computeIfAbsent(b, s -> b);
+    map.computeIfAbsent(b, s -> b);
+    map.computeIfAbsent(b, s -> b);
+}
+```
+
+If you have a huge lock contention on this method, and most of the 
+time a key is already in the map, then you may consider the approach used in ```withoutLock()``` method.
 
 ## Time to safepoint
 {: #tts }
 
 The common knowledge in the Java developers world is that _garbage collectors_ need Stop-the-world (STW) phase to clean dead objects.
-First of all, **not only GC needs it**. There are other internal mechanisms that need to do some work, that require application threads to be hanged.
-For example JIT compiler needs STW phase to _deoptimize_ some compilations and to revoke _biased locks_. Let's get a closer look at how the
+First of all, **not only GC needs it**. There are other internal mechanisms that need to do some work, that require application threads to be paused.
+For example JVM needs STW phase to _deoptimize_ some compilations and to revoke _biased locks_. Let's get a closer look at how the
 STW phase works.
 
 On our JVM there are running some application threads:
@@ -1162,9 +1209,9 @@ _global safepoint request_, which is an information for every thread to go to "s
 
 ![alt text](/assets/stw/2.png "chart 2")
 
-Every thread has to find out about this information. Checking if it needs to fall asleep is simply a line of assembly code
-generated by the JIT compiler and a simple step in the interpreter. Of course every thread can now execute a different method/JIT compilation,
-so time in which threads are going to be aware of STW phase is different for every thread.   
+Every thread has to find out about this information.
+Stopping at a safepoint is cooperative: each thread checks at certain points in the code if it needs to suspend.
+The time in which threads are going to be aware of STW phase is different for every thread. 
 Every thread has to wait for the slowest one. Time between starting STW phase, and the slowest thread finding that information is called
 _time to safepoint_:
 
@@ -1217,16 +1264,14 @@ You can see that most of the gathered samples are executing ```arraycopy``` invo
 The time to safepoint issues that I approach so far:
 
 - **arraycopy** - as in our example
-- **old JDK + loops** - since JDK 11u4 we have _loop strip mining_ optimization working correctly, before that if you had
+- **old JDK + loops** - since JDK 11u4 we have _loop strip mining_ optimization working correctly (after fixing
+  [JDK-8220374](https://bugs.java.com/bugdatabase/view_bug.do?bug_id=JDK-8220374){:target="_blank"}), before that if you had
   a counted loop, it could be compiled without any check for safepoint
 - **swap** - when your application thread executes some work in _thread_in_vm_ state (after calling some native method),  
   and during that execution it waits for some pages to be swapped in/out, that can slow down reaching the safepoint
 
 For the **arraycopy** issue the solution is to copy the array by some custom method. It will be a bit slower,
 but will not slow down all the threads but one.
-
-For the **old JDK + loops** you can upgrade or change the counted loop int uncounted one. More information about that
-[here](http://psy-lob-saw.blogspot.com/2016/02/wait-for-it-counteduncounted-loops.html){:target="_blank"}.
 
 For the **swap** issue, just disable swap.
 
@@ -1312,7 +1357,13 @@ heap dump I knew which object is leaking and with method profiling I could know 
 of that type were created. That method is obsolete, since now we have a [dedicated mode](#alloc-live) to
 do it.
 
-There are some methods that are worth mentioning, that can be traced with that mode, 
+## Native functions
+{: #methods-native }
+
+Not only can you trace Java code with the async-profiler but also a native one. That way of profiling doesn't cause
+deoptimizations.
+
+There are some native functions that are worth a better look,
 let's cover them quickly.
 
 ### Exceptions
@@ -1506,7 +1557,79 @@ events with Java code. For example you can use events:
 - ```LLC-load-misses```- which part of your code needs something from RAM memory
 - ...
 
-I want to describe the two in more detail.
+I want to describe the three in more detail.
+
+### Cache misses
+{: #perf-cache }
+
+Let's go back to the example with matrix multiplication from [CPU - a bit harder](#cpu-hard) section.
+To see what our CPU is doing in both cases I usually start with looking at basic CPU performance counters.
+To have my focus on the right place I like to start with the JMH test.
+
+I've prepared such a benchmark in the ```jmh-suite``` module. Let's run it with perf profiler:
+
+```shell
+java -jar jmh-suite/target/benchmarks.jar -prof perf
+```
+
+The fast algorithm (I've cut the output to the most interesting metrics):
+
+```
+         20 544,42 msec task-clock                       #    1,008 CPUs utilized          
+    49 510 157 799      L1-dcache-loads                  #    2,410 G/sec                    (38,55%)
+     9 300 675 824      L1-dcache-load-misses            #   18,79% of all L1-dcache accesses  (38,55%)
+     1 635 877 333      LLC-loads                        #   79,626 M/sec                    (30,80%)
+        27 833 149      LLC-load-misses                  #    1,70% of all LL-cache accesses  (30,76%)
+```
+
+The slow one:
+
+```
+         22 291,74 msec task-clock                       #    1,008 CPUs utilized          
+    71 632 332 204      L1-dcache-loads                  #    3,213 G/sec                    (38,51%)
+    29 718 804 848      L1-dcache-load-misses            #   41,49% of all L1-dcache accesses  (38,50%)
+     6 909 042 687      LLC-loads                        #  309,937 M/sec                    (30,79%)
+        10 043 405      LLC-load-misses                  #    0,15% of all LL-cache accesses  (30,79%)
+```
+
+The slower algorithm has **three times** more L1 data cache misses and over **four times** more last level
+cache load. We can use now async-profiler in three different modes:
+
+```shell
+java -jar jmh-suite/target/benchmarks.jar -prof async:libPath=/path/to/libasyncProfiler.so\;event=cache-misses\;output=jfr
+java -jar jmh-suite/target/benchmarks.jar -prof async:libPath==/path/to/libasyncProfiler.so\;event=L1-dcache-load-misses\;output=jfr
+java -jar jmh-suite/target/benchmarks.jar -prof async:libPath==/path/to/libasyncProfiler.so\;event=LLC-load-misses\;output=jfr
+```
+
+All three flame graphs are very similar, let's take a look at ```cache-misses``` one: ([HTML](/assets/async-demos/cache-misses.html){:target="_blank"})
+![alt text](/assets/async-demos/cache-misses.png "flames")
+
+This time I added the line numbers, so we could see exactly where the problem was. **~82%** of cache misses
+is done in the same line:
+
+```java
+sum += a[i][k] * b[k][j];
+```
+
+That line is present inside three loops. The order of loops is ```i, j, k```. If we unroll the last loop four times
+we would get:
+
+```java
+sum += a[i][k + 0] * b[k + 0][j];
+sum += a[i][k + 1] * b[k + 1][j];
+sum += a[i][k + 2] * b[k + 2][j];
+sum += a[i][k + 3] * b[k + 3][j];
+```
+
+Let's look at this code from a memory layout perspective. The array ```a[i]``` is a contiguous part of memory. That's how Java
+allocates arrays. Elements ```a[i][k + 0]``` ... ```a[i][k + 3]``` are very close to each other and are loaded 
+sequentially. This is the way the CPU likes to load data. 
+
+Access pattern to table  ```b``` is completely different. THe ```b[k + x]``` is just a pointer to a table. It is 
+somewhere on a heap, but where exactly? Well, we cannot control that. Element ```b[k + 0][j]``` may be in a completely
+different place than ```b[k + 1][j]```. That's the way the CPU doesn't like to load the data. 
+
+The memory access pattern is the key here. The ```matrixMultiplyFaster``` algorithm is mostly sequential, that's why it's much faster.
 
 ### Page faults
 {: #perf-pf }
@@ -1523,7 +1646,7 @@ Now the OS is smart enough to detect if that fault should be converted to SEGFAU
 map RAM to a virtual memory, because it was previously promised to the process.
 
 Java is a process from an OS perspective, nothing less, nothing more. Knowing that we can trace
-```page fault``` events to detect why our application consumes more RAM. I may be native memory 
+```page fault``` events to detect why our application consumes more RAM. It may be native memory 
 leak, or some framework/library/JVM bug.
 
 For now, it is not perfect for tracing leaks since it shows every need of additional RAM,
@@ -1709,7 +1832,7 @@ The point of the previous example was to show you why aggregated results can be 
 a single request. Now I want to show you a  very common issue that I have diagnosed a few times already.
 
 Spring Boot has an addition called Actuator. It is commonly used in the enterprise world. One of the
-features of Actuator is the health check endpoint. Under URI ```/actuator/healh``` you can get JSON
+features of Actuator is the health check endpoint. Under URI ```/actuator/health``` you can get JSON
 with information about the health of your application. That endpoint is sometimes used as a load
 balancer probe. Let's consider a multi node cluster of our example application with load
 balancer in front of the cluster which:
@@ -1962,16 +2085,10 @@ utility class:
 ```java
 public abstract class AsyncProfilerUtils {
     private static volatile AsyncProfiler asyncProfiler;
-    private static final Object MUX = new Object();
+    // ...
 
     public static AsyncProfiler load() {
-        if (asyncProfiler == null) {
-            synchronized (MUX) {
-                if (asyncProfiler == null) {
-                    asyncProfiler = AsyncProfiler.getInstance("/tmp/libasyncProfiler.so");
-                }
-            }
-        }
+        // Lazy load with double-checked locking
         return asyncProfiler;
     }
 
@@ -2272,6 +2389,36 @@ I checked five more long latency requests and the results were the same, confirm
 the problem. I spent a lot of time trying to figure out what was wrong with that machine. My biggest suspect was a 
 difference in meltdown/spectre patches in the kernel. In the end we reinstalled Linux on those machines which solved
 the problem with the **10.212.1.104** server.
+
+## Stability and overhead
+{: #stability-overhead }
+
+Can attaching a profiler crash a JVM? Yes, it can happen. You need to know that there is some risk. Bugs happen, and I'm
+not talking only about profilers, but also about the JVM. A bug in JVM code can manifest itself after attaching a 
+profiler. Async-profiler is a very mature product already. It also has tons of workarounds to overcome issues in
+different JVMs. I know a few companies
+that are running async-profiler in continuous mode 24/7. For two years I heard about one production crash there caused by
+a profiler. It is working with **40** JVMs at least in wall-clock mode there. I didn't have any crash on any system 
+where I was attaching this profiler this year.
+From my perspective the risk is so small that it can be ignored,
+but you've been warned.
+
+But please, if you have any profiler related crash file a GitHub issue. This is also a way of contribution to open-sourced
+projects. During the crash the ```hs_err.<pid>``` file is generated. It may be very useful for finding the root
+cause of a problem.
+
+In terms of additional overhead. In the application where the profiler is running in continuous mode on production the 
+overhead (in terms of response time) was between **0%** and **2%**. That number is a comparison of response times 
+before and after introducing continuous profiling there. A bit of context:
+
+- Spring and Spring Boot applications
+- Mostly services that handles HTTP requests
+- Not really CPU intensive - I would say that on average **60%** of the time was spent off-CPU (waiting for DB/other service)
+- JDK 11 and 17 - HotSpot from various vendors
+
+But you should measure the overhead in your application by yourself.
+
+TODO - waiting for additional input from Johannes Bechberger.
 
 ## Random thoughts
 {: #random }

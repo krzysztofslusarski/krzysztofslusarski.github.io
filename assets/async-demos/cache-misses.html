@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='utf-8'>
+    <style>
+        body {margin: 0; padding: 10px; background-color: #ffffff}
+        h1 {margin: 5px 0 0 0; font-size: 18px; font-weight: normal; text-align: center}
+        header {margin: -24px 0 5px 0; line-height: 24px}
+        button {font: 12px sans-serif; cursor: pointer}
+        p {margin: 5px 0 5px 0}
+        a {color: #0366d6}
+        #hl {position: absolute; display: none; overflow: hidden; white-space: nowrap; pointer-events: none; background-color: #ffffe0; outline: 1px solid #ffc000; height: 15px}
+        #hl span {padding: 0 3px 0 3px}
+        #status {overflow: hidden; white-space: nowrap}
+        #match {overflow: hidden; white-space: nowrap; display: none; float: right; text-align: right}
+        #reset {cursor: pointer}
+        #canvas {width: 100%; height: 2256px}
+    </style>
+</head>
+<body style='font: 12px Verdana, sans-serif'>
+<h1>Execution samples</h1>
+<header style='text-align: left'><button id='reverse' title='Reverse'>&#x1f53b;</button>&nbsp;&nbsp;<button id='search' title='Search'>&#x1f50d;</button></header>
+<header style='text-align: right'>Produced by <a href='https://github.com/jvm-profiling-tools/async-profiler'>async-profiler</a></header>
+<canvas id='canvas'></canvas>
+<div id='hl'><span></span></div>
+<p id='match'>Matched: <span id='matchval'></span> <span id='reset' title='Clear'>&#x274c;</span></p>
+<p id='status'>&nbsp;</p>
+<script>
+    // Copyright 2020 Andrei Pangin
+    // Licensed under the Apache License, Version 2.0.
+    'use strict';
+    var root, rootLevel, px, pattern;
+    var reverse = false;
+    const levels = Array(141);
+    for (let h = 0; h < levels.length; h++) {
+        levels[h] = [];
+    }
+
+    const canvas = document.getElementById('canvas');
+    const c = canvas.getContext('2d');
+    const hl = document.getElementById('hl');
+    const status = document.getElementById('status');
+
+    const canvasWidth = canvas.offsetWidth;
+    const canvasHeight = canvas.offsetHeight;
+    canvas.style.width = canvasWidth + 'px';
+    canvas.width = canvasWidth * (devicePixelRatio || 1);
+    canvas.height = canvasHeight * (devicePixelRatio || 1);
+    if (devicePixelRatio) c.scale(devicePixelRatio, devicePixelRatio);
+    c.font = document.body.style.font;
+
+    const palette = [
+        [0xb2e1b2, 20, 20, 20],
+        [0x50e150, 30, 30, 30],
+        [0x50cccc, 30, 30, 30],
+        [0xe15a5a, 30, 40, 40],
+        [0xc8c83c, 30, 30, 10],
+        [0xe17d00, 30, 30,  0],
+        [0xcce880, 20, 20, 20],
+    ];
+
+    function getColor(p) {
+        const v = Math.random();
+        return '#' + (p[0] + ((p[1] * v) << 16 | (p[2] * v) << 8 | (p[3] * v))).toString(16);
+    }
+
+    function f(level, left, width, type, title, inln, c1, int) {
+        levels[level].push({left: left, width: width, color: getColor(palette[type]), title: title,
+            details: (int ? ', int=' + int : '') + (c1 ? ', c1=' + c1 : '') + (inln ? ', inln=' + inln : '')
+        });
+    }
+
+    function samples(n) {
+        return n === 1 ? '1 sample' : n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' samples';
+    }
+
+    function pct(a, b) {
+        return a >= b ? '100' : (100 * a / b).toFixed(2);
+    }
+
+    function findFrame(frames, x) {
+        let left = 0;
+        let right = frames.length - 1;
+
+        while (left <= right) {
+            const mid = (left + right) >>> 1;
+            const f = frames[mid];
+
+            if (f.left > x) {
+                right = mid - 1;
+            } else if (f.left + f.width <= x) {
+                left = mid + 1;
+            } else {
+                return f;
+            }
+        }
+
+        if (frames[left] && (frames[left].left - x) * px < 0.5) return frames[left];
+        if (frames[right] && (x - (frames[right].left + frames[right].width)) * px < 0.5) return frames[right];
+
+        return null;
+    }
+
+    function search(r) {
+        if (r === true && (r = prompt('Enter regexp to search:', '')) === null) {
+            return;
+        }
+
+        pattern = r ? RegExp(r) : undefined;
+        const matched = render(root, rootLevel);
+        document.getElementById('matchval').textContent = pct(matched, root.width) + '%';
+        document.getElementById('match').style.display = r ? 'inherit' : 'none';
+    }
+
+    function render(newRoot, newLevel) {
+        if (root) {
+            c.fillStyle = '#ffffff';
+            c.fillRect(0, 0, canvasWidth, canvasHeight);
+        }
+
+        root = newRoot || levels[0][0];
+        rootLevel = newLevel || 0;
+        px = canvasWidth / root.width;
+
+        const x0 = root.left;
+        const x1 = x0 + root.width;
+        const marked = [];
+
+        function mark(f) {
+            return marked[f.left] >= f.width || (marked[f.left] = f.width);
+        }
+
+        function totalMarked() {
+            let total = 0;
+            let left = 0;
+            Object.keys(marked).sort(function(a, b) { return a - b; }).forEach(function(x) {
+                if (+x >= left) {
+                    total += marked[x];
+                    left = +x + marked[x];
+                }
+            });
+            return total;
+        }
+
+        function drawFrame(f, y, alpha) {
+            if (f.left < x1 && f.left + f.width > x0) {
+                c.fillStyle = pattern && f.title.match(pattern) && mark(f) ? '#ee00ee' : f.color;
+                c.fillRect((f.left - x0) * px, y, f.width * px, 15);
+
+                if (f.width * px >= 21) {
+                    const chars = Math.floor(f.width * px / 7);
+                    const title = f.title.length <= chars ? f.title : f.title.substring(0, chars - 2) + '..';
+                    c.fillStyle = '#000000';
+                    c.fillText(title, Math.max(f.left - x0, 0) * px + 3, y + 12, f.width * px - 6);
+                }
+
+                if (alpha) {
+                    c.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                    c.fillRect((f.left - x0) * px, y, f.width * px, 15);
+                }
+            }
+        }
+
+        for (let h = 0; h < levels.length; h++) {
+            const y = reverse ? h * 16 : canvasHeight - (h + 1) * 16;
+            const frames = levels[h];
+            for (let i = 0; i < frames.length; i++) {
+                drawFrame(frames[i], y, h < rootLevel);
+            }
+        }
+
+        return totalMarked();
+    }
+
+    canvas.onmousemove = function() {
+        const h = Math.floor((reverse ? event.offsetY : (canvasHeight - event.offsetY)) / 16);
+        if (h >= 0 && h < levels.length) {
+            const f = findFrame(levels[h], event.offsetX / px + root.left);
+            if (f) {
+                if (f != root) getSelection().removeAllRanges();
+                hl.style.left = (Math.max(f.left - root.left, 0) * px + canvas.offsetLeft) + 'px';
+                hl.style.width = (Math.min(f.width, root.width) * px) + 'px';
+                hl.style.top = ((reverse ? h * 16 : canvasHeight - (h + 1) * 16) + canvas.offsetTop) + 'px';
+                hl.firstChild.textContent = f.title;
+                hl.style.display = 'block';
+                canvas.title = f.title + '\n(' + samples(f.width) + f.details + ', ' + pct(f.width, levels[0][0].width) + '%)';
+                canvas.style.cursor = 'pointer';
+                canvas.onclick = function() {
+                    if (f != root) {
+                        render(f, h);
+                        canvas.onmousemove();
+                    }
+                };
+                status.textContent = 'Function: ' + canvas.title;
+                return;
+            }
+        }
+        canvas.onmouseout();
+    }
+
+    canvas.onmouseout = function() {
+        hl.style.display = 'none';
+        status.textContent = '\xa0';
+        canvas.title = '';
+        canvas.style.cursor = '';
+        canvas.onclick = '';
+    }
+
+    canvas.ondblclick = function() {
+        getSelection().selectAllChildren(hl);
+    }
+
+    document.getElementById('reverse').onclick = function() {
+        reverse = !reverse;
+        render();
+    }
+
+    document.getElementById('search').onclick = function() {
+        search(true);
+    }
+
+    document.getElementById('reset').onclick = function() {
+        search(false);
+    }
+
+    window.onkeydown = function() {
+        if (event.ctrlKey && event.keyCode === 70) {
+            event.preventDefault();
+            search(true);
+        } else if (event.keyCode === 27) {
+            search(false);
+        }
+    }
+
+    f(0,0,10778,3,'all')
+f(1,0,1,3,'__GI___pthread_cond_timedwait:0')
+f(1,1,2,3,'__GI___pthread_disable_asynccancel:0')
+f(1,3,4,3,'__condvar_dec_grefs:0')
+f(1,7,28,3,'__futex_abstimed_wait_common:0')
+f(2,7,2,3,'__entry_text_start_[k]:0')
+f(2,9,26,3,'entry_SYSCALL_64_after_hwframe_[k]:0')
+f(3,9,26,3,'do_syscall_64_[k]:0')
+f(4,9,12,3,'__x64_sys_futex_[k]:0')
+f(5,9,12,3,'do_futex_[k]:0')
+f(6,9,12,3,'futex_wait_[k]:0')
+f(7,9,3,3,'futex_unqueue_[k]:0')
+f(8,9,3,3,'_raw_spin_lock_[k]:0')
+f(9,11,1,3,'preempt_count_add_[k]:0')
+f(7,12,8,3,'futex_wait_queue_[k]:0')
+f(8,12,8,3,'schedule_[k]:0')
+f(9,12,8,3,'__schedule_[k]:0')
+f(10,13,2,3,'dequeue_task_fair_[k]:0')
+f(11,13,2,3,'dequeue_entity_[k]:0')
+f(12,14,1,3,'update_load_avg_[k]:0')
+f(13,14,1,3,'__update_load_avg_cfs_rq_[k]:0')
+f(10,15,2,3,'finish_task_switch.isra.0_[k]:0')
+f(11,16,1,3,'__perf_event_task_sched_in_[k]:0')
+f(12,16,1,3,'_raw_spin_unlock_[k]:0')
+f(10,17,1,3,'psi_task_switch_[k]:0')
+f(11,17,1,3,'sched_clock_cpu_[k]:0')
+f(12,17,1,3,'native_sched_clock_[k]:0')
+f(10,18,1,3,'put_prev_task_fair_[k]:0')
+f(10,19,1,3,'rcu_note_context_switch_[k]:0')
+f(7,20,1,3,'futex_wait_setup_[k]:0')
+f(8,20,1,3,'get_futex_key_[k]:0')
+f(4,21,14,3,'syscall_exit_to_user_mode_[k]:0')
+f(5,21,14,3,'exit_to_user_mode_prepare_[k]:0')
+f(6,23,4,3,'__rseq_handle_notify_resume_[k]:0')
+f(7,23,3,3,'__get_user_8_[k]:0')
+f(7,26,1,3,'__put_user_nocheck_8_[k]:0')
+f(6,27,8,3,'fpregs_restore_userregs_[k]:0')
+f(7,28,2,3,'check_preemption_disabled_[k]:0')
+f(7,30,5,3,'restore_fpregs_from_fpstate_[k]:0')
+f(1,35,1,3,'__pthread_mutex_cond_lock:0')
+f(1,36,1,3,'_int_free:0')
+f(1,37,10586,1,'java.lang/Thread.run:833')
+f(2,37,10586,1,'java.util.concurrent/ThreadPoolExecutor$Worker.run:635')
+f(3,37,2,1,'java.util.concurrent/ThreadPoolExecutor.runWorker:1122')
+f(4,37,2,1,'java.util.concurrent/ThreadPoolExecutor.getTask:1062')
+f(5,37,1,1,'java.util.concurrent/LinkedBlockingQueue.take:435')
+f(6,37,1,1,'java.util.concurrent.locks/AbstractQueuedSynchronizer$ConditionObject.await:1623')
+f(7,37,1,1,'java.util.concurrent/ForkJoinPool.managedBlock:3434')
+f(8,37,1,1,'java.util.concurrent/ForkJoinPool.unmanagedBlock:3463')
+f(9,37,1,1,'java.util.concurrent.locks/AbstractQueuedSynchronizer$ConditionNode.block:506')
+f(5,38,1,1,'java.util.concurrent/LinkedBlockingQueue.take:442')
+f(6,38,1,1,'java.util.concurrent.locks/ReentrantLock.unlock:494')
+f(7,38,1,1,'java.util.concurrent.locks/AbstractQueuedSynchronizer.release:1007')
+f(8,38,1,1,'java.util.concurrent.locks/ReentrantLock$Sync.tryRelease:173')
+f(3,39,10583,1,'java.util.concurrent/ThreadPoolExecutor.runWorker:1136')
+f(4,39,10582,1,'java.util.concurrent/FutureTask.run:264')
+f(5,39,10582,1,'java.util.concurrent/Executors$RunnableAdapter.call:539')
+f(6,39,1,1,'java.util.concurrent/FutureTask.run:256')
+f(7,39,1,1,'java.lang.invoke/VarHandleGuards.guard_LLL_Z:68')
+f(8,39,1,1,'java.lang.invoke/VarHandleReferences$FieldInstanceReadWrite.compareAndSet:183')
+f(9,39,1,1,'java.lang/Class.cast:3888')
+f(10,39,1,1,'java.lang/Class.isInstance:0')
+f(11,39,1,3,'jni_IsInstanceOf:0')
+f(6,40,10580,1,'java.util.concurrent/FutureTask.run:264')
+f(7,40,10580,1,'org.openjdk.jmh.runner/BenchmarkHandler$BenchmarkTask.call:458')
+f(8,40,10580,1,'org.openjdk.jmh.runner/BenchmarkHandler$BenchmarkTask.call:475')
+f(9,40,1,1,'java.lang.reflect/Method.invoke:560')
+f(10,40,1,1,'java.lang.reflect/AccessibleObject.checkAccess:673')
+f(11,40,1,1,'java.lang.reflect/AccessibleObject.verifyAccess:695')
+f(12,40,1,1,'java.lang.reflect/AccessibleObject.isAccessChecked:660')
+f(9,41,10579,1,'java.lang.reflect/Method.invoke:568')
+f(10,41,10579,1,'jdk.internal.reflect/DelegatingMethodAccessorImpl.invoke:43')
+f(11,41,10579,1,'jdk.internal.reflect/NativeMethodAccessorImpl.invoke:77')
+f(12,41,10579,1,'jdk.internal.reflect/NativeMethodAccessorImpl.invoke0:0')
+f(13,41,1,1,'com.example.jmh.jmh_generated/CpuConsumerBenchmark_slow_jmhTest.slow_AverageTime:136')
+f(13,42,10572,1,'com.example.jmh.jmh_generated/CpuConsumerBenchmark_slow_jmhTest.slow_AverageTime:150')
+f(14,42,10571,1,'com.example.jmh.jmh_generated/CpuConsumerBenchmark_slow_jmhTest.slow_avgt_jmhStub:186')
+f(15,44,10569,1,'com.example.jmh/CpuConsumerBenchmark.slow:26')
+f(16,45,492,1,'com.example.jmh/CpuConsumerBenchmark.matrixMultiplySlow:39')
+f(17,45,491,4,'OptoRuntime::multianewarray2_C:0')
+f(18,45,491,4,'ObjArrayKlass::multi_allocate:0')
+f(19,46,6,3,'.annobin__ZN13ObjArrayKlass8allocateEiP10JavaThread.start:0')
+f(20,47,5,4,'MemAllocator::allocate:0')
+f(21,48,1,4,'MemAllocator::Allocation::notify_allocation_jvmti_sampler:0')
+f(21,49,2,3,'__memset_avx2_unaligned_erms:0')
+f(22,49,2,3,'asm_exc_page_fault_[k]:0')
+f(23,49,2,3,'exc_page_fault_[k]:0')
+f(24,49,2,3,'do_user_addr_fault_[k]:0')
+f(25,49,2,3,'handle_mm_fault_[k]:0')
+f(26,49,2,3,'__handle_mm_fault_[k]:0')
+f(27,49,1,3,'__mem_cgroup_charge_[k]:0')
+f(28,49,1,3,'charge_memcg_[k]:0')
+f(29,49,1,3,'mem_cgroup_charge_statistics_[k]:0')
+f(27,50,1,3,'vma_alloc_folio_[k]:0')
+f(28,50,1,3,'__folio_alloc_[k]:0')
+f(29,50,1,3,'__alloc_pages_[k]:0')
+f(30,50,1,3,'get_page_from_freelist_[k]:0')
+f(31,50,1,3,'post_alloc_hook_[k]:0')
+f(32,50,1,3,'clear_page_erms_[k]:0')
+f(21,51,1,3,'memset@plt:0')
+f(19,52,484,4,'TypeArrayKlass::multi_allocate:0')
+f(20,52,484,4,'MemAllocator::allocate:0')
+f(21,52,2,4,'G1CollectedHeap::mem_allocate:0')
+f(22,52,2,4,'G1CollectedHeap::attempt_allocation_slow:0')
+f(23,52,1,4,'G1AllocRegion::new_alloc_region_and_allocate:0')
+f(24,52,1,4,'G1CollectedHeap::new_mutator_alloc_region:0')
+f(25,52,1,4,'G1CollectedHeap::new_region:0')
+f(26,52,1,4,'HeapRegionManager::allocate_free_region:0')
+f(23,53,1,4,'MutatorAllocRegion::retire:0')
+f(24,53,1,4,'G1MonitoringSupport::update_eden_size:0')
+f(25,53,1,4,'G1CommittedRegionMap::num_active:0')
+f(21,54,5,4,'MemAllocator::allocate_inside_tlab_slow:0')
+f(22,55,1,4,'G1Allocator::unsafe_max_tlab_alloc:0')
+f(22,56,1,4,'ThreadLocalAllocBuffer::retire_before_allocation:0')
+f(23,56,1,4,'CollectedHeap::fill_with_dummy_object:0')
+f(24,56,1,4,'HandleMark::~HandleMark:0')
+f(22,57,2,3,'__memset_avx2_unaligned_erms:0')
+f(21,59,3,4,'ObjArrayAllocator::initialize:0')
+f(22,59,3,3,'asm_exc_page_fault_[k]:0')
+f(23,59,3,3,'exc_page_fault_[k]:0')
+f(24,59,3,3,'do_user_addr_fault_[k]:0')
+f(25,59,3,3,'handle_mm_fault_[k]:0')
+f(26,59,3,3,'__handle_mm_fault_[k]:0')
+f(27,59,3,3,'vma_alloc_folio_[k]:0')
+f(28,60,2,3,'__folio_alloc_[k]:0')
+f(29,60,2,3,'__alloc_pages_[k]:0')
+f(30,60,2,3,'get_page_from_freelist_[k]:0')
+f(31,60,2,3,'post_alloc_hook_[k]:0')
+f(32,60,2,3,'clear_page_erms_[k]:0')
+f(21,62,474,3,'__memset_avx2_unaligned_erms:0')
+f(22,65,471,3,'asm_exc_page_fault_[k]:0')
+f(23,65,471,3,'exc_page_fault_[k]:0')
+f(24,65,471,3,'do_user_addr_fault_[k]:0')
+f(25,65,471,3,'handle_mm_fault_[k]:0')
+f(26,65,471,3,'__handle_mm_fault_[k]:0')
+f(27,72,158,3,'__mem_cgroup_charge_[k]:0')
+f(28,74,111,3,'charge_memcg_[k]:0')
+f(29,80,2,3,'compound_nr_[k]:0')
+f(29,82,1,3,'mem_cgroup_charge_statistics_[k]:0')
+f(30,82,1,3,'__this_cpu_preempt_check_[k]:0')
+f(29,83,102,3,'try_charge_memcg_[k]:0')
+f(30,117,64,3,'check_preemption_disabled_[k]:0')
+f(30,181,3,3,'debug_smp_processor_id_[k]:0')
+f(30,184,1,3,'page_counter_try_charge_[k]:0')
+f(28,185,45,3,'get_mem_cgroup_from_mm_[k]:0')
+f(29,220,4,3,'__rcu_read_lock_[k]:0')
+f(29,224,6,3,'__rcu_read_unlock_[k]:0')
+f(27,230,1,3,'__pte_alloc_[k]:0')
+f(28,230,1,3,'pte_alloc_one_[k]:0')
+f(29,230,1,3,'__alloc_pages_[k]:0')
+f(30,230,1,3,'get_page_from_freelist_[k]:0')
+f(31,230,1,3,'rmqueue_bulk_[k]:0')
+f(32,230,1,3,'__list_del_entry_valid_[k]:0')
+f(27,231,1,3,'_raw_spin_unlock_[k]:0')
+f(27,232,4,3,'folio_add_lru_[k]:0')
+f(28,232,4,3,'folio_batch_move_lru_[k]:0')
+f(29,232,2,3,'lru_add_fn_[k]:0')
+f(30,232,1,3,'__mod_zone_page_state_[k]:0')
+f(30,233,1,3,'folio_mapping_[k]:0')
+f(29,234,2,3,'release_pages_[k]:0')
+f(27,236,300,3,'vma_alloc_folio_[k]:0')
+f(28,240,296,3,'__folio_alloc_[k]:0')
+f(29,242,294,3,'__alloc_pages_[k]:0')
+f(30,242,294,3,'get_page_from_freelist_[k]:0')
+f(31,250,269,3,'post_alloc_hook_[k]:0')
+f(32,252,267,3,'clear_page_erms_[k]:0')
+f(31,519,17,3,'rmqueue_bulk_[k]:0')
+f(32,522,1,3,'__list_add_valid_[k]:0')
+f(32,523,10,3,'__list_del_entry_valid_[k]:0')
+f(32,533,3,3,'bad_range_[k]:0')
+f(17,536,1,3,'_multianewarray2_Java:0')
+f(16,537,2,1,'com.example.jmh/CpuConsumerBenchmark.matrixMultiplySlow:40')
+f(16,539,1,1,'com.example.jmh/CpuConsumerBenchmark.matrixMultiplySlow:41')
+f(16,540,1232,1,'com.example.jmh/CpuConsumerBenchmark.matrixMultiplySlow:43')
+f(17,1765,7,3,'asm_sysvec_apic_timer_interrupt_[k]:0')
+f(18,1765,7,3,'sysvec_apic_timer_interrupt_[k]:0')
+f(19,1765,2,3,'__irq_exit_rcu_[k]:0')
+f(20,1765,2,3,'__softirqentry_text_start_[k]:0')
+f(21,1765,2,3,'run_timer_softirq_[k]:0')
+f(22,1765,2,3,'__run_timers_[k]:0')
+f(23,1765,2,3,'call_timer_fn_[k]:0')
+f(24,1765,2,3,'__queue_work_[k]:0')
+f(25,1765,2,3,'try_to_wake_up_[k]:0')
+f(26,1765,1,3,'_raw_spin_lock_irqsave_[k]:0')
+f(26,1766,1,3,'ttwu_do_wakeup_[k]:0')
+f(27,1766,1,3,'check_preempt_curr_[k]:0')
+f(28,1766,1,3,'check_preempt_wakeup_[k]:0')
+f(29,1766,1,3,'set_next_buddy_[k]:0')
+f(19,1767,5,3,'__sysvec_apic_timer_interrupt_[k]:0')
+f(20,1767,5,3,'hrtimer_interrupt_[k]:0')
+f(21,1767,5,3,'__hrtimer_run_queues_[k]:0')
+f(22,1767,5,3,'tick_sched_timer_[k]:0')
+f(23,1767,1,3,'tick_sched_do_timer_[k]:0')
+f(24,1767,1,3,'update_wall_time_[k]:0')
+f(25,1767,1,3,'timekeeping_advance_[k]:0')
+f(26,1767,1,3,'read_tsc_[k]:0')
+f(23,1768,4,3,'tick_sched_handle_[k]:0')
+f(24,1768,4,3,'update_process_times_[k]:0')
+f(25,1768,3,3,'scheduler_tick_[k]:0')
+f(26,1768,1,3,'task_tick_fair_[k]:0')
+f(27,1768,1,3,'update_load_avg_[k]:0')
+f(26,1769,2,3,'update_rq_clock_[k]:0')
+f(27,1770,1,3,'update_irq_load_avg_[k]:0')
+f(25,1771,1,3,'smp_call_function_single_async_[k]:0')
+f(26,1771,1,3,'generic_exec_single_[k]:0')
+f(27,1771,1,3,'send_call_function_single_ipi_[k]:0')
+f(16,1772,8836,1,'com.example.jmh/CpuConsumerBenchmark.matrixMultiplySlow:44')
+f(17,10432,1,3,'asm_common_interrupt_[k]:0')
+f(18,10432,1,3,'common_interrupt_[k]:0')
+f(19,10432,1,3,'__common_interrupt_[k]:0')
+f(20,10432,1,3,'handle_edge_irq_[k]:0')
+f(21,10432,1,3,'handle_irq_event_[k]:0')
+f(22,10432,1,3,'__handle_irq_event_percpu_[k]:0')
+f(23,10432,1,3,'gen8_irq_handler?[i915]_[k]:0')
+f(17,10433,174,3,'asm_sysvec_apic_timer_interrupt_[k]:0')
+f(18,10433,4,3,'irqentry_exit_to_user_mode_[k]:0')
+f(19,10433,4,3,'exit_to_user_mode_prepare_[k]:0')
+f(20,10433,1,3,'mem_cgroup_handle_over_high_[k]:0')
+f(20,10434,3,3,'schedule_[k]:0')
+f(21,10434,3,3,'__schedule_[k]:0')
+f(22,10434,3,3,'psi_task_switch_[k]:0')
+f(23,10434,1,3,'iterate_groups_[k]:0')
+f(23,10435,2,3,'psi_group_change_[k]:0')
+f(18,10437,170,3,'sysvec_apic_timer_interrupt_[k]:0')
+f(19,10437,18,3,'__irq_exit_rcu_[k]:0')
+f(20,10437,18,3,'__softirqentry_text_start_[k]:0')
+f(21,10437,3,3,'__run_timers_[k]:0')
+f(22,10438,2,3,'call_timer_fn_[k]:0')
+f(23,10438,1,3,'__queue_work_[k]:0')
+f(24,10438,1,3,'try_to_wake_up_[k]:0')
+f(25,10438,1,3,'ttwu_do_wakeup_[k]:0')
+f(26,10438,1,3,'check_preempt_curr_[k]:0')
+f(27,10438,1,3,'check_preempt_wakeup_[k]:0')
+f(23,10439,1,3,'tcp_orphan_update_[k]:0')
+f(24,10439,1,3,'tcp_orphan_count_sum_[k]:0')
+f(21,10440,1,3,'check_preemption_disabled_[k]:0')
+f(21,10441,2,3,'rcu_core_[k]:0')
+f(22,10441,2,3,'note_gp_changes_[k]:0')
+f(23,10441,2,3,'__note_gp_changes_[k]:0')
+f(24,10442,1,3,'rcu_accelerate_cbs_[k]:0')
+f(21,10443,4,3,'rebalance_domains_[k]:0')
+f(22,10443,4,3,'load_balance_[k]:0')
+f(23,10444,1,3,'_find_next_bit_[k]:0')
+f(23,10445,1,3,'find_busiest_group_[k]:0')
+f(24,10445,1,3,'update_sd_lb_stats.constprop.0_[k]:0')
+f(23,10446,1,3,'group_balance_cpu_[k]:0')
+f(21,10447,8,3,'run_timer_softirq_[k]:0')
+f(22,10447,8,3,'__run_timers_[k]:0')
+f(23,10447,8,3,'call_timer_fn_[k]:0')
+f(24,10447,8,3,'__queue_work_[k]:0')
+f(25,10447,1,3,'__radix_tree_lookup_[k]:0')
+f(25,10448,7,3,'try_to_wake_up_[k]:0')
+f(26,10448,3,3,'_raw_spin_lock_irqsave_[k]:0')
+f(26,10451,1,3,'kthread_is_per_cpu_[k]:0')
+f(26,10452,2,3,'ttwu_do_activate_[k]:0')
+f(27,10452,2,3,'enqueue_task_[k]:0')
+f(28,10452,2,3,'enqueue_task_fair_[k]:0')
+f(26,10454,1,3,'ttwu_queue_wakelist_[k]:0')
+f(27,10454,1,3,'sched_clock_cpu_[k]:0')
+f(28,10454,1,3,'native_sched_clock_[k]:0')
+f(19,10455,152,3,'__sysvec_apic_timer_interrupt_[k]:0')
+f(20,10455,152,3,'hrtimer_interrupt_[k]:0')
+f(21,10459,141,3,'__hrtimer_run_queues_[k]:0')
+f(22,10460,3,3,'_raw_spin_unlock_irqrestore_[k]:0')
+f(22,10463,3,3,'enqueue_hrtimer_[k]:0')
+f(23,10464,2,3,'timerqueue_add_[k]:0')
+f(22,10466,1,3,'hrtimer_wakeup_[k]:0')
+f(23,10466,1,3,'try_to_wake_up_[k]:0')
+f(22,10467,130,3,'tick_sched_timer_[k]:0')
+f(23,10467,3,3,'ktime_get_[k]:0')
+f(24,10469,1,3,'read_tsc_[k]:0')
+f(23,10470,1,3,'profile_tick_[k]:0')
+f(23,10471,36,3,'tick_sched_do_timer_[k]:0')
+f(24,10473,4,3,'tick_do_update_jiffies64_[k]:0')
+f(25,10475,2,3,'_raw_spin_lock_[k]:0')
+f(24,10477,30,3,'update_wall_time_[k]:0')
+f(25,10477,30,3,'timekeeping_advance_[k]:0')
+f(26,10480,2,3,'_raw_spin_lock_irqsave_[k]:0')
+f(26,10482,1,3,'read_tsc_[k]:0')
+f(26,10483,24,3,'timekeeping_update_[k]:0')
+f(27,10487,9,3,'raw_notifier_call_chain_[k]:0')
+f(28,10493,3,3,'pvclock_gtod_notify?[kvm]_[k]:0')
+f(27,10496,7,3,'update_fast_timekeeper_[k]:0')
+f(27,10503,4,3,'update_vsyscall_[k]:0')
+f(23,10507,90,3,'tick_sched_handle_[k]:0')
+f(24,10507,90,3,'update_process_times_[k]:0')
+f(25,10507,1,3,'account_process_tick_[k]:0')
+f(25,10508,5,3,'account_user_time_[k]:0')
+f(26,10508,5,3,'__cgroup_account_cputime_field_[k]:0')
+f(27,10512,1,3,'check_preemption_disabled_[k]:0')
+f(25,10513,1,3,'irq_work_run_list_[k]:0')
+f(25,10514,1,3,'irq_work_tick_[k]:0')
+f(25,10515,2,3,'irqtime_account_process_tick_[k]:0')
+f(25,10517,6,3,'rcu_sched_clock_irq_[k]:0')
+f(26,10521,1,3,'invoke_rcu_core_[k]:0')
+f(26,10522,1,3,'rcu_segcblist_ready_cbs_[k]:0')
+f(25,10523,66,3,'scheduler_tick_[k]:0')
+f(26,10526,8,3,'arch_scale_freq_tick_[k]:0')
+f(27,10528,6,3,'native_read_msr_[k]:0')
+f(26,10534,2,3,'perf_event_task_tick_[k]:0')
+f(26,10536,47,3,'task_tick_fair_[k]:0')
+f(27,10538,2,3,'hrtimer_active_[k]:0')
+f(27,10540,2,3,'reweight_entity_[k]:0')
+f(27,10542,7,3,'update_cfs_group_[k]:0')
+f(27,10549,14,3,'update_curr_[k]:0')
+f(28,10556,4,3,'__calc_delta_[k]:0')
+f(28,10560,3,3,'update_min_vruntime_[k]:0')
+f(27,10563,20,3,'update_load_avg_[k]:0')
+f(28,10571,7,3,'__update_load_avg_cfs_rq_[k]:0')
+f(28,10578,5,3,'__update_load_avg_se_[k]:0')
+f(29,10582,1,3,'__accumulate_pelt_segments_[k]:0')
+f(26,10583,6,3,'update_rq_clock_[k]:0')
+f(27,10587,2,3,'update_irq_load_avg_[k]:0')
+f(25,10589,5,3,'smp_call_function_single_async_[k]:0')
+f(26,10589,5,3,'generic_exec_single_[k]:0')
+f(27,10589,1,3,'__x2apic_send_IPI_dest_[k]:0')
+f(28,10589,1,3,'native_write_msr_[k]:0')
+f(27,10590,1,3,'check_preemption_disabled_[k]:0')
+f(27,10591,2,3,'native_send_call_func_single_ipi_[k]:0')
+f(27,10593,1,3,'x2apic_send_IPI_[k]:0')
+f(25,10594,3,3,'trigger_load_balance_[k]:0')
+f(26,10595,2,3,'idle_cpu_[k]:0')
+f(22,10597,3,3,'timerqueue_del_[k]:0')
+f(23,10598,2,3,'rb_next_[k]:0')
+f(21,10600,4,3,'clockevents_program_event_[k]:0')
+f(22,10601,1,3,'ktime_get_[k]:0')
+f(22,10602,2,3,'lapic_next_deadline_[k]:0')
+f(23,10602,2,3,'native_write_msr_[k]:0')
+f(21,10604,1,3,'hrtimer_update_next_event_[k]:0')
+f(22,10604,1,3,'__hrtimer_next_event_base_[k]:0')
+f(21,10605,2,3,'ktime_get_update_offsets_now_[k]:0')
+f(22,10605,2,3,'read_tsc_[k]:0')
+f(17,10607,1,3,'asm_sysvec_reschedule_ipi_[k]:0')
+f(18,10607,1,3,'irqentry_exit_to_user_mode_[k]:0')
+f(19,10607,1,3,'exit_to_user_mode_prepare_[k]:0')
+f(20,10607,1,3,'schedule_[k]:0')
+f(21,10607,1,3,'__schedule_[k]:0')
+f(22,10607,1,3,'psi_task_switch_[k]:0')
+f(23,10607,1,3,'psi_group_change_[k]:0')
+f(16,10608,2,1,'com.example.jmh/CpuConsumerBenchmark.matrixMultiplySlow:46')
+f(16,10610,3,1,'org.openjdk.jmh.infra/Blackhole.consume:314')
+f(14,10613,1,1,'com.example.jmh.jmh_generated/CpuConsumerBenchmark_slow_jmhTest.slow_avgt_jmhStub:189')
+f(15,10613,1,1,'java.lang/System.nanoTime:0')
+f(13,10614,2,1,'com.example.jmh.jmh_generated/CpuConsumerBenchmark_slow_jmhTest.slow_AverageTime:152')
+f(14,10614,2,1,'org.openjdk.jmh.runner/InfraControl.announceWarmdownReady:40')
+f(15,10614,1,1,'org.openjdk.jmh.runner/InfraControlL2.announceWarmdownReady:217')
+f(16,10614,1,1,'java.util.concurrent.atomic/AtomicInteger.incrementAndGet:218')
+f(17,10614,1,1,'jdk.internal.misc/Unsafe.getAndAddInt:2443')
+f(15,10615,1,1,'org.openjdk.jmh.runner/InfraControlL2.announceWarmdownReady:220')
+f(16,10615,1,1,'java.util.concurrent/CountDownLatch.countDown:290')
+f(17,10615,1,1,'java.util.concurrent.locks/AbstractQueuedSynchronizer.releaseShared:1095')
+f(18,10615,1,1,'java.util.concurrent.locks/AbstractQueuedSynchronizer.signalNext:609')
+f(13,10616,1,1,'com.example.jmh.jmh_generated/CpuConsumerBenchmark_slow_jmhTest.slow_AverageTime:161')
+f(14,10616,1,1,'org.openjdk.jmh.runner/InfraControl.preTearDown:97')
+f(15,10616,1,1,'java.util.concurrent/CountDownLatch.await:230')
+f(13,10617,1,1,'com.example.jmh.jmh_generated/CpuConsumerBenchmark_slow_jmhTest.slow_AverageTime:173')
+f(14,10617,1,1,'org.openjdk.jmh.results/BenchmarkTaskResult.<init>:44')
+f(13,10618,2,1,'com.example.jmh.jmh_generated/CpuConsumerBenchmark_slow_jmhTest.slow_AverageTime:174')
+f(14,10618,1,1,'org.openjdk.jmh.results/AverageTimeResult.<init>:41')
+f(15,10618,1,1,'org.openjdk.jmh.results/AverageTimeResult.<init>:47')
+f(16,10618,1,1,'org.openjdk.jmh.results/Result.<init>:53')
+f(17,10618,1,1,'org.openjdk.jmh.util/Deduplicator.dedup:39')
+f(14,10619,1,1,'org.openjdk.jmh.results/AverageTimeResult.<init>:42')
+f(15,10619,1,1,'java.lang/StringBuilder.<init>:106')
+f(16,10619,1,1,'java.lang/AbstractStringBuilder.<init>:86')
+f(6,10620,1,1,'java.util.concurrent/FutureTask.run:272')
+f(7,10620,1,1,'java.util.concurrent/FutureTask.set:229')
+f(4,10621,1,1,'java.util.concurrent/FutureTask.run:272')
+f(5,10621,1,1,'java.util.concurrent/FutureTask.set:232')
+f(6,10621,1,1,'java.util.concurrent/FutureTask.finishCompletion:381')
+f(7,10621,1,1,'java.util.concurrent/ExecutorCompletionService$QueueingFuture.done:120')
+f(8,10621,1,1,'java.util/AbstractQueue.add:95')
+f(9,10621,1,1,'java.util.concurrent/LinkedBlockingQueue.offer:406')
+f(3,10622,1,1,'java.util.concurrent/ThreadPoolExecutor.runWorker:1137')
+f(1,10623,4,3,'not_walkable_Java:0')
+f(2,10623,4,3,'Interpreter:0')
+f(1,10627,35,1,'org.openjdk.jmh.runner/ForkedMain.main:86')
+f(2,10627,35,1,'org.openjdk.jmh.runner/ForkedRunner.run:72')
+f(3,10627,35,1,'org.openjdk.jmh.runner/BaseRunner.runBenchmarksForked:75')
+f(4,10627,35,1,'org.openjdk.jmh.runner/BaseRunner.doSingle:138')
+f(5,10627,35,1,'org.openjdk.jmh.runner/BaseRunner.runBenchmark:233')
+f(6,10627,35,1,'org.openjdk.jmh.runner/BaseRunner.runBenchmark:281')
+f(7,10627,12,1,'org.openjdk.jmh.runner/BenchmarkHandler.runIteration:325')
+f(8,10627,1,1,'org.openjdk.jmh.runner/BenchmarkHandler.startProfilers:247')
+f(9,10627,1,1,'java.util/ArrayList$Itr.hasNext:962')
+f(8,10628,11,1,'org.openjdk.jmh.runner/BenchmarkHandler.startProfilers:249')
+f(9,10628,11,1,'org.openjdk.jmh.profile/AsyncProfiler.beforeIteration:326')
+f(10,10628,11,1,'org.openjdk.jmh.profile/AsyncProfiler.start:334')
+f(11,10628,11,1,'org.openjdk.jmh.profile/AsyncProfiler.execute:433')
+f(12,10628,11,1,'org.openjdk.jmh.profile/AsyncProfiler$JavaApi.execute:591')
+f(13,10628,11,1,'org.openjdk.jmh.profile/AsyncProfiler$JavaApi.execute0:0')
+f(14,10628,8,3,'Java_one_profiler_AsyncProfiler_execute0:0')
+f(15,10628,8,4,'Profiler::runInternal:0')
+f(16,10628,8,4,'Profiler::start:0')
+f(17,10628,5,4,'PerfEvents::start:0')
+f(18,10628,3,3,'__GI___mmap:0')
+f(19,10628,3,3,'entry_SYSCALL_64_after_hwframe_[k]:0')
+f(20,10628,3,3,'do_syscall_64_[k]:0')
+f(21,10628,3,3,'ksys_mmap_pgoff_[k]:0')
+f(22,10628,3,3,'vm_mmap_pgoff_[k]:0')
+f(23,10628,3,3,'do_mmap_[k]:0')
+f(24,10628,3,3,'mmap_region_[k]:0')
+f(25,10628,2,3,'perf_mmap_[k]:0')
+f(26,10628,2,3,'rb_alloc_[k]:0')
+f(27,10628,2,3,'perf_mmap_alloc_page_[k]:0')
+f(28,10628,2,3,'__alloc_pages_[k]:0')
+f(29,10629,1,3,'prepare_alloc_pages.constprop.0_[k]:0')
+f(25,10630,1,3,'vm_area_alloc_[k]:0')
+f(26,10630,1,3,'kmem_cache_alloc_[k]:0')
+f(27,10630,1,3,'__slab_alloc.constprop.0_[k]:0')
+f(28,10630,1,3,'___slab_alloc_[k]:0')
+f(18,10631,2,3,'syscall:0')
+f(19,10631,2,3,'entry_SYSCALL_64_after_hwframe_[k]:0')
+f(20,10631,2,3,'do_syscall_64_[k]:0')
+f(21,10631,2,3,'__do_sys_perf_event_open_[k]:0')
+f(22,10631,2,3,'find_get_context_[k]:0')
+f(23,10631,2,3,'perf_lock_task_context_[k]:0')
+f(24,10631,2,3,'_raw_spin_lock_[k]:0')
+f(17,10633,3,4,'Profiler::startTimer:0')
+f(18,10633,1,3,'jni_FindClass:0')
+f(19,10633,1,4,'SystemDictionary::resolve_or_fail:0')
+f(18,10634,1,3,'jni_GetMethodID:0')
+f(19,10634,1,3,'get_method_id:0')
+f(20,10634,1,4,'InstanceKlass::uncached_lookup_method:0')
+f(21,10634,1,4,'InstanceKlass::find_method_index:0')
+f(18,10635,1,3,'jvmti_RunAgentThread:0')
+f(19,10635,1,4,'JvmtiEnv::RunAgentThread:0')
+f(20,10635,1,4,'JvmtiAgentThread::JvmtiAgentThread:0')
+f(21,10635,1,4,'JavaThread::JavaThread:0')
+f(22,10635,1,4,'JfrThreadLocal::JfrThreadLocal:0')
+f(14,10636,1,3,'__GI___pthread_create:0')
+f(14,10637,1,1,'java.lang/Thread.<init>:541')
+f(15,10637,1,1,'java.lang/Thread.<init>:708')
+f(16,10637,1,1,'java.lang/Thread.<init>:444')
+f(17,10637,1,1,'java.security/AccessController.getContext:1009')
+f(18,10637,1,1,'java.security/AccessControlContext.optimize:586')
+f(19,10637,1,1,'java.security/AccessController.getInheritedAccessControlContext:0')
+f(20,10637,1,3,'.annobin__ZN14AccessInternal19PostRuntimeDispatchIN12G1BarrierSet13AccessBarrierILm548964ES1_EELNS_11BarrierTypeE2ELm548964EE18oop_access_barrierEPv.start:0')
+f(14,10638,1,3,'unknown:0')
+f(15,10638,1,3,'unknown:0')
+f(16,10638,1,3,'unknown:0')
+f(17,10638,1,3,'unknown:0')
+f(18,10638,1,3,'unknown:0')
+f(19,10638,1,3,'unknown:0')
+f(20,10638,1,3,'unknown:0')
+f(21,10638,1,3,'unknown:0')
+f(22,10638,1,3,'unknown:0')
+f(23,10638,1,3,'unknown:0')
+f(24,10638,1,3,'unknown:0')
+f(25,10638,1,3,'unknown:0')
+f(26,10638,1,3,'unknown:0')
+f(27,10638,1,3,'unknown:0')
+f(28,10638,1,3,'unknown:0')
+f(29,10638,1,3,'unknown:0')
+f(30,10638,1,3,'unknown:0')
+f(31,10638,1,3,'unknown:0')
+f(32,10638,1,3,'unknown:0')
+f(33,10638,1,3,'unknown:0')
+f(34,10638,1,3,'unknown:0')
+f(35,10638,1,3,'unknown:0')
+f(36,10638,1,3,'unknown:0')
+f(37,10638,1,3,'unknown:0')
+f(38,10638,1,3,'unknown:0')
+f(39,10638,1,3,'unknown:0')
+f(40,10638,1,3,'unknown:0')
+f(41,10638,1,3,'unknown:0')
+f(42,10638,1,3,'unknown:0')
+f(43,10638,1,3,'unknown:0')
+f(44,10638,1,3,'unknown:0')
+f(45,10638,1,3,'unknown:0')
+f(46,10638,1,3,'unknown:0')
+f(47,10638,1,3,'unknown:0')
+f(48,10638,1,3,'unknown:0')
+f(49,10638,1,3,'unknown:0')
+f(50,10638,1,3,'unknown:0')
+f(51,10638,1,3,'unknown:0')
+f(52,10638,1,3,'unknown:0')
+f(53,10638,1,3,'unknown:0')
+f(54,10638,1,3,'unknown:0')
+f(55,10638,1,3,'unknown:0')
+f(56,10638,1,3,'unknown:0')
+f(57,10638,1,3,'unknown:0')
+f(58,10638,1,3,'unknown:0')
+f(59,10638,1,3,'unknown:0')
+f(60,10638,1,3,'unknown:0')
+f(61,10638,1,3,'unknown:0')
+f(62,10638,1,3,'unknown:0')
+f(63,10638,1,3,'unknown:0')
+f(64,10638,1,3,'unknown:0')
+f(65,10638,1,3,'unknown:0')
+f(66,10638,1,3,'unknown:0')
+f(67,10638,1,3,'unknown:0')
+f(68,10638,1,3,'unknown:0')
+f(69,10638,1,3,'unknown:0')
+f(70,10638,1,3,'unknown:0')
+f(71,10638,1,3,'unknown:0')
+f(72,10638,1,3,'unknown:0')
+f(73,10638,1,3,'unknown:0')
+f(74,10638,1,3,'unknown:0')
+f(75,10638,1,3,'unknown:0')
+f(76,10638,1,3,'unknown:0')
+f(77,10638,1,3,'unknown:0')
+f(78,10638,1,3,'unknown:0')
+f(79,10638,1,3,'unknown:0')
+f(80,10638,1,3,'unknown:0')
+f(81,10638,1,3,'unknown:0')
+f(82,10638,1,3,'unknown:0')
+f(83,10638,1,3,'unknown:0')
+f(84,10638,1,3,'unknown:0')
+f(85,10638,1,3,'unknown:0')
+f(86,10638,1,3,'unknown:0')
+f(87,10638,1,3,'unknown:0')
+f(88,10638,1,3,'unknown:0')
+f(89,10638,1,3,'unknown:0')
+f(90,10638,1,3,'unknown:0')
+f(91,10638,1,3,'unknown:0')
+f(92,10638,1,3,'unknown:0')
+f(93,10638,1,3,'unknown:0')
+f(94,10638,1,3,'unknown:0')
+f(95,10638,1,3,'unknown:0')
+f(96,10638,1,3,'unknown:0')
+f(97,10638,1,3,'unknown:0')
+f(98,10638,1,3,'unknown:0')
+f(99,10638,1,3,'unknown:0')
+f(100,10638,1,3,'unknown:0')
+f(101,10638,1,3,'unknown:0')
+f(102,10638,1,3,'unknown:0')
+f(103,10638,1,3,'unknown:0')
+f(104,10638,1,3,'unknown:0')
+f(105,10638,1,3,'unknown:0')
+f(106,10638,1,3,'unknown:0')
+f(107,10638,1,3,'unknown:0')
+f(108,10638,1,3,'unknown:0')
+f(109,10638,1,3,'unknown:0')
+f(110,10638,1,3,'unknown:0')
+f(111,10638,1,3,'unknown:0')
+f(112,10638,1,3,'unknown:0')
+f(113,10638,1,3,'unknown:0')
+f(114,10638,1,3,'unknown:0')
+f(115,10638,1,3,'unknown:0')
+f(116,10638,1,3,'unknown:0')
+f(117,10638,1,3,'unknown:0')
+f(118,10638,1,3,'unknown:0')
+f(119,10638,1,3,'unknown:0')
+f(120,10638,1,3,'unknown:0')
+f(121,10638,1,3,'unknown:0')
+f(122,10638,1,3,'unknown:0')
+f(123,10638,1,3,'unknown:0')
+f(124,10638,1,3,'unknown:0')
+f(125,10638,1,3,'unknown:0')
+f(126,10638,1,3,'unknown:0')
+f(127,10638,1,3,'unknown:0')
+f(128,10638,1,3,'unknown:0')
+f(129,10638,1,3,'unknown:0')
+f(130,10638,1,3,'unknown:0')
+f(131,10638,1,3,'unknown:0')
+f(132,10638,1,3,'clone3:0')
+f(133,10638,1,3,'entry_SYSCALL_64_after_hwframe_[k]:0')
+f(134,10638,1,3,'do_syscall_64_[k]:0')
+f(135,10638,1,3,'__do_sys_clone3_[k]:0')
+f(136,10638,1,3,'kernel_clone_[k]:0')
+f(137,10638,1,3,'copy_process_[k]:0')
+f(138,10638,1,3,'__vmalloc_node_range_[k]:0')
+f(139,10638,1,3,'__get_vm_area_node_[k]:0')
+f(140,10638,1,3,'alloc_vmap_area_[k]:0')
+f(7,10639,3,1,'org.openjdk.jmh.runner/BenchmarkHandler.runIteration:331')
+f(8,10639,1,1,'java.util.concurrent/ExecutorCompletionService.submit:182')
+f(8,10640,2,1,'java.util.concurrent/ExecutorCompletionService.submit:184')
+f(9,10640,2,1,'java.util.concurrent/ThreadPoolExecutor.execute:1357')
+f(10,10640,1,4,'InterpreterRuntime::resolve_from_cache:0')
+f(11,10640,1,4,'ConstantPoolCacheEntry::set_itable_call:0')
+f(10,10641,1,1,'java.util.concurrent/LinkedBlockingQueue.offer:423')
+f(11,10641,1,1,'java.util.concurrent/LinkedBlockingQueue.signalNotEmpty:177')
+f(12,10641,1,1,'java.util.concurrent.locks/AbstractQueuedSynchronizer$ConditionObject.signal:1475')
+f(13,10641,1,1,'java.util.concurrent.locks/AbstractQueuedSynchronizer$ConditionObject.doSignal:1454')
+f(14,10641,1,1,'java.util.concurrent.locks/AbstractQueuedSynchronizer.enqueue:582')
+f(15,10641,1,1,'java.util.concurrent.locks/AbstractQueuedSynchronizer.tryInitializeHead:568')
+f(16,10641,1,1,'jdk.internal.misc/Unsafe.compareAndSetReference:0')
+f(17,10641,1,3,'Unsafe_CompareAndSetReference:0')
+f(18,10641,1,4,'AccessInternal::PostRuntimeDispatch<G1BarrierSet::AccessBarrier<402470ul, G1BarrierSet>, (AccessInternal::BarrierType)5, 402470ul>::oop_access_barrier:0')
+f(7,10642,3,1,'org.openjdk.jmh.runner/BenchmarkHandler.runIteration:344')
+f(8,10642,3,1,'java.util.concurrent/ExecutorCompletionService.poll:209')
+f(9,10642,3,1,'java.util.concurrent/LinkedBlockingQueue.poll:460')
+f(10,10642,1,1,'java.util.concurrent.locks/AbstractQueuedSynchronizer$ConditionObject.awaitNanos:1667')
+f(10,10643,2,1,'java.util.concurrent.locks/AbstractQueuedSynchronizer$ConditionObject.awaitNanos:1672')
+f(11,10643,1,1,'java.util.concurrent.locks/LockSupport.parkNanos:252')
+f(12,10643,1,1,'jdk.internal.misc/Unsafe.park:0')
+f(13,10643,1,3,'.annobin__ZN14AccessInternal19PostRuntimeDispatchIN12G1BarrierSet13AccessBarrierILm548964ES1_EELNS_11BarrierTypeE2ELm548964EE18oop_access_barrierEPv.start:0')
+f(11,10644,1,1,'java.util.concurrent.locks/LockSupport.parkNanos:253')
+f(12,10644,1,1,'java.util.concurrent.locks/LockSupport.setBlocker:143')
+f(13,10644,1,1,'jdk.internal.misc/Unsafe.putReferenceOpaque:2322')
+f(14,10644,1,1,'jdk.internal.misc/Unsafe.putReferenceVolatile:0')
+f(15,10644,1,3,'Unsafe_PutReferenceVolatile:0')
+f(16,10644,1,3,'.annobin__ZN14AccessInternal19PostRuntimeDispatchIN12G1BarrierSet13AccessBarrierILm402470ES1_EELNS_11BarrierTypeE1ELm402470EE18oop_access_barrierEP7oopDesclS7_.start:0')
+f(7,10645,10,1,'org.openjdk.jmh.runner/BenchmarkHandler.runIteration:361')
+f(8,10645,10,1,'org.openjdk.jmh.runner/InfraControl.awaitWarmdownReady:40')
+f(9,10646,9,1,'org.openjdk.jmh.runner/InfraControlL2.awaitWarmdownReady:241')
+f(10,10646,9,1,'java.util.concurrent/CountDownLatch.await:230')
+f(11,10646,9,1,'java.util.concurrent.locks/AbstractQueuedSynchronizer.acquireSharedInterruptibly:1047')
+f(12,10646,2,1,'java.util.concurrent.locks/AbstractQueuedSynchronizer.acquire:715')
+f(13,10646,1,1,'java.util.concurrent.locks/LockSupport.park:211')
+f(14,10646,1,1,'jdk.internal.misc/Unsafe.park:0')
+f(15,10646,1,3,'Unsafe_Park:0')
+f(13,10647,1,1,'java.util.concurrent.locks/LockSupport.park:212')
+f(14,10647,1,1,'java.util.concurrent.locks/LockSupport.setBlocker:143')
+f(15,10647,1,1,'jdk.internal.misc/Unsafe.putReferenceOpaque:2322')
+f(16,10647,1,1,'jdk.internal.misc/Unsafe.putReferenceVolatile:0')
+f(17,10647,1,3,'Unsafe_PutReferenceVolatile:0')
+f(12,10648,7,1,'java.util.concurrent.locks/AbstractQueuedSynchronizer.acquire:721')
+f(13,10648,7,1,'java.lang/Thread.interrupted:1021')
+f(14,10648,7,1,'java.lang/Thread.currentThread:0')
+f(15,10648,7,4,'InterpreterRuntime::frequency_counter_overflow:0')
+f(16,10648,7,4,'InterpreterRuntime::frequency_counter_overflow_inner:0')
+f(17,10648,7,4,'CompilationPolicy::event:0')
+f(18,10648,1,4,'CompilationPolicy::call_event:0')
+f(19,10648,1,3,'.annobin__ZN17CompilationPolicy6commonI13LoopPredicateEE9CompLevelRK12methodHandleS2_b.start:0')
+f(20,10648,1,4,'CodeHeap::max_capacity:0')
+f(18,10649,6,4,'CompilationPolicy::compile:0')
+f(19,10649,6,4,'CompileBroker::compile_method:0')
+f(20,10649,6,4,'CompileBroker::compile_method:0')
+f(21,10649,6,4,'AdapterHandlerLibrary::create_native_wrapper:0')
+f(22,10649,1,4,'Assembler::nop:0')
+f(22,10650,1,4,'CodeBuffer::CodeBuffer:0')
+f(22,10651,4,4,'SharedRuntime::generate_native_wrapper:0')
+f(23,10651,1,3,'.annobin__ZN14MacroAssembler17call_VM_leaf_baseEPhi.start:0')
+f(24,10651,1,4,'Assembler::call_literal:0')
+f(23,10652,2,3,'.annobin__ZN7nmethod18new_native_nmethodERK12methodHandleiP10CodeBufferiii8ByteSizeS5_P9OopMapSet.start:0')
+f(24,10652,2,4,'nmethod::nmethod:0')
+f(25,10652,1,4,'CodeBuffer::copy_code_to:0')
+f(26,10652,1,4,'RelocIterator::reloc:0')
+f(25,10653,1,4,'G1CollectedHeap::register_nmethod:0')
+f(26,10653,1,4,'RelocIterator::advance_over_prefix:0')
+f(23,10654,1,4,'CodeBuffer::finalize_oop_references:0')
+f(7,10655,1,1,'org.openjdk.jmh.runner/BenchmarkHandler.runIteration:368')
+f(8,10655,1,1,'java.util.concurrent/ExecutorCompletionService.poll:209')
+f(9,10655,1,1,'java.util.concurrent/LinkedBlockingQueue.poll:452')
+f(10,10655,1,1,'java.util.concurrent/TimeUnit.toNanos:253')
+f(7,10656,1,1,'org.openjdk.jmh.runner/BenchmarkHandler.runIteration:396')
+f(8,10656,1,1,'java.util/ArrayList$Itr.hasNext:962')
+f(7,10657,1,1,'org.openjdk.jmh.runner/BenchmarkHandler.runIteration:399')
+f(8,10657,1,1,'java.util/ArrayList.addAll:679')
+f(9,10657,1,1,'java.lang/System.arraycopy:0')
+f(10,10657,1,3,'JVM_ArrayCopy:0')
+f(11,10657,1,4,'bool AccessInternal::PostRuntimeDispatch<G1BarrierSet::AccessBarrier<18112614ul, G1BarrierSet>, (AccessInternal::BarrierType)8, 18112614ul>::oop_access_barrier<HeapWordImpl*>:0')
+f(7,10658,4,1,'org.openjdk.jmh.runner/BenchmarkHandler.runIteration:421')
+f(8,10658,4,1,'org.openjdk.jmh.runner/BenchmarkHandler.stopProfilers:260')
+f(9,10658,1,1,'org.openjdk.jmh.profile/AsyncProfiler.afterIteration:344')
+f(10,10658,1,4,'InterpreterRuntime::resolve_from_cache:0')
+f(11,10658,1,4,'InterpreterRuntime::resolve_get_put:0')
+f(12,10658,1,4,'LinkResolver::resolve_field_access:0')
+f(13,10658,1,4,'constantPoolHandle::~constantPoolHandle:0')
+f(9,10659,1,1,'org.openjdk.jmh.profile/AsyncProfiler.afterIteration:345')
+f(10,10659,1,4,'InterpreterRuntime::resolve_from_cache:0')
+f(11,10659,1,4,'InterpreterRuntime::resolve_invoke:0')
+f(12,10659,1,4,'LinkResolver::resolve_invoke:0')
+f(13,10659,1,4,'Klass::method_at_vtable:0')
+f(9,10660,2,1,'org.openjdk.jmh.profile/AsyncProfiler.afterIteration:346')
+f(10,10660,2,1,'org.openjdk.jmh.profile/AsyncProfiler.stopAndDump:364')
+f(11,10660,2,1,'org.openjdk.jmh.profile/AsyncProfiler.execute:433')
+f(12,10660,2,1,'org.openjdk.jmh.profile/AsyncProfiler$JavaApi.execute:591')
+f(13,10660,2,1,'org.openjdk.jmh.profile/AsyncProfiler$JavaApi.execute0:0')
+f(14,10660,1,3,'/usr/lib64/libstdc++.so.6.0.30:0')
+f(14,10661,1,3,'Java_one_profiler_AsyncProfiler_execute0:0')
+f(15,10661,1,4,'java_lang_String::utf8_length:0')
+f(1,10662,105,3,'start_thread:0')
+f(2,10662,105,3,'thread_native_entry:0')
+f(3,10662,105,3,'.annobin__ZN6Thread8call_runEv.start:0')
+f(4,10662,28,3,'.annobin__ZN18ConcurrentGCThread3runEv.start:0')
+f(5,10662,25,4,'G1ServiceThread::run_service:0')
+f(6,10662,1,3,'.annobin__ZN20G1RemSetSamplingTask7executeEv.start:0')
+f(6,10663,20,4,'G1ServiceThread::run_task:0')
+f(7,10663,12,3,'.annobin__ZN20G1RemSetSamplingTask7executeEv.start:0')
+f(8,10663,2,4,'CompositeElapsedCounterSource::now:0')
+f(9,10664,1,4,'os::elapsed_counter:0')
+f(10,10664,1,3,'__vdso_clock_gettime:0')
+f(8,10665,5,4,'G1CollectionSet::iterate:0')
+f(9,10668,2,3,'.annobin__ZN28G1YoungRemSetSamplingClosure14do_heap_regionEP10HeapRegion.start:0')
+f(10,10668,2,4,'G1CollectionSet::update_young_region_prediction:0')
+f(11,10668,2,4,'G1Policy::predict_region_non_copy_time_ms:0')
+f(12,10668,1,4,'AbsSeq::dsd:0')
+f(12,10669,1,4,'G1Analytics::predict_scan_card_num:0')
+f(8,10670,1,4,'G1ServiceThread::schedule:0')
+f(8,10671,2,4,'Rdtsc::elapsed_counter:0')
+f(8,10673,1,4,'SuspendibleThreadSet::leave:0')
+f(8,10674,1,4,'TimeHelper::millis_to_counter:0')
+f(7,10675,1,4,'G1Policy::use_adaptive_young_list_length:0')
+f(7,10676,1,4,'TimeHelper::millis_to_counter:0')
+f(7,10677,5,3,'getrusage:0')
+f(8,10677,5,3,'entry_SYSCALL_64_after_hwframe_[k]:0')
+f(9,10677,5,3,'do_syscall_64_[k]:0')
+f(10,10677,4,3,'__do_sys_getrusage_[k]:0')
+f(11,10678,3,3,'getrusage_[k]:0')
+f(12,10679,1,3,'get_task_mm_[k]:0')
+f(13,10679,1,3,'_raw_spin_lock_[k]:0')
+f(12,10680,1,3,'task_cputime_adjusted_[k]:0')
+f(13,10680,1,3,'cputime_adjust_[k]:0')
+f(14,10680,1,3,'_raw_spin_lock_irqsave_[k]:0')
+f(15,10680,1,3,'preempt_count_add_[k]:0')
+f(16,10680,1,3,'in_lock_functions_[k]:0')
+f(10,10681,1,3,'__x64_sys_getrusage_[k]:0')
+f(7,10682,1,4,'os::elapsedVTime:0')
+f(6,10683,1,4,'Mutex::lock_without_safepoint_check:0')
+f(7,10683,1,3,'_dl_update_slotinfo:0')
+f(6,10684,1,3,'ceil@plt:0')
+f(6,10685,1,4,'os::elapsedTime:0')
+f(6,10686,1,4,'os::javaTimeNanos:0')
+f(5,10687,2,4,'Mutex::lock_without_safepoint_check:0')
+f(5,10689,1,3,'__pthread_mutex_unlock@GLIBC_2.2.5:0')
+f(4,10690,1,4,'JavaThread::run:0')
+f(5,10690,1,4,'StackOverflow::create_stack_guard_pages:0')
+f(6,10690,1,3,'__GI___mprotect:0')
+f(7,10690,1,3,'entry_SYSCALL_64_after_hwframe_[k]:0')
+f(8,10690,1,3,'do_syscall_64_[k]:0')
+f(9,10690,1,3,'__x64_sys_mprotect_[k]:0')
+f(10,10690,1,3,'do_mprotect_pkey_[k]:0')
+f(4,10691,16,4,'JavaThread::thread_main_inner:0')
+f(5,10691,14,4,'JvmtiAgentThread::call_start_function:0')
+f(6,10691,11,4,'Profiler::timerLoop:0')
+f(7,10692,10,3,'__libc_read:0')
+f(8,10692,10,3,'entry_SYSCALL_64_after_hwframe_[k]:0')
+f(9,10692,10,3,'do_syscall_64_[k]:0')
+f(10,10692,10,3,'ksys_read_[k]:0')
+f(11,10692,10,3,'vfs_read_[k]:0')
+f(12,10692,10,3,'seq_read_iter_[k]:0')
+f(13,10692,10,3,'show_stat_[k]:0')
+f(14,10692,6,3,'kstat_irqs_usr_[k]:0')
+f(15,10697,1,3,'__radix_tree_lookup_[k]:0')
+f(14,10698,4,3,'seq_put_decimal_ull_width_[k]:0')
+f(15,10698,4,3,'num_to_str_[k]:0')
+f(16,10700,1,3,'put_dec_[k]:0')
+f(16,10701,1,3,'put_dec_trunc8_[k]:0')
+f(6,10702,1,3,'__vdso_gettimeofday:0')
+f(6,10703,2,3,'times:0')
+f(7,10704,1,3,'entry_SYSCALL_64_after_hwframe_[k]:0')
+f(8,10704,1,3,'do_syscall_64_[k]:0')
+f(9,10704,1,3,'__x64_sys_times_[k]:0')
+f(10,10704,1,3,'do_sys_times_[k]:0')
+f(11,10704,1,3,'thread_group_cputime_adjusted_[k]:0')
+f(12,10704,1,3,'thread_group_cputime_[k]:0')
+f(13,10704,1,3,'task_cputime_[k]:0')
+f(5,10705,1,4,'MonitorDeflationThread::monitor_deflation_thread_entry:0')
+f(6,10705,1,3,'__tls_get_addr:0')
+f(5,10706,1,4,'ObjectSynchronizer::is_async_deflation_needed:0')
+f(4,10707,3,4,'VMError::is_error_reported:0')
+f(4,10710,2,4,'VMThread::run:0')
+f(5,10710,2,4,'VMThread::inner_execute:0')
+f(6,10710,1,4,'SafepointSynchronize::begin:0')
+f(7,10710,1,4,'SafepointSynchronize::arm_safepoint:0')
+f(6,10711,1,4,'VMThread::evaluate_operation:0')
+f(7,10711,1,4,'PerfTraceTime::~PerfTraceTime:0')
+f(8,10711,1,4,'elapsedTimer::stop:0')
+f(9,10711,1,4,'os::elapsed_counter:0')
+f(10,10711,1,3,'__vdso_clock_gettime:0')
+f(4,10712,55,4,'WatcherThread::run:0')
+f(5,10715,21,3,'.annobin__ZN12PeriodicTask14real_time_tickEi.start:0')
+f(6,10717,4,3,'.annobin__ZN15PerfLongVariant6sampleEv.start:0')
+f(6,10721,3,4,'Mutex::lock_without_safepoint_check:0')
+f(7,10723,1,3,'_dl_update_slotinfo:0')
+f(6,10724,11,4,'StatSamplerTask::task:0')
+f(7,10730,2,3,'.annobin__ZN15PerfLongVariant6sampleEv.start:0')
+f(8,10731,1,4,'os::javaTimeNanos:0')
+f(7,10732,3,4,'os::elapsed_counter:0')
+f(6,10735,1,3,'__tls_get_addr:0')
+f(5,10736,2,4,'StatSamplerTask::task:0')
+f(5,10738,23,4,'WatcherThread::sleep:0')
+f(6,10743,6,4,'Monitor::wait_without_safepoint_check:0')
+f(7,10747,2,4,'os::PlatformMonitor::wait:0')
+f(6,10749,2,3,'__clock_gettime:0')
+f(7,10750,1,3,'__vdso_clock_gettime:0')
+f(6,10751,7,3,'__vdso_clock_gettime:0')
+f(6,10758,2,3,'clock_gettime@plt:0')
+f(6,10760,1,4,'os::PlatformMonitor::wait:0')
+f(5,10761,2,3,'__GI___lll_lock_wake:0')
+f(6,10761,2,3,'entry_SYSCALL_64_after_hwframe_[k]:0')
+f(7,10761,2,3,'do_syscall_64_[k]:0')
+f(8,10762,1,3,'__x64_sys_futex_[k]:0')
+f(9,10762,1,3,'do_futex_[k]:0')
+f(10,10762,1,3,'futex_wake_[k]:0')
+f(5,10763,1,3,'__pthread_mutex_unlock@GLIBC_2.2.5:0')
+f(5,10764,1,3,'__pthread_mutex_unlock_usercnt:0')
+f(5,10765,2,4,'os::javaTimeNanos:0')
+f(1,10767,10,3,'unknown:0')
+f(2,10767,10,3,'__GI___open64:0')
+f(3,10767,10,3,'entry_SYSCALL_64_after_hwframe_[k]:0')
+f(4,10767,10,3,'do_syscall_64_[k]:0')
+f(5,10767,10,3,'__x64_sys_openat_[k]:0')
+f(6,10767,10,3,'do_sys_openat2_[k]:0')
+f(7,10767,10,3,'do_filp_open_[k]:0')
+f(8,10767,10,3,'path_openat_[k]:0')
+f(9,10767,1,3,'alloc_empty_file_[k]:0')
+f(10,10767,1,3,'percpu_counter_add_batch_[k]:0')
+f(11,10767,1,3,'preempt_count_add_[k]:0')
+f(9,10768,2,3,'do_dentry_open_[k]:0')
+f(10,10768,2,3,'security_file_open_[k]:0')
+f(11,10768,2,3,'selinux_file_open_[k]:0')
+f(12,10768,1,3,'avc_has_perm_[k]:0')
+f(12,10769,1,3,'inode_security_[k]:0')
+f(9,10770,3,3,'link_path_walk.part.0.constprop.0_[k]:0')
+f(10,10770,2,3,'security_inode_permission_[k]:0')
+f(11,10771,1,3,'selinux_inode_permission_[k]:0')
+f(12,10771,1,3,'avc_has_perm_noaudit_[k]:0')
+f(13,10771,1,3,'avc_lookup_[k]:0')
+f(10,10772,1,3,'step_into_[k]:0')
+f(11,10772,1,3,'__lookup_mnt_[k]:0')
+f(9,10773,1,3,'lookup_fast_[k]:0')
+f(9,10774,3,3,'path_init_[k]:0')
+f(10,10775,1,3,'__rcu_read_lock_[k]:0')
+f(10,10776,1,3,'nd_jump_root_[k]:0')
+f(11,10776,1,3,'set_root_[k]:0')
+f(1,10777,1,3,'unknown_Java:0')
+f(2,10777,1,3,'SafepointBlob:0')
+f(3,10777,1,3,'asm_exc_page_fault_[k]:0')
+f(4,10777,1,3,'exc_page_fault_[k]:0')
+f(5,10777,1,3,'do_user_addr_fault_[k]:0')
+f(6,10777,1,3,'find_vma_[k]:0')
+
+    search();
+</script></body></html>
