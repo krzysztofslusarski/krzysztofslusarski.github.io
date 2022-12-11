@@ -43,6 +43,7 @@ to happen anywhere", well, it isn't.
   - [Thread start](#methods-thread)
   - [Classloading](#methods-classes)
 - [Perf events](#perf)
+  - [Cache misses](#perf-cache)
   - [Page faults](#perf-pf)
   - [Cycles](#perf-cycles)
 - [Filtering single request](#single-req)
@@ -55,6 +56,7 @@ to happen anywhere", well, it isn't.
 - [Contextual profiling](#context-id)
   - [Spring Boot microservices](#context-id-spring)
   - [Distributed systems](#context-id-hz)
+- [Stability and overhead](#stability-overhead)
 - [Random thoughts](#random)
 
 ## Profiled application 
@@ -163,7 +165,9 @@ java -agentpath:/path/to/libasyncProfiler.so=start,event=cpu,file=prof.jfr
 ```
 
 The parameters passed this way differ from the switches used in the command line approach.
-Mapping between those you can find in
+The list of parameters you can find
+[here](https://github.com/jvm-profiling-tools/async-profiler/blob/v2.9/src/arguments.cpp#L52){:target="_blank"}
+and the mapping between those you can find in
 [profiler.sh](https://github.com/jvm-profiling-tools/async-profiler/blob/master/profiler.sh#L149){:target="_blank"}
 source code.
 
@@ -186,13 +190,7 @@ The Java API is published to maven central. All you need to do is to include a d
 That gives you an API where you can use Async-profiler from Java code. Example of usage:
 
 ```java
-// If the profiler is loaded with agentpath or the libasyncProfiler.so is 
-// placed in one of directory: /usr/java/packages/lib /usr/lib64 /lib64
-// /lib /usr/lib
 AsyncProfiler profiler = AsyncProfiler.getInstance(); 
-
-// If the profiler is placed elsewhere:
-AsyncProfiler profiler = AsyncProfiler.getInstance("/path/to/libasyncProfiler.so");
 ```
 
 That gives you an instance of ```AsyncProfiler``` object, where you can send orders to the profiler:
@@ -201,6 +199,21 @@ That gives you an instance of ```AsyncProfiler``` object, where you can send ord
 profiler.execute(String.format("start,jfr,event=wall,file=%s.jfr", fileName));
 // do something, like sleep
 profiler.execute(String.format("stop,file=%s.jfr", fileName));
+```
+
+Since async-profiler 2.9 the ```AsyncProfiler.getInstance()``` extracts the ```libasyncProfiler.so``` for the JAR and loads it.
+In previous version that file needed to be in one of directories:
+
+- ```/usr/java/packages/lib```
+- ```/usr/lib64```
+- ```/lib64```
+- ```/lib```
+- ```/usr/lib```
+
+You can also point any location of that file with API:
+
+```java
+AsyncProfiler profiler = AsyncProfiler.getInstance("/path/to/libasyncProfiler.so");
 ```
 
 ### From JMH benchmark
@@ -246,7 +259,8 @@ gathered by the profiler. That file can be postprocess later by some external to
 own open-sourced [JVM profiling toolkit](https://github.com/krzysztofslusarski/jvm-profiling-toolkit){:target="_blank"}, 
 which can read JFR files with additional filters and gives me a possibility to add/remove additional
 levels during conversion to flame graph. In that post I will use the naming of filters from my viewer.
-There are other products that can visualize the JFR output, you should use the tool that works
+There are other products (including the ```jfr2flame``` converter that is a part of async-profiler) 
+that can visualize the JFR output, you should use the tool that works
 for you. There was none that worked for me, so I wrote my own, but it doesn't mean that it would
 be the best choice for everybody.
 
@@ -298,7 +312,9 @@ The flame graph usually shows you how some resource is utilized by your applicat
 So in this example method ```b()``` is not utilizing the resource at all, it just invokes methods that do it. Flame graphs
 are commonly used to present the **CPU utilization**, but CPU is just one of the resources that we can visualize this way.
 If you use **wall-clock mode** then your resource is **time**. If you use **allocation mode** then your resource is
-**heap**.
+**heap**. If you want to learn more about flame graph you can check the 
+[Brendan's Gregg video](https://www.youtube.com/watch?v=D53T1Ejig1Q){:target="_blank"} who is the inventor of
+them.
 
 ## Basic resources profiling
 {: #basic-resources }
@@ -1136,7 +1152,7 @@ The flame graph: ([HTML](/assets/async-demos/lock.html){:target="_blank"})
 
 ![alt text](/assets/async-demos/lock-1.png "flames")
 
-I highlighted the ```LockController``` occurance. Let's zoom it:
+I highlighted the ```LockController``` occurrence. Let's zoom it:
 
 ![alt text](/assets/async-demos/lock-2.png "flames")
 
@@ -1150,7 +1166,7 @@ time a key is already in the map, then you may consider the approach used in ```
 
 The common knowledge in the Java developers world is that _garbage collectors_ need Stop-the-world (STW) phase to clean dead objects.
 First of all, **not only GC needs it**. There are other internal mechanisms that need to do some work, that require application threads to be hanged.
-For example JIT compiler needs STW phase to _deoptimize_ some compilations and to revoke _biased locks_. Let's get a closer look at how the
+For example JVM needs STW phase to _deoptimize_ some compilations and to revoke _biased locks_. Let's get a closer look at how the
 STW phase works.
 
 On our JVM there are running some application threads:
@@ -1506,7 +1522,12 @@ events with Java code. For example you can use events:
 - ```LLC-load-misses```- which part of your code needs something from RAM memory
 - ...
 
-I want to describe the two in more detail.
+I want to describe the three in more detail.
+
+### Cache misses
+{: #perf-cache }
+
+TODO
 
 ### Page faults
 {: #perf-pf }
@@ -1709,7 +1730,7 @@ The point of the previous example was to show you why aggregated results can be 
 a single request. Now I want to show you a  very common issue that I have diagnosed a few times already.
 
 Spring Boot has an addition called Actuator. It is commonly used in the enterprise world. One of the
-features of Actuator is the health check endpoint. Under URI ```/actuator/healh``` you can get JSON
+features of Actuator is the health check endpoint. Under URI ```/actuator/health``` you can get JSON
 with information about the health of your application. That endpoint is sometimes used as a load
 balancer probe. Let's consider a multi node cluster of our example application with load
 balancer in front of the cluster which:
@@ -1962,16 +1983,10 @@ utility class:
 ```java
 public abstract class AsyncProfilerUtils {
     private static volatile AsyncProfiler asyncProfiler;
-    private static final Object MUX = new Object();
+    // ...
 
     public static AsyncProfiler load() {
-        if (asyncProfiler == null) {
-            synchronized (MUX) {
-                if (asyncProfiler == null) {
-                    asyncProfiler = AsyncProfiler.getInstance("/tmp/libasyncProfiler.so");
-                }
-            }
-        }
+        // Lazy load with double-checked locking
         return asyncProfiler;
     }
 
@@ -2272,6 +2287,9 @@ I checked five more long latency requests and the results were the same, confirm
 the problem. I spent a lot of time trying to figure out what was wrong with that machine. My biggest suspect was a 
 difference in meltdown/spectre patches in the kernel. In the end we reinstalled Linux on those machines which solved
 the problem with the **10.212.1.104** server.
+
+## Stability and overhead
+{: #stability-overhead }
 
 ## Random thoughts
 {: #random }
