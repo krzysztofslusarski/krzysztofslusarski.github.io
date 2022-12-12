@@ -65,9 +65,9 @@ to happen anywhere", well, it isn't.
 {: #acknowledgments }
 
 I would like to say thank you to [Andrei Pangin](https://twitter.com/AndreiPangin){:target="_blank"} for all the work he did to create async-profiler and for
-his time and remarks to that article.
+his time and remarks to that article,
 [Johannes Bechberger](https://twitter.com/parttimen3rd){:target="_blank"} for all the work on making OpenJDK more stable with 
-profilers and for the input he gave me on overhead and stability.
+profilers and for the input he gave me on overhead and stability,
 [Marcin Grzejszczak](https://twitter.com/MGrzejszczak){:target="_blank"} for great insight on how to integrate this profiler with
 Spring.
 
