@@ -2406,7 +2406,7 @@ the problem with the **10.212.1.104** server.
 
 Can attaching a profiler crash a JVM? Yes, it can happen. You need to know that there is some risk. Bugs happen, and I'm
 not talking only about profilers, but also about the JVM. A bug in JVM code can manifest itself after attaching a 
-profiler. OpenJDK's engineers are also working on stability of API that is used by the profilers. You can check the work
+profiler. OpenJDK's engineers are also working on the stability of the API that is used by the profilers. You can check the work
 of:
 
 - [Johannes Bechberger](https://github.com/openjdk/jdk/pulls?q=is%3Apr+author%3Aparttimenerd){:target="_blank"}
@@ -2434,7 +2434,7 @@ before and after introducing continuous profiling there. A bit of context:
 - Environment provided by VMware, both VMs and Tanzu clusters
 - Async-profiler 1.8.x, later 2.8.x
 
-Johannes Bechberger provided me his benchmark results. He used
+Johannes Bechberger provided me with his benchmark results. He used
 [DaCapo Benchmarks](https://dacapobench.sourceforge.net/){:target="_blank"}`:
 
 - ThreadRipper 3995WX with 128GB RAM
@@ -2447,7 +2447,7 @@ The chart for his results:
 
 ![alt text](/assets/async-demos/overhead.png "chart")
 
-X-axis is logarithmic scales number of samples per second. Y-axis is additional overhead. 
+X-axis is a logarithmic-scaled number of samples per second. Y-axis is additional overhead. 
 
 Remember: **you should measure the overhead in your application by yourself**.
 
