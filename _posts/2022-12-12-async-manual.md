@@ -2434,8 +2434,8 @@ before and after introducing continuous profiling there. A bit of context:
 - Environment provided by VMware, both VMs and Tanzu clusters
 - Async-profiler 1.8.x, later 2.8.x
 
-Johannes Bechberger provided me with his benchmark results. He used
-[DaCapo Benchmarks](https://dacapobench.sourceforge.net/){:target="_blank"}`:
+Johannes Bechberger shared his benchmark results with me. He used
+[DaCapo Benchmarks](https://dacapobench.sourceforge.net/){:target="_blank"}:
 
 - ThreadRipper 3995WX with 128GB RAM
 - Async-profiler 2.8.3
