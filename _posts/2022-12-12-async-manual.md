@@ -15,8 +15,9 @@ haven't read it, simply do it.
 
 All the examples that you are going to see here are synthetic reproductions of real world 
 problems that I solved during my career. Even if some example looks like "it's too stupid
-to happen anywhere", well, it isn't. 
+to happen anywhere", well, it isn't.
 
+- [Acknowledgments](#acknowledgments)
 - [Profiled application](#profiled-application)
 - [How to run an Async-profiler](#how-to)
   - [Command line](#how-to-cl)
@@ -59,6 +60,16 @@ to happen anywhere", well, it isn't.
   - [Distributed systems](#context-id-hz)
 - [Stability and overhead](#stability-overhead)
 - [Random thoughts](#random)
+
+## Acknowledgments
+{: #acknowledgments }
+
+I would like to say thank you to [Andrei Pangin](https://twitter.com/AndreiPangin){:target="_blank"} for all the work he did to create async-profiler and for
+his time and remarks to that article.
+[Johannes Bechberger](https://twitter.com/parttimen3rd){:target="_blank"} for all the work on making OpenJDK more stable with 
+profilers and for the input he gave me on overhead and stability.
+[Marcin Grzejszczak](https://twitter.com/MGrzejszczak){:target="_blank"} for great insight on how to integrate this profiler with
+Spring.
 
 ## Profiled application 
 {: #profiled-application }
@@ -2395,12 +2406,16 @@ the problem with the **10.212.1.104** server.
 
 Can attaching a profiler crash a JVM? Yes, it can happen. You need to know that there is some risk. Bugs happen, and I'm
 not talking only about profilers, but also about the JVM. A bug in JVM code can manifest itself after attaching a 
-profiler. Async-profiler is a very mature product already. It also has tons of workarounds to overcome issues in
-different JVMs. I know a few companies
+profiler. OpenJDK's engineers are also working on stability of API that is used by the profilers. You can check the work
+of:
+
+- [Johannes Bechberger](https://github.com/openjdk/jdk/pulls?q=is%3Apr+author%3Aparttimenerd){:target="_blank"}
+- [Jaroslav Bachorik](https://github.com/openjdk/jdk/pulls?q=is%3Apr+author%3Ajbachorik){:target="_blank"}
+
+In my opinion async-profiler is a very mature product already. I know a few companies
 that are running async-profiler in continuous mode 24/7. For two years I heard about one production crash there caused by
-a profiler. It is working with **40** JVMs at least in wall-clock mode there. I didn't have any crash on any system 
-where I was attaching this profiler this year.
-From my perspective the risk is so small that it can be ignored,
+a profiler. It is working with **40** production JVMs at least in wall-clock mode there. Also, I didn't have any crash on any system 
+where I was attaching this profiler this year. From my perspective the risk is so small that it can be ignored,
 but you've been warned.
 
 But please, if you have any profiler related crash file a GitHub issue. This is also a way of contribution to open-sourced
@@ -2413,12 +2428,28 @@ before and after introducing continuous profiling there. A bit of context:
 
 - Spring and Spring Boot applications
 - Mostly services that handles HTTP requests
-- Not really CPU intensive - I would say that on average **60%** of the time was spent off-CPU (waiting for DB/other service)
+- Not really CPU intensive - I would say that on average **60%** of the request time was spent off-CPU (waiting for DB/other service)
 - JDK 11 and 17 - HotSpot from various vendors
+- Wall-clock event, dump of JFR every minute from Java API
+- Environment provided by VMware, both VMs and Tanzu clusters
+- Async-profiler 1.8.x, later 2.8.x
 
-But you should measure the overhead in your application by yourself.
+Johannes Bechberger provided me his benchmark results. He used
+[DaCapo Benchmarks](https://dacapobench.sourceforge.net/){:target="_blank"}`:
 
-TODO - waiting for additional input from Johannes Bechberger.
+- ThreadRipper 3995WX with 128GB RAM
+- Async-profiler 2.8.3
+- ```dacapo benchmarks avrora fop h2 jython lusearch pmd -t 8 -n 3```
+- CPU event
+
+Johannes's results shows **~6%** overhead on default sampling interval without ```jfrsync``` flag, and **~7.5** with ```jfrsync```. 
+The chart for his results:
+
+![alt text](/assets/async-demos/overhead.png "chart")
+
+X-axis is logarithmic scales number of samples per second. Y-axis is additional overhead. 
+
+Remember: **you should measure the overhead in your application by yourself**.
 
 ## Random thoughts
 {: #random }
