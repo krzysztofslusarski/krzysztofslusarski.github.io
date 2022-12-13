@@ -17,6 +17,10 @@ All the examples that you are going to see here are synthetic reproductions of r
 problems that I solved during my career. Even if some example looks like "it's too stupid
 to happen anywhere", well, it isn't.
 
+That post will be maintained, whenever I find a new use case that I think is worth sharing I will update
+this post.
+
+- [Change log](#change-log)
 - [Acknowledgments](#acknowledgments)
 - [Profiled application](#profiled-application)
 - [How to run an Async-profiler](#how-to)
@@ -60,6 +64,11 @@ to happen anywhere", well, it isn't.
   - [Distributed systems](#context-id-hz)
 - [Stability and overhead](#stability-overhead)
 - [Random thoughts](#random)
+
+## Change log
+{: #change-log }
+
+- 2022-12-15 - Initial version
 
 ## Acknowledgments
 {: #acknowledgments }
@@ -1641,6 +1650,13 @@ somewhere on a heap, but where exactly? Well, we cannot control that. Element ``
 different place than ```b[k + 1][j]```. That's the way the CPU doesn't like to load the data. 
 
 The memory access pattern is the key here. The ```matrixMultiplyFaster``` algorithm is mostly sequential, that's why it's much faster.
+
+I don't want to go into details about what is happening in the CPU with these algorithms. The goal of this post
+is to teach the usage of async-profiler, not CPU architecture. If you want to go deeper with that knowledge a very
+good book for a start is 
+[Denis Bakhvalov - Performance Analysis and Tuning on Modern CPUs](https://book.easyperf.net/perf_book){:target="_blank"}.
+It's not about Java, but for now I cannot recommend any Java-centric book related to the CPU architecture. 
+I know that two very good performance engineers are writing one now. When it is published I will paste a link here.
 
 ### Page faults
 {: #perf-pf }
