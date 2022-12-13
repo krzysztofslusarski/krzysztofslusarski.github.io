@@ -257,10 +257,10 @@ if you deploy on different CPU architectures it may be really handy. With this l
 the Java API without carrying where the binary of the profiler is located. I really recommend reading
 the README of that project, it may be suitable to you.
 
-### IntelliJ Idea
+### IntelliJ Idea Ultimate
 {: #how-to-idea }
 
-If you are using IntelliJ Idea then you have a build-in async-profiler already. You can profile any JVM
+If you are using IntelliJ Idea Ultimate then you have a build-in async-profiler already. You can profile any JVM
 that is running on your machine and get the results visualized in many forms. Honestly I don't use it that
 much. Most of the time I'm running profilers on remote machines, and I've got used to it so badly, that I 
 run it the same way on my localhost.
