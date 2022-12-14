@@ -10,7 +10,7 @@ This blog post contains examples of async-profiler usages that I have found usef
 Some content of this post is copy-pasted from previous entries, I just wanted to avoid unnecessary
 jumps between articles. 
 
-The goal of that post is to give examples. It's not a replacement for the project [README](https://github.com/jvm-profiling-tools/async-profiler#readme){:target="_blank"} or the [wiki](https://github.com/jvm-profiling-tools/async-profiler/wiki){:target="_blank"}. I advice you to read both if you haven't already.
+The goal of that post is to give examples. It's not a replacement for the project [README](https://github.com/jvm-profiling-tools/async-profiler#readme){:target="_blank"}. I advice to read it, as is tells you how to obtain async-profiler binaries and more.
 
 All the examples that you are going to see here are synthetic reproductions of real-world 
 problems that I solved during my career. Even if some example looks like "it's too stupid
