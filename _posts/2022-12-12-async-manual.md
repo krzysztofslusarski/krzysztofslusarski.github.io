@@ -987,7 +987,7 @@ the same level every day. The chart with a memory leak looks like the following 
 
 ![alt text](/assets/monday-2/2.jpg "2")
 
-These spikes to the roof are _too-space exhausted_ situations in the **G1** algorithm; those are not _OutOfMemoryErrors_. After each of those spikes, there was a
+These spikes to the roof are _to-space exhausted_ situations in the **G1** algorithm; those are not _OutOfMemoryErrors_. After each of those spikes, there was a
 **Full GC** phase that is a **failover** in that algorithm.
 
 
