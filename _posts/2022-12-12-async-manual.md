@@ -1461,7 +1461,7 @@ Just set ```writableStackTrace``` to ```false```. It will be rather ugly but fas
 We already saw how to detect humongous objects with allocation mode. Since
 async-profiler can also instrument JVM code, and allocations of a humongous objects are 
 nothing else than invocations of C++ code, we can take advantage of that.
-If you want to check where humongous objects are allocated, you can use method mode
+If you want to check where humongous objects are allocated, you can use native functions mode
 with event ```G1CollectedHeap::humongous_obj_allocate```. This approach may have lower
 overhead but won't give you sizes of allocated objects.
 
