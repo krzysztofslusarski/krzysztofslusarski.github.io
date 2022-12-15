@@ -783,7 +783,7 @@ is called **TLAB** - thread-local allocation buffer. With this, each thread can 
 Introducing TLABs creates two more issues that the JVM needs to deal with:
 
 - a thread can allocate an object, but there is not enough space in its TLAB - the JVM creates a new TLAB if there is still space in eden
-- a thread can allocate a big object, so it's not optimal to use the TLAB mechanism - the JVM will use the _slow path_ of the allocation that allocates the object directly in eden
+- a thread can allocate a big object, so it's not optimal to use the TLAB mechanism - the JVM will use the _slow path_ of the allocation that allocates the object directly in eden or in the old generation
 
 What is important to us is that in both these cases, the JVM emits an event that a profiler can capture. That's basically how async-profiler samples allocations:
 
