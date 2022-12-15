@@ -745,7 +745,7 @@ you want to optimize such algorithms; you will probably need at least one of the
 - Top-Down performance analysis methodology
 - Looking at the ASM of generated methods  
 
-Many Java programmers forget that all the execution is done on the CPU. Java needs to use tak ASM to run on the CPU. That's
+Many Java programmers forget that all the execution is done on the CPU. Java needs to use ASM to run on the CPU. That's
 basically what the JIT compiler does: It converts your hot methods and loops into optimized ASM. At the assembly level,
 you can check, for example, if the JIT used vectorized instruction for your loops. So yes, sometimes you need to get dirty 
 with such low-level stuff. For now, async-profiler gives you a hint on which methods to focus.
