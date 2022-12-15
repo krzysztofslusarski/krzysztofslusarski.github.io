@@ -6,17 +6,17 @@ date:   2022-12-12 02:51:30 +0100
 
 # [Java][Profiling][Work in progress] Async-profiler manual by use cases
 
-This blog post contains examples of async-profiler usages that I have found useful in my job.
-Some content of this post is copy-pasted from previous entries, I just wanted to avoid unnecessary
+This blog post contains examples of async-profiler usages that I have found helpful in my job.
+Some content of this post is copy-pasted from previous entries, as I just wanted to avoid unnecessary
 jumps between articles. 
 
-The goal of that post is to give examples. It's not a replacement for the project [README](https://github.com/jvm-profiling-tools/async-profiler#readme){:target="_blank"}. I advice to read it, as is tells you how to obtain async-profiler binaries and more.
+The goal of that post is to give examples. It's not a replacement for the project [README](https://github.com/jvm-profiling-tools/async-profiler#readme){:target="_blank"}. I advise you to read it, as it tells you how to obtain async-profiler binaries and more.
 
 All the examples that you are going to see here are synthetic reproductions of real-world 
-problems that I solved during my career. Even if some example looks like "it's too stupid
-to happen anywhere", well, it isn't.
+problems that I solved during my career. Even if some examples look like "it's too stupid
+to happen anywhere,” well, it isn't.
 
-That post will be maintained, whenever I find a new use case that I think is worth sharing I will update
+That post will be maintained. Whenever I find a new use case that I think is worth sharing, I will update
 this post.
 
 - [Change log](#change-log)
@@ -82,10 +82,10 @@ Spring.
 ## Profiled application 
 {: #profiled-application }
 
-For the purpose of that post I've created a Spring Boot application, so you can run the following examples
+I’ve created a Spring Boot application for this post so that you can run the following examples
 on your own. It's available on
 [my GitHub](https://github.com/krzysztofslusarski/async-profiler-demos){:target="_blank"}.
-To build the application do the following:
+To build the application, do the following:
 
 ```shell
 git clone https://github.com/krzysztofslusarski/async-profiler-demos
@@ -93,7 +93,7 @@ cd async-profiler-demos
 mvn clean package
 ```
 
-To run the application you need three terminals where you run the following (you need the ports 8081, 8082, and 8083 available):
+To run the application, you need three terminals where you run the following (you need the ports 8081, 8082, and 8083 available):
 
 ```shell
 java -Xms1G -Xmx1G -XX:+AlwaysPreTouch \
@@ -119,7 +119,7 @@ OpenJDK Runtime Environment Corretto-17.0.2.8.1 (build 17.0.2+8-LTS)
 OpenJDK 64-Bit Server VM Corretto-17.0.2.8.1 (build 17.0.2+8-LTS, mixed mode, sharing)
 ```
 
-And to create simple load tests I'm using a very old tool:
+And to create simple load tests, I'm using an ancient tool:
 
 ```shell
 $ ab -V
@@ -129,12 +129,12 @@ Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
 Licensed to The Apache Software Foundation, http://www.apache.org/
 ```
 
-I will not go through the source code to explain to you all the details before I jump into examples.
-As, in my work, I often profile applications that have source code I haven't 
-seen. Just consider it as a typical microservice build with Spring Boot and Hibernate.
+I will not go through the source code to explain all the details before I jump into examples.
+I often profile applications with source code I haven’t 
+seen in my work. Just consider it as a typical micro-service build with Spring Boot and Hibernate.
 
 In all the examples, I will assume that the application is started with the ```java -jar``` command.
-If you are running the application from the IDE then the name of the application is switched 
+If you are running the application from the IDE, then the name of the application is switched 
 from ```first-application-0.0.1-SNAPSHOT.jar``` to ```FirstApplication```.
 
 ## How to run an Async-profiler 
@@ -152,7 +152,7 @@ in the profiler folder:
 
 # examples
 ./profiler.sh -e cpu -d 10 -f prof.jfr first-application-0.0.1-SNAPSHOT.jar
-./profiler.sh -e wall -d 10 -f prof.html 1234 # where 1234 is the pid of the Java process
+./profiler.sh -e wall -d 10 -f prof.html 1234 # where 1234 is the PID of the Java process
 ```
 
 There are a lot of additional switches that are explained in the [README](https://github.com/jvm-profiling-tools/async-profiler#readme){:target="_blank"}. 
@@ -165,15 +165,15 @@ You can also use async-profiler to output JFR files:
 ./profiler.sh stop -f <output JFR file name> <pid or application name>
 ```
 
-For formats different from JFR you need to pass the file name during ```stop```, but for JFR 
+For formats different from JFR, you need to pass the file name during ```stop```, but for JFR 
 it is needed during ```start```.
 
 **WARNING**: This way of attaching any profiler to a JVM is vulnerable to
 [JDK-8212155](https://bugs.openjdk.org/browse/JDK-8212155){:target="_blank"}. That issue can crash 
-your JVM during attach, it has been fixed in JDK 17.
+your JVM during attachment. It has been fixed in JDK 17.
 
-If you are attaching a profiler this way it is recommended to use ```-XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints```
-JVM flags (see [this blog post by Jean-Philippe Bempel](https://jpbempel.github.io/2022/06/22/debug-non-safepoints.html){:target="_blank"} for more information on why these flags are important).
+If you are attaching a profiler this way, it is recommended to use ```-XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints```
+JVM flags (see [this blog post by Jean-Philippe Bempel](https://jpbempel.github.io/2022/06/22/debug-non-safepoints.html){:target="_blank"} for more information on why these flags are essential).
 
 ### During JVM startup
 {: #how-to-jvm }
@@ -221,8 +221,8 @@ profiler.execute(String.format("start,jfr,event=wall,file=%s.jfr", fileName));
 profiler.execute(String.format("stop,file=%s.jfr", fileName));
 ```
 
-Since async-profiler 2.9 the ```AsyncProfiler.getInstance()``` extracts and loads the ```libasyncProfiler.so``` from the JAR .
-In the previous version that file needed to be in one of directories:
+Since async-profiler 2.9, the ```AsyncProfiler.getInstance()``` extracts and loads the ```libasyncProfiler.so``` from the JAR.
+In the previous version, this file needed to be in one of the following directories:
 
 - ```/usr/java/packages/lib```
 - ```/usr/lib64```
@@ -230,7 +230,7 @@ In the previous version that file needed to be in one of directories:
 - ```/lib```
 - ```/usr/lib```
 
-You can also point any location of that file with API:
+You can also point to any location of that file with API:
 
 ```java
 AsyncProfiler profiler = AsyncProfiler.getInstance("/path/to/libasyncProfiler.so");
@@ -239,53 +239,53 @@ AsyncProfiler profiler = AsyncProfiler.getInstance("/path/to/libasyncProfiler.so
 ### From JMH benchmark
 {: #how-to-jmh }
 
-It's worth mentioning that async-profiler is supported in JMH benchmarks. If you have one you just need to run:
+It's worth mentioning that the async-profiler is supported in JMH benchmarks. If you have one, you just need to run the following:
 
 ```shell
 java -jar benchmarks.jar -prof async:libPath=/path/to/libasyncProfiler.so\;output=jfr\;event=cpu
 ```
 
-JMH will take care of every magic, and you get nice JFR output from async-profiler.
+JMH will take care of every magic, and you get proper JFR files from async-profiler.
 
 ### AP-Loader
 {: #how-to-apl }
 
-There is a pretty fresh project called [AP-Loader](https://github.com/jvm-profiling-tools/ap-loader){:target="_blank"} by Johannes Bechberger,
-that can be also helpful to you. This project packages all native distributions into a single JAR, so
-if you deploy on different CPU architectures it may be really handy. You can also use
+There is a pretty new project called [AP-Loader](https://github.com/jvm-profiling-tools/ap-loader){:target="_blank"} by Johannes Bechberger
+that can also be helpful to you. This project packages all native distributions into a single JAR, so
+It is convenient when deploying on different CPU architectures. You can also use
 the Java API with this loader without caring where the binary of the profiler is located and which platform you're running on. I recommend reading
-the [README](https://github.com/jvm-profiling-tools/ap-loader#readme){:target="_blank"} of that project, it may be suitable for you.
+the [README](https://github.com/jvm-profiling-tools/ap-loader#readme){:target="_blank"} of that project. It may be suitable for you.
 
 ### IntelliJ Idea Ultimate
 {: #how-to-idea }
 
-If you are using IntelliJ Idea Ultimate, then you have a build-in async-profiler at your finger-tips. You can profile any JVM running on your machine and visualize the results. Honestly I don't use it that
-much. Most of the time I'm running profilers on remote machines, and I've got used to it, so I 
+If you are using IntelliJ Idea Ultimate, you have a built-in async-profiler at your fingertips. You can profile any JVM running on your machine and visualize the results. Honestly, I don't use it that
+much. Most of the time, I run profilers on remote machines, and I've got used to it, so I 
 run it the same way on my localhost.
 
 ## Output formats
 {: #out }
 
-Async-profiler gives you a choice how the results should be saved:
-- default - printing results to terminal
+Async-profiler gives you a choice of how the results should be saved:
+- default - printing results to the terminal
 - JFR
 - Collapsed stack
 - Flame graphs
 - ... 
 
-From that list, I choose JFR 95% of the time. It's a binary format containing all the information gathered by the profiler. That file can be postprocessed later by some external tool. I'm using my
+From that list, I choose JFR 95% of the time. It's a binary format containing all the information gathered by the profiler. That file can be post-processed later by some external tool. I'm using my
 own open-sourced [JVM profiling toolkit](https://github.com/krzysztofslusarski/jvm-profiling-toolkit){:target="_blank"}, 
 which can read JFR files with additional filters and gives me the possibility to add/remove additional
-levels during conversion to flame graph. I will use the filter names of my viewer in the followingIn that post I will use the naming of filters from my viewer.
+levels during the conversion to a flame graph. I will use the filter names of my viewer in the following and the names of filters from my viewer.
 There are other products (including the ```jfr2flame``` converter that is a part of async-profiler) 
 that can visualize the JFR output, but you should use the tool that works
-for you. There was none that worked for me, so I wrote my own, but it doesn't mean that it is the best choice for everybody.
+for you. None worked for me, so I wrote my own, but it doesn't mean it is the best choice for everybody.
 
 All flame graphs in this post are generated by my tool from JFR files. The JFR file format for each sample contains the following:
 
 - Stack trace
 - Java thread name
-- Thread state (is the Java thread consumes cpu)
+- Thread state (is the Java thread consumes CPU)
 - Timestamp
 - Monitor class - for ```lock``` mode
 - Waiting for lock duration - for ```lock``` mode
@@ -294,17 +294,17 @@ All flame graphs in this post are generated by my tool from JFR files. The JFR f
 - Context ID - if you are using async-profiler with
   [Context ID PR](https://github.com/jvm-profiling-tools/async-profiler/pull/576){:target="_blank"} merged
 
-So all the information is already there, we just need to extract what we need and present it visually.
+So all the information is already there. We just need to extract what we need and present it visually.
 
 ## Flame graphs
 {: #flames }
 
 If you do **sampling profiling** you need to visualize the results. The results are nothing more than a **set of stack traces**.
-My favorite visualization is a **flame graph**. The easiest way to understand what flame graphs are is to understand how
+My favorite visualization is a **flame graph**. The easiest way to understand what flame graphs are is to know how
 they are created.
 
 First, we draw a rectangle for each frame of each stack trace. The stack traces are drawn bottom-up and sorted
-alphabetically. For example, such a graph looks like:
+alphabetically. For example, such a graph looks like this:
 
 ![alt text](/assets/hz-sql/flame-1.png "flame")
 
@@ -320,38 +320,38 @@ The next step is **joining** the rectangles with the same method name to one bar
 
 ![alt text](/assets/hz-sql/flame-2.png "flame")
 
-The flame graph usually shows you how some resource is utilized by your application. The resource is utilized
+The flame graph usually shows you how your application utilizes a specific resource. The resource is utilized
 **by the top methods** of that graph (visualized with green bar):
 
 ![flame graph with the top methods highlighted](/assets/hz-sql/flame-3.png "flame")
 
-So in this example method ```b()``` is not utilizing the resource at all, it just invokes methods that transitively use it. Flame graphs
-are commonly used for the **CPU utilization**, but the CPU is just one of the resources that we can visualize this way.
-If you use **wall-clock mode** then your resource is **time**. If you use **allocation mode** then your resource is
-**heap**. If you want to learn more about flame graphs you can check 
+So in this example, method ```b()``` does not utilize the resource. It just invokes methods that transitively use it. Flame graphs
+are commonly used for the **CPU utilization**, but the CPU is just one of the resources we can visualize this way.
+If you use **wall-clock mode**, your resource is **time**. If you use **allocation mode**, then your resource is
+**heap**. If you want to learn more about flame graphs, you can check 
 [Brendan's Gregg video](https://www.youtube.com/watch?v=D53T1Ejig1Q){:target="_blank"}, he invented flame graphs.
 
 ## Basic resources profiling
 {: #basic-resources }
 
-Before you start any profiler, the first thing you need to know is what your goal is. Only after that,
-you can choose the proper mode of async-profiler. Let's start with the basics.
+Before you start any profiler, the first thing you need to know is what your goal is. Only after that
+can you choose the proper mode of async-profiler. Let's start with the basics.
 
 ### Wall-clock
 {: #wall }
 
-If your goal is to optimize time then you should run async-profiler in wall-clock mode. This is the 
-most common mistake made by engineers that are starting their journey with profilers. The majority of
+If your goal is to optimize time, you should run the async-profiler in wall-clock mode. This is the 
+most common mistake made by engineers starting their journey with profilers. The majority of
 applications that I profiled so far were applications that were working with a distributed
-architecture, using some DBs, MQ, Kafka, ... In such applications the majority of time is spent on
-IO - waiting for other services/DB/... to respond. During such actions Java is not using the CPU. 
+architecture, using some DBs, MQ, Kafka, ... In such applications, the majority of time is spent on
+IO - waiting for other services/DB/... to respond. During such actions, Java is not using the CPU. 
 
 ```shell
 # warmup
 ab -n 100 -c 4 http://localhost:8081/examples/wall/first
 ab -n 100 -c 4 http://localhost:8081/examples/wall/second
 
-# profiling of first request
+# profiling of the first request
 ./profiler.sh start -e cpu -f first-cpu.jfr first-application-0.0.1-SNAPSHOT.jar
 ab -n 100 -c 4 http://localhost:8081/examples/wall/first
 ./profiler.sh stop -f first-cpu.jfr first-application-0.0.1-SNAPSHOT.jar
@@ -360,7 +360,7 @@ ab -n 100 -c 4 http://localhost:8081/examples/wall/first
 ab -n 100 -c 4 http://localhost:8081/examples/wall/first
 ./profiler.sh stop -f first-wall.jfr first-application-0.0.1-SNAPSHOT.jar
 
-# profiling of second request
+# profiling of the second request
 ./profiler.sh start -e cpu -f second-cpu.jfr first-application-0.0.1-SNAPSHOT.jar
 ab -n 100 -c 4 http://localhost:8081/examples/wall/second
 ./profiler.sh stop -f second-cpu.jfr first-application-0.0.1-SNAPSHOT.jar
@@ -370,7 +370,7 @@ ab -n 100 -c 4 http://localhost:8081/examples/wall/second
 ./profiler.sh stop -f second-wall.jfr first-application-0.0.1-SNAPSHOT.jar
 ```
 
-In the ```ab``` output we can see that the basic stats are similar for each request:
+In the ```ab``` output, we can see that the basic stats are similar for each request:
 
 ```shell
 # first request
@@ -390,7 +390,7 @@ Waiting:      522  665 190.1    548    1028
 Total:        522  665 190.2    549    1029
 ```
 
-To give you a taste of how the CPU profile can mislead you here are flame graphs for those two
+To give you a taste of how the CPU profile can mislead you, here are flame graphs for those two
 executions in CPU mode.
 
 **First execution:** ([HTML](/assets/async-demos/wall-cpu-first.html){:target="_blank"})
@@ -400,7 +400,7 @@ executions in CPU mode.
 ![alt text](/assets/async-demos/wall-cpu-second.png "flames")
 
 I agree that they are not identical. But they have one thing in common.
-They show that the most CPU consuming method invoked by my controller is ```CpuConsumer.mathConsumer()```.
+They show that the most CPU-consuming method invoked by my controller is ```CpuConsumer.mathConsumer()```.
 It is not a lie: It consumes CPU. But does it consume most of the time of the request? 
 Look at the flame graphs in wall-clock mode:
 
@@ -415,9 +415,9 @@ mode shows us that this method is responsible just for **~4%** of execution time
 
 **Thing to remember**: if your goal is to optimize time, and you use external
 systems (including DBs, queues, topics, microservices) or locks, sleeps, disk IO, 
-you should start with wall-clock mode.
+It would help if you started with wall-clock mode.
 
-In wall-clock mode we can also see that these flame graphs differ. The first 
+In wall-clock mode, we can also see that these flame graphs differ. The first 
 execution spends most of its time in ```SocketInputStream.read()```:
 
 ![alt text](/assets/async-demos/wall-wall-first-2.png "flames")
@@ -433,9 +433,9 @@ spends just **75%** on the socket. To the right of the method
 
 It's the ```InternalExecRuntime.acquireEndpoint()``` method, which executes 
 ```PoolingHttpClientConnectionManager$1.get()``` from Apache HTTP Client, which 
-in the end executes ```Object.wait()```. What does it do? Basically what we are trying
+in the end executes ```Object.wait()```. What does it do? Basically, what we are trying
 to do in those two executions is to invoke a remote REST service. The first execution
-uses a HTTP Client instance with ```20``` available connections, so no thread
+uses an HTTP Client instance with ```20``` available connections, so no thread
 needs to wait for a connection from the pool:
 
 ```java
@@ -459,12 +459,12 @@ void calculateAndExecuteSlow() {
 } 
 ```
 
-The time spent on a socket is fully spent on waiting for the REST endpoint to respond.
+The time spent on a socket is entirely spent waiting for the REST endpoint to respond.
 The second execution uses a different instance of ```RestTemplate``` that has just 
 **3** connections in the pool. Since the load is generated from **4** threads
-by the ```ab```, one thread needs to wait for a connection from the pool.
-You may think that this is a stupid human error, that someone created a pool without enough
-connections. In the real world the problem is with defaults that
+by the ```ab```, one thread must wait for a connection from the pool.
+You may think this is a stupid human error, that someone created a pool without enough
+connections. In the real world, the problem is with defaults that
 are quite low. In our testing application, the default settings for the thread pool are:
 
 - ```maxTotal``` - **25** connections totally in the pool
@@ -475,10 +475,10 @@ with defaults set to **2**.
 
 There are plenty of tools that log the invocation time of external services. The common
 problem in those tools is that the time waiting on the pool for a connection is usually
-included in the whole invocation time which is a lie. I saw this in the past when the caller 
-had a line in the logs that gave an execution time of ```X ms```, the callee had a similar log
+included in the invocation time, which is a lie. I saw this in the past when the caller 
+had a line in the logs that gave an execution time of ```X ms```; the callee had a similar log
 that presented ```1/10 * X ms```. What were those teams doing to understand that? They
-tried to convince the network department that this is a network issue. Big waste of time.
+tried to convince the network department that this was a network issue. Big waste of time.
 
 I also saw plenty of custom logic that traced external execution time. In our application
 you can see such a pattern:
@@ -503,9 +503,9 @@ private <T> T invokeWithLogTime(Supplier<T> toInvoke) {
 }
 ```
 
-The logs don't trace the time using an external service, the time also includes all the magic done by
-Spring, including waiting for a connection from the pool. You can easily see that for the second request
-the logs look like:
+The logs don't trace the time using an external service; the time also includes all the magic done by
+Spring, including waiting for a connection from the pool. You can easily see that for the second request,
+the logs look like this:
 
 ```
 External WS invoked in: 937ms
@@ -524,19 +524,19 @@ But the second service that is invoked is:
 ### Wall-clock - filtering
 {: #wall-filter}
 
-If you open the wall-clock flame graph for the first time you may be confused, since
+If you open the wall-clock flame graph for the first time, you may be confused, since
 it usually looks like this:
 
 ![alt text](/assets/async-demos/wall-filter.png "flames")
 
-You see all the threads even if they are sleeping or waiting in some queue for a job.
+You see all the threads, even if they are sleeping or waiting in some queue for a job.
 Wall-clock shows you all of them.  Most of the time, you want to focus on the frames where
 your application is doing something, not when it is waiting. 
 All you need to do is to filter the stack traces. If you are using Spring Boot 
-with the embedded Tomcat you can filter
+with the embedded Tomcat, you can filter
 stack traces that contain the ```SocketProcessorBase.run``` method. 
-In my viewer you can just paste it to _stack trace filter_, and you are done. 
-It's just a matter of proper filtering if you want to focus on one controller, class, method, etc .
+In my viewer, you can just paste it to _stack trace filter_, and you are done. 
+It's just a matter of proper filtering if you want to focus on one controller, class, method, etc.
 
 ### CPU - easy-peasy
 {: #cpu-easy }
@@ -595,7 +595,7 @@ public void inverse(UUID uuid) {
 ```
 
 We are just executing ```existsById()``` on the Spring Data JPA repository. The answer 
-why that method is slow is in the beginning of the method:
+why that method is slow is at the beginning of the method:
 
 ```java
 sampleEntityRepository.findById(uuid)
@@ -617,11 +617,10 @@ public class SampleEntity {
 }
 ```
 
-This means that when we get one ```SampleEntity``` by id, we are
-also extracting the ```subEntities``` from the database, because of ```fetch = FetchType.EAGER```.
+This means that when we get one ```SampleEntity``` by id, we also extract the ```subEntities``` from the database because of ```fetch = FetchType.EAGER```.
 This is not a problem yet. All JPA entities are loaded into the Hibernate session.
 That mechanism is pretty cool because it gives you the _dirty checking_ functionality.
-The downside however is that the _dirty_ entities need to be flushed by Hibernate 
+The downside, however, is that the _dirty_ entities need to be flushed by Hibernate 
 to DB. You have different flush strategies in Hibernate. The default one is ```AUTO```:
 you can read about them in the
 [Javadocs](https://javadoc.io/doc/org.hibernate/hibernate-core/5.6.14.Final/org/hibernate/FlushMode.html){:target="_blank"}.
@@ -720,7 +719,7 @@ That request is **18 times faster** than the ```matrix-slow``` request, but if w
 
 ![alt text](/assets/async-demos/cpu-hard-fast.png "flames")
 
-we see that the whole CPU is wasted in the method ```matrixMultiplyFaster```:
+We see that the whole CPU is wasted in the method ```matrixMultiplyFaster```:
 
 ```java
 public static int[][] matrixMultiplyFaster(int[][] a, int[][] b, int size) {
@@ -737,9 +736,9 @@ public static int[][] matrixMultiplyFaster(int[][] a, int[][] b, int size) {
 }
 ```
 Both methods ```matrixMultiplySlow``` and ```matrixMultiplyFaster``` have the same complexity O(n^3). So
-why is one faster than the other? Well, if you want to understand exactly how a CPU intensive algorithm works, 
+why is one faster than the other? Well, if you want to understand exactly how a CPU-intensive algorithm works, 
 you need to understand how the CPU works, which is far away from the topic of this post. Be aware that if
-you want to optimize such algorithms you will probably need at least one of the following:
+you want to optimize such algorithms; you will probably need at least one of the following:
 
 
 - Knowledge of CPU architecture
@@ -747,22 +746,22 @@ you want to optimize such algorithms you will probably need at least one of the 
 - Looking at the ASM of generated methods  
 
 Many Java programmers forget that all the execution is done on the CPU. Java needs to use tak ASM to run on the CPU. That's
-basically what the JIT compiler does: It converts your hot methods and loops into optimized ASM. At the assembly level
+basically what the JIT compiler does: It converts your hot methods and loops into optimized ASM. At the assembly level,
 you can check, for example, if the JIT used vectorized instruction for your loops. So yes, sometimes you need to get dirty 
-with such low level stuff. For now async-profiler gives you a hint on which methods you should focus.
+with such low-level stuff. For now, async-profiler gives you a hint on which methods to focus.
 
-We will go back to this example in the [Cache misses](#perf-cache) section.
+We will return to this example in the [Cache misses](#perf-cache) section.
 
 ### Allocation
 {: #alloc }
 
 The most common use cases where the allocations are tracked are:
 
-- decreasing of GC runs frequency
-- finding allocations outside the TLAB which are done in the slow path
+- decreasing GC run frequency
+- finding allocations outside the TLAB, which are done in the slow path
 - fighting with single/tens of milliseconds latency, where even the creation of heap objects matters
 
-First, let's understand how new objects on a heap are created, so we have a better
+First, let's understand how new objects on a heap are created so we have a better
 understanding of what the async-profiler shows us.
 
 A portion of our Java heap is called an **eden**. This is a place where new objects are
@@ -778,21 +777,20 @@ the next free address and bump the pointer by ```sizeof(Object)```:
 ![alt text](/assets/async-demos/alloc-2.png "alloc")
 
 But there is one major problem with that technique: We have to synchronize the object allocation if we have more than one thread that can 
-create new objects in parallel, but this is quite costly. We solve this by giving each thread a portion of eden which is dedicated to only that thread. This portion 
-is called **TLAB** - thread local allocation buffer. With this, each thread can use **bumping pointer** at its own TLAB safely and in parallel.
+create new objects in parallel, but this is quite costly. We solve this by giving each thread a portion of eden dedicated to only that thread. This portion 
+is called **TLAB** - thread-local allocation buffer. With this, each thread can use **bumping pointer** at its TLAB safely and in parallel.
 
 Introducing TLABs creates two more issues that the JVM needs to deal with:
 
 - a thread can allocate an object, but there is not enough space in its TLAB - the JVM creates a new TLAB if there is still space in eden
 - a thread can allocate a big object, so it's not optimal to use the TLAB mechanism - the JVM will use the _slow path_ of the allocation that allocates the object directly in eden
 
-What is important to us, is that in both these cases the JVM emits an event which can be captured
-by a profiler. That's basically how async-profiler samples allocations:
+What is important to us is that in both these cases, the JVM emits an event that a profiler can capture. That's basically how async-profiler samples allocations:
 
 - if the allocation of an object needed a new TLAB - we see an aqua frame for that
 - if the allocation was done outside the TLAB - we see a brown frame
 
-In real world systems the frequency of GC can be monitored by systems like Grafana or Zabbix.
+In real-world systems, the frequency of GC can be monitored by systems like Grafana or Zabbix.
 Here we have a synthetic application, so let's measure the allocation size differently:
 
 ```shell
@@ -825,7 +823,7 @@ Let's look at the output of the ```GC.heap_info``` command:
   class space    used 9868K, committed 10176K, reserved 1048576K
 ```
 
-We executed ```alloc``` requests ten times and our heap usage has increased from **41926K** to **110018K**.
+We executed ```alloc``` requests ten times, and our heap usage has increased from **41926K** to **110018K**.
 So we are creating over **6MB** of objects per request on the heap. If we look at the controller source code
 it's hard to justify that:
 
@@ -846,7 +844,7 @@ Let's look at the allocation flame graph: ([HTML](/assets/async-demos/alloc.html
 ![alt text](/assets/async-demos/alloc.png "flames")
 
 The class ```AbstractRequestLoggingFilter``` is responsible for over **99%** of recorder allocations. 
-You can find it's main creation sites using the techniques from the [Methods profiling](#methods) section, feel free to skip it for now.
+You can find its main creation sites using the techniques from the [Methods profiling](#methods) section; feel free to skip it for now.
 Here is the answer:
 
 ```java
@@ -868,32 +866,31 @@ CommonsRequestLoggingFilter requestLoggingFilter() {
 }
 ```
 
-I saw such code many times, this ```CommonsRequestLoggingFilter``` is a class that helps you log
-the REST endpoint communication. The ```setMaxPayloadLength()``` method sets maximum number of bytes of the payload which are logged. 
-You can browse over Spring source code to see that the implementation creates byte arrays of
+I have seen such code many times; this ```CommonsRequestLoggingFilter```class helps you log
+the REST endpoint communication. The ```setMaxPayloadLength()``` method sets the maximum number of bytes of the payload which are logged. 
+You can browse over the Spring source code to see that the implementation creates byte arrays of
 such size in the constructor. No matter how big the payload is, we always create a **5MB** array here.
 
-The advice that I gave to users of that code was to create their own filter that will do the same job
+The advice that I gave to users of that code was to create their own filter that would do the same job
 but allocate the array lazily.
 
 ### Allocation - humongous objects 
 {: #alloc-ha }
 
-If you are using G1 garbage collector, which is JVM's default since JDK 9, your heap is divided into
+If you use the G1 garbage collector, JVM's default since JDK 9, your heap is divided into
 regions. The region sizes vary from **1 MB** to **32 MB** depending on the heap size. The goal is to have no more than **2048** regions.
-You can check the region size for different heap sizes with:
+You can check the region size for different heap sizes with the following:
 
 ```shell
 java -Xms1G -Xmx1G -Xlog:gc,exit*=debug -version
 ```
 
-In the output there is a line containing the ```region size 1024K``` information.
+The output contains a line containing the ```region size 1024K``` information.
 
-If you are trying to allocate an object which is larger or equal to half of the region size then
-you are doing a humongous allocation. Long story short: It has been, and it is a pain in the ass. 
-It is allocated directly in the old generation, but it is also cleared during minor GCs. I saw situations
-where G1 GC needed to invoke a FullGC phase because of the humongous allocation. If you are doing a 
-lot of this, G1 will also invoke more concurrent collections, which can waste your CPU.
+If you are trying to allocate an object larger or equal to half of the region size, 
+you are doing a humongous allocation. Long story short: It has been, and it is, painful. 
+It is allocated directly in the old generation but is cleared during minor GCs. I saw situations
+where G1 GC needed to invoke a FullGC phase because of the humongous allocation. If you do much of this, G1 will also invoke more concurrent collections, which can waste your CPU.
 
 While running the previous example, you could spot in ```first-application-0.0.1-SNAPSHOT.jar``` logs:
 
@@ -906,7 +903,7 @@ While running the previous example, you could spot in ```first-application-0.0.1
 ...
 ```
 
-Those are GC logs that tell us that some humongous object of size ```5242896``` was reclaimed. The nice thing
+These GC logs tell us that some humongous object of size ```5242896``` was reclaimed. The nice thing
 about JFR files is that they also keep the size of sampled allocations. Using this, we should be able to find out
 the stack trace that has created that object.
 
@@ -922,7 +919,7 @@ $ jfr summary alloc.jfr
 ...
 ```
 
-Let's focus on allocations outside the TLAB, it is unlikely to allocate humongous objects in the TLAB. 
+Let's focus on allocations outside the TLAB; it is unlikely to allocate humongous objects in the TLAB. 
 
 ```shell
 $ jfr print --events jdk.ObjectAllocationOutsideTLAB --stack-depth 10 alloc.jfr
@@ -949,8 +946,7 @@ jdk.ObjectAllocationOutsideTLAB {
 ...
 ```
 
-We can easily match ```allocationSize = 5242896``` with the object size from the GC logs, so using that 
-technique we can find and eliminate humongous allocations. Actually, you can filter the allocation
+We can easily match ``allocationSize = 5242896``` with the object size from the GC logs, so we can find and eliminate humongous allocations using that technique. You can filter the allocation
 JFR file for objects with a size larger or equal to half of our G1 region size. All of 
 these allocations are humongous allocations.
 
@@ -961,11 +957,11 @@ Now on to memory leaks, which form the reason for tracking live object allocatio
 
 > A memory leak occurs when a _Garbage Collector_ cannot collect Objects that are no longer needed by the Java application.
 
-Memory leaks are one of the most common problems related to Java heaps, the other are
+Memory leaks are one of the most common problems related to Java heaps; the other is
 
-* **not enough space on a heap** - sometimes a Java application may work fine with the heap it has, but there is the possibility to run a part of the application
+* **not enough space on a heap** - sometimes, a Java application may work fine with the heap it has, but there is the possibility to run a part of the application
   that needs more heap than specified via **-Xmx**
-* **gray area between** - these are cases when we allocate memory indefinitely, but our application needs these objects
+* **a gray area between** - these are cases when we allocate memory indefinitely, but our application needs these objects
 
 How can we detect memory leaks? The GC emits the following kind of entry at the end of each _GC cycle_ into the GC logs at _info_ level:
 
@@ -976,7 +972,7 @@ GC(11536) Pause Young (Normal) (G1 Evacuation Pause) 6746M->2016M(8192M) 40.514m
 You can find **three** sizes in such an entry **A->B(C)** that are:
 * **A** - used size of a heap before _GC cycle_
 * **B** - used size of a heap after _GC cycle_
-* **C** - current size of a whole heap
+* **C** - the current size of a whole heap
 
 If we take the **B** value from each collection and put it on a chart, we can generate the 
 _Heap after GC_ chart. We can use such a chart to then detect if we have a memory leak:
@@ -991,7 +987,7 @@ the same level every day. The chart with a memory leak looks like the following 
 
 ![alt text](/assets/monday-2/2.jpg "2")
 
-These spikes to the roof are _too-space exhausted_ situations in the **G1** algorithm, those are not _OutOfMemoryErrors_. After each of those spikes, there was a
+These spikes to the roof are _too-space exhausted_ situations in the **G1** algorithm; those are not _OutOfMemoryErrors_. After each of those spikes, there was a
 **Full GC** phase that is a **failover** in that algorithm.
 
 
@@ -1003,30 +999,30 @@ This one spike is an _OutOfMemoryError_. One service was run with arguments that
 Unfortunately **-Xmx** was set to
 **4GB**. **It is not a memory leak**.
 
-We have to be careful if our application is completely stateless, and we use GC with **young/old generations** (like G1, parallel, serial and CMS).
-We need to remember that objects from a **memory leak** live in the **old generation**. 
+We must be careful if our application is entirely stateless and we use GC with **young/old generations** (like G1, parallel, serial, and CMS).
+We must remember that objects from a **memory leak** live in the **old generation**. 
 In stateless applications, that part of the heap can be cleared even once a
 week. Here is an example recording **3 days** of the stateless application:
 
 ![alt text](/assets/monday-2/5.jpg "5")
 
-It looks like a memory leak, the ```min(heap after gc)``` increasing every day, but if we look at the same chart with one additional day:
+It looks like a memory leak, the ```min(heap after GC)``` increasing every day, but if we look at the same chart with one additional day:
 
 ![alt text](/assets/monday-2/6.jpg "6")
 
-The GC cleared the heap to the previous level. This was done by an **old generation** cleanup that didn't happen in previous days.
+The GC cleared the heap to the previous level. This was done by an **old-generation** cleanup that didn't happen in the previous days.
 
 The _Heap after GC_ chart can be generated by probing through JMX. The JVM gives that information via mBeans:
 
 * ```java.lang:type=GarbageCollector,name=G1 Young Generation```
 * ```java.lang:type=GarbageCollector,name=G1 Old Generation```
 
-Both mBeans provide you attributes with the name ```LastGcInfo``` from where we can extract the needed information. 
+Both mBeans provide attributes with the name ```LastGcInfo``` from which we can extract the needed information. 
 
-Most memory leaks that I discovered in recent years in enterprise applications were either in
+Most memory leaks I discovered in recent years in enterprise applications were either in
 frameworks/libraries or in some kind of bridge between them. Recreating such an issue in our example
 application would require introducing a lot of strange dependencies, so I chose to
-recreate one custom-made heap memory leak that I discovered a few years ago.
+recreate one custom-made heap memory leak I discovered a few years ago.
 
 ```shell
 # preparation
@@ -1056,13 +1052,13 @@ Let's look at the output of the ```GC.heap_info``` commands that were invoked so
   class space    used 10063K, committed 10368K, reserved 1048576K
 ```
 
-So invoking our ```do-leak``` request created **~183MB** of objects that couldn't be freed by GC.
+So invoking our ```do-leak``` request created **~183MB** of objects that GC couldn’t free.
 
 Let's look at the allocation flame graph with the ```--live``` option enabled: ([HTML](/assets/async-demos/live.html){:target="_blank"})
 
 ![alt text](/assets/async-demos/live.png "flames")
 
-The largest part of the leak is created in the ```JdbcQueryProfiler``` class, let's look at the sources:
+The largest part of the leak is created in the ```JdbcQueryProfiler``` class; let’s look at the sources:
 
 ```java
 class JdbcQueryProfiler {
@@ -1080,9 +1076,8 @@ class JdbcQueryProfiler {
 }
 ```
 
-So that class simply calculates the query execution time for each query and remembers it in
-some ```ProfilingData``` structure that is placed in ```ConcurrentHashMap```. That doesn't look scary,
-as long as we are using parametrized queries that are under our control, the map should have a finite size.
+So that class calculates the execution time for each query and remembers it in
+some ```ProfilingData``` structure that is placed in ```ConcurrentHashMap```. That doesn't look scary; as long as we use parametrized queries under our control, the map should have a finite size.
 Let's look at the usage of the ```runWithProfiler()``` method:
 
 ```java
@@ -1099,10 +1094,10 @@ String getValueForKey(int key) {
 }
 ```
 
-So, well so good, we are not using parameterized queries, we create new query strings for every ```key```. This way
+So, well, so good; we are not using parameterized queries; we create new query strings for every ```key```. This way
 mentioned ```ConcurrentHashMap``` is growing with every new ```key``` passed to the ```getValueForKey``` method.
 
-If you have a heap memory leak in your application then you have two groups of objects:
+If you have a heap memory leak in your application, then you have two groups of objects:
 
 ![alt text](/assets/async-live/leak-1.png "leak")
 
@@ -1110,7 +1105,7 @@ If you have a heap memory leak in your application then you have two groups of o
 * **Memory leak** - a group of objects that are no longer needed
 
 Garbage collectors cannot free the second group if there is at least one strong reference from the **live set** to the **memory
-leak**. The biggest problems with diagnosising memory leaks are:
+leak**. The biggest problems with diagnosing memory leaks are:
 
 * the fact that the object was created **is not an issue** - it was created because it was needed for something
 * the fact that the mentioned reference was created **is not an issue** - it had some purpose too
@@ -1120,10 +1115,10 @@ The last one is not trivial. All the observability/profiling tools give us a gre
 some event has happened, but with memory leaks, we need to understand why something has not yet happened.
 Two additional tools come to our rescue:
 
-* **heap dump** - shows us the current state of a heap - we can find out what kind of objects are there, but shouldn't be
+* **heap dump** - shows us the current state of a heap - we can find out what kind of objects are there but shouldn't be
 * **profiler** - shows us where these objects were created
 
-In this simple example any of those tools is enough. In more complicated ones I needed both to find the root cause
+In this simple example, any of those tools is enough. In more complicated ones, I needed both to find the root cause
 of the problem. It is nice to finally have a tool that can profile memory leaks on production systems.
 
 It is worth mentioning that the ```--live``` option is available only since **async-profiler 2.9**, it needs 
@@ -1185,7 +1180,7 @@ I highlighted the ```LockController``` occurrence. Let's zoom it:
 
 We see that only the ```withLock()``` method acquires locks. You can study the internals of the ```computeIfAbsent()``` method
 to see that it might lock on hash collisions. 
-The easiest way to confirm this, is by creating a small program that triggers hash collissions on purpose.
+The easiest way to confirm this is by creating a small program that triggers hash collisions on purpose.
 
 ```java
 public static void main(String[] args) {
@@ -1195,10 +1190,10 @@ public static void main(String[] args) {
 
     map.computeIfAbsent(a, s -> a);
 
-    // it enters synchronized section here
+    // it enters the synchronized section here
     map.computeIfAbsent(b, s -> b);
 
-    // it enters synchronized section here, and all the following
+    // it enters the synchronized section here, and all the following
     // execution of computeIfAbsent with "BBBB" as a key.
     map.computeIfAbsent(b, s -> b);
     map.computeIfAbsent(b, s -> b);
@@ -1207,35 +1202,35 @@ public static void main(String[] args) {
 }
 ```
 
-If you observe a huge lock contention in this method, and most of the 
-time a key is already in the map, then you may consider the approach used in the ```withoutLock()``` method.
+If you observe a considerable lock contention in this method, and most of the 
+time a key is already in the map; then you may consider the approach used in the ```withoutLock()``` method.
 
 ## Time to safepoint
 {: #tts }
 
 The common misconception in the Java world is that _garbage collectors_ need a Stop-the-world (STW) phase to clean dead objects:
-But **not only GC needs it**. There are other internal mechanisms that require application threads to be paused.
-For example, the JVM needs a STW phase to _deoptimize_ some compilations and to revoke _biased locks_. Let's get a closer look at how the
+But **not only GC needs it**. Other internal mechanisms require application threads to be paused.
+For example, the JVM needs an STW phase to _deoptimize_ some compilations and to revoke _biased locks_. Let's get a closer look at how the
 STW phase works.
 
 On our JVM, there are running some application threads:
 
 ![alt text](/assets/stw/1.png "chart 1")
 
-While running those threads from time to time JVM needs to do some work in the STW phase. So it starts it with a
+While running those threads from time to time, JVM needs to do some work in the STW phase. So it starts this phase, with a
 _global safepoint request_, which informs every thread to go to "sleep":
 
 ![alt text](/assets/stw/2.png "chart 2")
 
 Every thread has to find out about this.
 Stopping at a safepoint is cooperative: Each thread checks at certain points in the code if it needs to suspend.
-The time in which threads are going to be aware of a STW phase is different for every thread. 
-Every thread has to wait for the slowest one. The time between starting a STW phase, and the slowest thread suspend, is called
+The time in which threads will be aware of an STW phase is different for every thread. 
+Every thread has to wait for the slowest one. The time between starting an STW phase, and the slowest thread suspension, is called
 _time to safepoint_:
 
 ![alt text](/assets/stw/3.png "chart 3")
 
-JVM threads can do the work that needs the STW phase only after every thread is asleep. The time when all application threads sleep sleep, 
+JVM threads can do the work that needs the STW phase only after every thread is asleep. The time when all application threads sleep, 
 is called _safepoint operation time_:
 
 ![alt text](/assets/stw/4.png "chart 4")
@@ -1244,9 +1239,8 @@ When the JVM finishes its work, application threads are wakened up:
 
 ![alt text](/assets/stw/5.png "chart 5")
 
-If the application suffers from long STW phases, then most of the time those are GC cycles, and that information can be found
-in the GC logs or JFR. But if the application has one thread that slows down every other from reaching the safepoint then 
-the situation is more tricky.
+If the application suffers from long STW phases, then most of the time, those are GC cycles, and that information can be found
+in the GC logs or JFR. But the situation is more tricky if the application has one thread that slows down every other from reaching the safepoint.
 
 
 ```shell
@@ -1260,7 +1254,7 @@ ab -n 100 -c 1 http://localhost:8081/examples/tts/execute
 ./profiler.sh stop -f tts.jfr first-application-0.0.1-SNAPSHOT.jar
 ```
 
-In safepoint logs (you need to run your JVM with ```-Xlog:safepoint``` flag) we can see:
+In safepoint logs (you need to run your JVM with the ```-Xlog:safepoint``` flag), we can see:
 ```shell
 [105,372s][info ][safepoint   ] Safepoint "ThreadDump", Time since last: 156842 ns, Reaching safepoint: 13381 ns, At safepoint: 120662 ns, Total: 134043 ns
 [105,372s][info ][safepoint   ] Safepoint "ThreadDump", Time since last: 157113 ns, Reaching safepoint: 14738 ns, At safepoint: 120252 ns, Total: 134990 ns
@@ -1268,41 +1262,41 @@ In safepoint logs (you need to run your JVM with ```-Xlog:safepoint``` flag) we 
 [105,402s][info ][safepoint   ] Safepoint "ThreadDump", Time since last: 159020 ns, Reaching safepoint: 29524545 ns, At safepoint: 160702 ns, Total: 29685247 ns
 ```
 
-_Reaching safepoint_ contains the time to safepoint. Most of the time it is **<15 ms** but we also see one outlier:
+_Reaching safepoint_ contains the time to safepoint. Most of the time, it is **<15 ms**, but we also see one outlier:
 **29 ms**. Async-profiler in ```--ttsp``` mode collects samples between:
 
 - ```SafepointSynchronize::begin```, and
 - ```RuntimeService::record_safepoint_synchronized```
 
-During that time our application threads are trying to reach a safepoint:
+During that time, our application threads are trying to reach a safepoint:
 ([HTML](/assets/async-demos/tts.html){:target="_blank"})
 
 ![alt text](/assets/async-demos/tts.png "flames")
 
 We can see that most of the gathered samples are executing ```arraycopy```, invoked from ```TtsController```.
-The time to safepoint issues that I approach so far are:
+The time to safepoint issues that I have approached so far are:
 
 - **arraycopy** - as in our example
 - **old JDK + loops** - since JDK 11u4 we have an _loop strip mining_ optimization working correctly (after fixing
   [JDK-8220374](https://bugs.java.com/bugdatabase/view_bug.do?bug_id=JDK-8220374){:target="_blank"}), before that if you had
   a counted loop, it could be compiled without any check for safepoint
 - **swap** - when your application thread executes some work in _thread_in_vm_ state (after calling some native method),  
-  and during that execution it waits for some pages to be swapped in/out, that can slow down reaching the safepoint
+  and during that execution, it waits for some pages to be swapped in/out, which can slow down reaching the safepoint
 
-For the **arraycopy** issue the solution is to copy larger arrays by some custom method, that might use **arraycopy** for smaller sub arrays. 
-It will be a bit slower, but will not slow down the whole application when reaching a safepoint is required.
+The solution for the **arraycopy** issue is to copy larger arrays by some custom method, which might use **arraycopy** for smaller sub-arrays. 
+It will be a bit slower, but it will not slow down the whole application when reaching a safepoint is required.
 
-For the **swap** issue, just disable swap.
+For the **swap** issue, just disable the swap.
 
 ## Methods 
 {: #methods }
 
-Async-profiler can instrument a method, so we can see all the stack traces with this method on the top.
+Async-profiler can instrument a method so that we can see all the stack traces with this method on the top.
 To achieve that, async-profiler uses instrumentation.
 
 **Big warning**: It's already pointed out in the README of the profiler that if you are not running
 the profiler from ```agentpath```, then the first instrumentation of a Java method can result in a code
-cache flush. It’s not the fault of the async-profiler, it’s the nature of all instrumentation-based profilers 
+cache flush. It’s not the fault of the async-profiler; it’s the nature of all instrumentation-based profilers 
 combined with JVM’s code. Here is a comment from the [JVM sources](https://github.com/openjdk/jdk/blob/master/src/hotspot/share/prims/jvmtiRedefineClasses.cpp#L4078){:target="_blank"}:
 
 // Deoptimize all compiled code that depends on the classes redefined.
@@ -1323,9 +1317,9 @@ combined with JVM’s code. Here is a comment from the [JVM sources](https://git
 You can check the [README PR](https://github.com/jvm-profiling-tools/async-profiler/pull/483#discussion_r735019623){:target="_blank"}
 discussion for more information on this topic. But let's focus on the usage of the mode for our purposes.
 In this case, we could easily do it with a plain IDE debugger, but there are situations where something
-is happening only in one environment, or we are tracing some issues that we do not know how to reproduce.
+is happening only in one environment, or we are tracing some issues we do not know how to reproduce.
 
-Since Spring beans are usually created during applications startup let's run our application that way:
+Since Spring beans are usually created during applications startup, let's run our application that way:
 
 ```shell
 java \
@@ -1334,7 +1328,7 @@ java \
 ```
 
 The ```AbstractRequestLoggingFilter.<init>``` is simply a constructor. We are trying to find out
-where such an object is created. After our application is started we can execute such a command
+where such an object is created. After our application is started, we can execute such a command
 in the profiler directory:
 
 ```shell
@@ -1372,8 +1366,8 @@ We have all the information that we need. The object is created in ```AllocConfi
 creation of ```CommonsRequestLoggingFilter``` bean.
 
 One of the other use cases where I used to use method profiling was finding memory leaks. 
-I knew which types are leaking from the heap dump and with method profiling, I could find where objects 
-of these types were created. Consider this to be a fall-back when the [dedicated mode](#alloc-live) does
+I knew which types were leaking from the heap dump, and with method profiling, I could see where objects 
+of these types were created. Consider this a fallback when the [dedicated mode](#alloc-live) does
 not work.
 
 ## Native functions
@@ -1382,17 +1376,16 @@ not work.
 Not only can you trace Java code with the async-profiler but also a native one. That way of profiling doesn't cause
 deoptimizations.
 
-Some native functions are worth a better look, let's cover them quickly.
+Some native functions are worth a better look; let’s cover them quickly.
 
 ### Exceptions
 {: #methods-ex }
 
-If your application works without any outage/downtime, and everything is stable, how many
-exceptions should be thrown? Exceptions should be thrown if something unexpected happened.
+How many exceptions should be thrown if your application works without any outage/downtime and everything is stable? Exceptions should be thrown if something unexpected happens.
 Unfortunately, I saw an application that used the exception-control-flow approach
 more common in languages like Python. Creating a new
-exception is a CPU-intensive operation since by default it fills the stack trace. 
-I saw once an application that consumed **~15%** of its CPU time on just
+exception is a CPU-intensive operation since, by default, it fills the stack trace. 
+I once saw an application that consumed **~15%** of its CPU time on just
 creating new exceptions. You can use async-profiler in method mode with 
 event ```Java_java_lang_Throwable_fillInStackTrace``` if you want to see where exceptions are created.
 
@@ -1405,14 +1398,14 @@ java \
 -jar first-application/target/first-application-0.0.1-SNAPSHOT.jar
 ```
 
-After the startup let's run:
+After the startup, let's run:
 
 ```shell
 ab -n 100 -c 1 http://localhost:8081/examples/exc/
 ./profiler.sh stop -f exceptions.jfr first-application-0.0.1-SNAPSHOT.jar
 ```
 
-The flame graph is too large to post it here as an image, sorry. Spring Boot in that case
+The flame graph is too large to post it here as an image, sorry. Spring Boot, in that case,
 threw **12478** exceptions. You can play with [HTML](/assets/async-demos/exceptions.html){:target="_blank"}.
 Let's focus on our synthetic controller:
 
@@ -1460,7 +1453,7 @@ protected Exception(String message, Throwable cause,
 }
 ```
 
-Just set ```writableStackTrace``` to ```false```. It will be rather ugly, but faster.
+Just set ```writableStackTrace``` to ```false```. It will be rather ugly but faster.
 
 ### G1GC humongous allocation
 {: #methods-g1ha }
@@ -1468,9 +1461,9 @@ Just set ```writableStackTrace``` to ```false```. It will be rather ugly, but fa
 We already saw how to detect humongous objects with allocation mode. Since
 async-profiler can also instrument JVM code, and allocations of a humongous objects are 
 nothing else than invocations of C++ code, we can take advantage of that.
-If you want to check where humongous objects are allocated you can use method mode
+If you want to check where humongous objects are allocated, you can use method mode
 with event ```G1CollectedHeap::humongous_obj_allocate```. This approach may have lower
-overhead, but won't give you sizes of allocated objects.
+overhead but won't give you sizes of allocated objects.
 
 ```shell
 # little warmup
@@ -1482,7 +1475,7 @@ ab -n 1000 -c 1 http://localhost:8081/examples/alloc/
 ./profiler.sh stop -f humongous.jfr first-application-0.0.1-SNAPSHOT.jar
 ```
 
-The flame graph is almost the same as in ```alloc``` mode, we can see some JVM yellow frames this time too:
+The flame graph is almost the same as in ```alloc``` mode; we can see some JVM yellow frames this time too:
 ([HTML](/assets/async-demos/humongous.html){:target="_blank"})
 
 ![alt text](/assets/async-demos/humongous.png "flames")
@@ -1491,7 +1484,7 @@ The flame graph is almost the same as in ```alloc``` mode, we can see some JVM y
 {: #methods-thread }
 
 Starting a platform thread is an expensive operation too. The number of started 
-threads can be easily monitored with any JMX based monitoring tool like JMC. Here is the MBean
+threads can be easily monitored with any JMX-based monitoring tool like JMC. Here is the MBean
 with the value of all the created threads: 
 
 ```shell
@@ -1503,7 +1496,7 @@ If you monitor that value and the chart like that:
 
 ![alt text](/assets/async-demos/threads-2.png "threads")
 
-Then you might want to check who is creating those short living threads:
+Then you might want to check who is creating those short-living threads:
 We use async-profiler with the ```JVM_StartThread``` event in method mode for this purpose:
 
 ```shell
@@ -1522,7 +1515,7 @@ The flame graph:
 ![alt text](/assets/async-demos/threads-1.png "flames")
 
 This flame graph is not really complicated. But it is only a small example.
-In real life such flame graphs are larger. 
+In real life, such flame graphs are larger. 
 
 The code responsible for the thread creation observed in the flame graph is the following:
 
@@ -1538,15 +1531,15 @@ String doInNewThread() {
 ```
 
 And yes, I saw such a pattern in a real production application. The intention was to have a
-fixed thread pool and delegate tasks to it, but by mistake someone created that pool for
+fixed thread pool and delegate tasks to it, but by mistake, someone created that pool for
 every request.
 
 ### Class loading
 {: #methods-classes }
 
 Similar to creating short-living threads, I saw an application that created plenty of
-short-living class definitions. I know that there are some use cases for such a behavior,
-but it has been an accident in this case. You can monitor the number of loaded classes
+short-living class definitions. I know there are some use cases for such behavior,
+But it has been an accident in this case. You can monitor the number of loaded classes
 with JMX:
 
 ```shell
@@ -1555,12 +1548,12 @@ attribute=TotalLoadedClassCount
 ```
 
 There are some internals of the JVM, like reflection or debugging, which are used in a variety of frameworks, that can generate
-new class definitions during runtime: So increasing of that number (even after warmup) 
+new class definitions during runtime: So increasing that number (even after warmup) 
 doesn't mean that we have a problem already. But if ```TotalLoadedClassCount``` is much higher 
-than ```LoadedClassCount``` then we might have a problem. You can find the creator of those classes with method mode and 
+than ```LoadedClassCount```, then we might have a problem. You can find the creator of those classes with method mode and 
 the event: ```Java_java_lang_ClassLoader_defineClass1```.
 
-To be honest, I saw such an issue only once in my life and I cannot reproduce it now. Making a
+To be honest, I saw such an issue only once and cannot reproduce it now. Making a
 synthetic example for this use-case seems wrong, so I will just keep you with the knowledge
 that there is such a possibility, especially if you purposefully create classes dynamically.
 
@@ -1581,9 +1574,9 @@ I want to describe the three in more detail in the following.
 ### Cache misses
 {: #perf-cache }
 
-Let's go back to the example with matrix multiplication from the [CPU - a bit harder](#cpu-hard) section.
-I usually start with looking at basic CPU performance counters to see what our CPU is doing in the slow and the fast multiplication.
-This is the text book example for cache misses and their importance for performance.
+Let's return to the example with matrix multiplication from the [CPU - a bit harder](#cpu-hard) section.
+I usually start by looking at basic CPU performance counters to see what our CPU is doing in the slow and the fast multiplication.
+This is the textbook example of cache misses and their importance for performance.
 I like to start with the JMH test to profile the specific code properly. 
 
 I've prepared such a benchmark in the ```jmh-suite``` module. Let's run it with the perf profiler:
@@ -1612,7 +1605,7 @@ The slow one:
         10 043 405      LLC-load-misses                  #    0,15% of all LL-cache accesses  (30,79%)
 ```
 
-The slower algorithm has **three times** more L1 data cache misses and over **four times** more last level
+The slower algorithm has **three times** more L1 data cache misses and over **four times** more last-level
 cache loads. We can now use async-profiler in three different modes:
 
 ```shell
@@ -1621,7 +1614,7 @@ java -jar jmh-suite/target/benchmarks.jar -prof async:libPath==/path/to/libasync
 java -jar jmh-suite/target/benchmarks.jar -prof async:libPath==/path/to/libasyncProfiler.so\;event=LLC-load-misses\;output=jfr
 ```
 
-All three flame graphs are very similar, let's take a look at ```cache-misses```: ([HTML](/assets/async-demos/cache-misses.html){:target="_blank"})
+All three flame graphs are very similar; let’s take a look at ```cache-misses```: ([HTML](/assets/async-demos/cache-misses.html){:target="_blank"})
 ![alt text](/assets/async-demos/cache-misses.png "flames")
 
 I added the line numbers this time, so we could see exactly where the problem was. **~82%** of cache misses
@@ -1632,7 +1625,7 @@ sum += a[i][k] * b[k][j];
 ```
 
 This line is nested inside three loops. The order of loops is ```i, j, k```. If we unroll the last loop four times
-we would get:
+we would get the following:
 
 ```java
 sum += a[i][k + 0] * b[k + 0][j];
@@ -1643,22 +1636,21 @@ sum += a[i][k + 3] * b[k + 3][j];
 
 Let's look at this code from a memory layout perspective. The array ```a[i]``` is a contiguous part of memory. That's how Java
 allocates arrays. Elements ```a[i][k + 0]``` ... ```a[i][k + 3]``` are very close to each other and are loaded 
-sequentially. The CPU loads small blocks of memory from RAM into the cache, if the block is not already present there.
-Accessing data is a sequential pattern is therefore far less expensive.
+sequentially. The CPU loads small blocks of memory from RAM into the cache if the block is not already there.
+Accessing data in a sequential pattern is, therefore, far less expensive.
 
-The access pattern to table  ```b``` is completely different. THe ```b[k + x]``` is just a pointer to a table. It is 
+The access pattern to table  ```b``` is completely different. The ```b[k + x]``` is just a pointer to a table. It is 
 somewhere on the heap, but where exactly? Well, we cannot control that. Element ```b[k + 0][j]``` may be in a completely
-different place than ```b[k + 1][j]```. That's unfortunate for the CPU. This is the reason why the speed difference between 
+different place than ```b[k + 1][j]```. That's unfortunate for the CPU. This is why the speed difference between 
 both matrix multiplications is not as large as expected.
 
-The memory access patterns are the key here. The ```matrixMultiplyFaster``` algorithm accesses the table ```a``` mostly in a sequential manner, that's why it's faster.
+Memory access patterns are the key here. The ```matrixMultiplyFaster``` algorithm accesses the table ```a``` mostly sequentially, which is why it's faster.
 
-I don't want to go into details about what is happening in the CPU with these algorithms. The goal of this post
-is to teach the usage of async-profiler, not CPU architecture and algorithm engineering. If you want to go deeper with that knowledge a very
+I don't want to go into detail about what is happening in the CPU with these algorithms. This post aims to teach the usage of async-profiler, not CPU architecture and algorithm engineering. If you want to go deeper with that knowledge, a very
 good book for a start is 
 [Denis Bakhvalov - Performance Analysis and Tuning on Modern CPUs](https://book.easyperf.net/perf_book){:target="_blank"}.
-It's not about Java, but for now I cannot recommend any Java-centric book related to the CPU architecture, as it's still a rather niche topic.
-I know that two very good performance engineers are writing one now. When it is published I will paste a link here.
+It's not about Java, but I cannot recommend any Java-centric book related to CPU architecture, as it's still a relatively niche topic.
+I know that two very good performance engineers are writing one now. When it is published, I will paste a link here.
 
 ### Page faults
 {: #perf-pf }
@@ -1666,12 +1658,11 @@ I know that two very good performance engineers are writing one now. When it is 
 ![alt text](/assets/async-demos/page-fault-1.png "page")
 
 Every process running on Linux contains its own virtual memory. If a process needs more
-memory, it invokes functions like ```malloc``` or ```mmap```. The returned memory
-is guaranteed by the OS to be readable/writable by the current process.
+memory, it invokes functions like ```malloc``` or ```mmap```. The OS guarantees the returned memory to be readable/writable by the current process.
 But this does not mean that any block of physical RAM has been reserved for the process.
 
 The OS is smart enough to decide whether that fault should be converted into a SEGFAULT or should trigger the kernel
-to map RAM to the virtual memory of the process, because it was previously promised to the process.
+to map RAM to the process’s virtual memory because it was previously promised to the process.
 
 Java is a process from an OS perspective, nothing less, nothing more. Knowing that we can trace
 ```page fault``` events to detect why our application consumes more RAM. It may be a native memory 
@@ -1692,7 +1683,7 @@ java -Xmx1G -Xms1G -XX:+AlwaysPreTouch \
 -jar first-application/target/first-application-0.0.1-SNAPSHOT.jar
 ```
 
-In the other console lets do:
+In the other console, let’s do the following:
 
 ```shell
 ab -n 10000 -c 4 http://localhost:8081/examples/leak/do-leak
@@ -1709,7 +1700,7 @@ java -Xmx1G -Xms1G \
 -jar first-application/target/first-application-0.0.1-SNAPSHOT.jar
 ```
 
-In the other console let's execute:
+In the other console, let's execute the following:
 
 ```shell
 ab -n 10000 -c 4 http://localhost:8081/examples/leak/do-leak
@@ -1723,7 +1714,7 @@ Flame graph without ```-XX:+AlwaysPreTouch```: ([HTML](/assets/async-demos/page-
 ![alt text](/assets/async-demos/page-faults-apt-off.png "flames")
 
 Most of the need for additional RAM is acquired in GC threads, but there are some page faults in our Java code
-(big green flame). All of these page faults can hurt your performance and make your latency less
+(big green flame). These page faults can hurt your performance and make your latency less
 predictable.
 
 Flame graph with ```-XX:+AlwaysPreTouch```: ([HTML](/assets/async-demos/page-faults-apt-on.html){:target="_blank"})
@@ -1773,12 +1764,12 @@ As we can see, the ```cycles``` profile is more detailed.
 ### Why aggregated results are not enough
 {: #single-req-why }
 
-So far we were looking at the profile of a whole application. But what if the app is working well
-but from time to time there are some slower requests, and we want to know why? In such an application,
+So far, we have been looking at the profile of a whole application. But what if the app works well
+but there are some slower requests from time to time, and we want to know why? In such an application,
 where one request is handled by one thread, we can extract the profile of a single request. The JFR file contains
-all the information needed, we just need to filter them out. To do it, we need to have a log
+all the information needed; we just need to filter them out. To do it, we need to have a log
 that will tell us which thread was responsible for the execution of the request at the time of the
-execution. Tomcat which is embedded into Spring Boot has access logs that have all that information.
+execution. Tomcat, embedded into Spring Boot, has access logs with all that information.
 
 I configured our example application with access logs in the format:
 
@@ -1786,26 +1777,26 @@ I configured our example application with access logs in the format:
 [%t] [%r] [%s] [%D ms] [%I]
 ```
 
-Short explanation of that magic:
+Here is a short explanation of that magic:
 - ```%t``` - time of finishing handling of the request
 - ```%r``` - requested URI
 - ```%s``` - response status code
 - ```%D``` - duration time in milliseconds
 - ```%I``` - thread that handled request
 
-Let's see it in action
+Let's see it in action.
 
 ```shell
 # warmup
 ab -n 20 -c 4 http://localhost:8081/examples/filtering/
 
-# profiling of first request
+# profiling of the first request
 ./profiler.sh start -e wall -f filtering.jfr first-application-0.0.1-SNAPSHOT.jar
 ab -n 50 -c 4 http://localhost:8081/examples/filtering/
 ./profiler.sh stop -f filtering.jfr first-application-0.0.1-SNAPSHOT.jar
 ```
 
-In the access logs we can spot faster and slower requests:
+In the access logs, we can spot faster and slower requests:
 
 ```shell
 [05/Dec/2022:18:41:57 +0100] [GET /examples/filtering/ HTTP/1.0] [200] [1044 ms] [http-nio-8081-exec-2]
@@ -1821,13 +1812,13 @@ Let's load the JFR into my viewer and look at the flame graph of the whole appli
 
 ![alt text](/assets/async-demos/filtering-1.png "flames")
 
-It's hard to guess from that why some requests are slower than others. We can see two different
+It's hard to guess why some requests are slower than others. We can see two different
 methods executed at the top of the flame graph:
 
 - ```matrixMultiplySlow()```
 - ```matrixMultiplyFaster()```
 
-We cannot conclude from that, which one is responsible for worse latency. 
+We cannot conclude from that which one is responsible for worse latency. 
 Let's add filters to that graph to understand the latency of the second request from pasted access log:
 
 ```
@@ -1846,20 +1837,20 @@ Now the flame graph is obvious:
 
 ![alt text](/assets/async-demos/filtering-2.png "flames")
 
-We can check this for a few more requests, and figure out the following:
+We can check this for a few more requests and figure out the following:
 
-- In every slow request we executed ```matrixMultiplySlow()```
-- In every fast request we executed ```matrixMultiplyFaster()```
+- In every slow request, we executed ```matrixMultiplySlow()```
+- In every fast request, we executed ```matrixMultiplyFaster()```
 
-This technique is great to deal with the tail of the latency: We can focus our work on the longest
+This technique is great for dealing with the tail of the latency: We can focus our work on the longest
 operations. That may lead us to some nice fixes.
 
-### Real life example - DNS
+### Real-life example - DNS
 {: #single-req-dns }
 
 
 The point of the previous example was to show you why aggregated results can be useless for tracing
-a single request. Now I want to show you a  very common issue that I have diagnosed a few times already.
+a single request. Now I want to show you a widespread issue I have diagnosed a few times.
 
 Spring Boot has a commonly used addition called Actuator. One of the
 features of the Actuator is the health check endpoint. Under URI ```/actuator/health```, you can get JSON
@@ -1882,7 +1873,7 @@ eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 9001
         inet 172.31.36.53  netmask 255.255.240.0  broadcast 172.31.47.255
 ```
 
-Let's probe an actuator by this IP, not a ```localhost``` (without the hack described later you cannot get same results):
+Let's probe an actuator by this IP, not a ```localhost``` (without the hack described later, you cannot get the same results):
 
 ```shell
 ./profiler.sh start -e wall -f actuator.jfr first-application-0.0.1-SNAPSHOT.jar
@@ -1900,7 +1891,7 @@ Processing:     0    5 158.1      0    5000
 Waiting:        0    5 158.1      0    5000
 Total:          0    5 158.1      0    5000
 
-Percentage of the requests served within a certain time (ms)
+Percentage of the requests served within a specific time (ms)
   50%      0
   66%      0
   75%      0
@@ -1912,7 +1903,7 @@ Percentage of the requests served within a certain time (ms)
  100%   5000 (longest request)
 ```
 
-So almost all the actuator endpoints returned in **0ms**, but there was at least one that lasted **5s**.
+So almost all the actuator endpoints returned in **0ms**, but at least one lasted **5s**.
 We can see one longer request in the access logs:
 
 ```shell
@@ -1931,18 +1922,18 @@ use the same technique to find out what was the reason for that latency:
 ![alt text](/assets/async-demos/actuator.png "flames")
 
 I highlighted the usage of the ```RemoteIpFilter``` class. Time for some explanations: When your requests are hitting 
-your application you can check the IP of the requester with the basic ```HttpServletRequest``` API. But if you have
+your application, you can check the IP of the requester with the basic ```HttpServletRequest``` API. But if you have
 a load balancer before your application, well, you get an IP of the load balancer, not the original requester.
-To avoid such confusion, load balancers usually add HTTP headers to the request. The original IP is sent
+Load balancers usually add HTTP headers to the request to avoid such confusion. The original IP is sent
 in the ```X-Forwarded-For``` header. The ```RemoteIpFilter``` is a tool that makes our lives easier and makes the
 ```HttpServletRequest``` API returns proper IP and so on.
 
 Let's get back to the flame graph. We can see that this filter creates an instance of ```XForwardedRequest``` 
 that executes ```RequestFacade.getLocalName()```, that in the end executes ```Inet6AddressImpl.getHostByAddr()```.
 The last method is trying to identify the hostname by the IP address. How can it be done? Well, we just need a 
-request to DNS, nothing more. In that case, the DNS protocol uses UDP, not TCP. UDP is a protocol that by design
-can loose packets. In Linux, the ```resolv.conf``` is responsible for configuring DNS and the related tools
-deal with the all the retransmissions and other problems.
+request to DNS, nothing more. In that case, the DNS protocol uses UDP, not TCP. UDP is a protocol that, by design,
+can lose packets. In Linux, the ```resolv.conf``` is responsible for configuring DNS and the related tools
+deal with all the retransmissions and other problems.
 Here is an excerpt of the [manual](https://www.man7.org/linux/man-pages/man5/resolv.conf.5.html){:target="_blank"}:
 
 ```
@@ -1959,48 +1950,48 @@ timeout:n
 
 Long story short - the default timeout is **5s**. If your DNS request is lost, the tools related to ```resolv.conf``` will probe the next
 _nameserver_ after **5s**. That's what is happening in our example and what I observed in quite a few Java applications. 
-DNS is commonly used for DDoS attacks, therefore you can easily have a firewall in your 
+DNS is commonly used for DDoS attacks. Therefore you can easily have a firewall in your 
 infrastructure that can drop some DNS packets by design.
 
 The funny thing about ```RemoteIpFilter``` is that the result of that DNS probing is stored in the field ```localName``` which 
-is not used later. So we are just doing DNS requests for nothing. To avoid that problem, you can simply write
-your filter that won't fire DNS requests. ```RemoteIpFilter``` is open-source, so you can easily use it.
+is not used later. So we are just making DNS requests for nothing. To avoid that problem, write
+a filter that won't fire DNS requests. ```RemoteIpFilter``` is open-source, so you can easily use it.
 There is also ```RemoteIpValve``` that can be enabled by just an entry in the Spring Boot properties. It used
-to have the same issue. I didn't check if the issue is still present in Spring Boot 3, it might be fixed accidentally
+to have the same issue. I didn't check if the issue is still present in Spring Boot 3; it might be fixed accidentally
 with [this bug fix](https://bz.apache.org/bugzilla/show_bug.cgi?id=57665){:target="_blank"} which introduced the 
 ```changeLocalName``` property. If you want to be sure, you need to check it yourself.
 
 This is not the only DNS request that can be done 
-by Actuator health check. That endpoint also probes your databases, queues and many other things. If that probing
-is done by DNS name, the same thing may happen. 
+by the Actuator health check. That endpoint also probes your databases, queues, and many other things. The same may happen if that probing
+is done by DNS name. 
  
-About the hack. If you want to simulate not responsive DNS you can add 72.66.115.13 (blackhole.webpagetest.org) 
-as your nameserver. That one is designed to drop all the packets. On different Linux distributions it is done differently. 
-I just use an AWS instance with Amazon Linux distribution and there I could just edit ```/etc/resolv.conf``` file, but 
-in distros like Ubuntu that file is generated by other services, see [ubuntu.com](https://ubuntu.com/server/docs/service-domain-name-service-dns){:target="_blank"} for more information.
+About the hack. If you want to simulate not responsive DNS, you can add 72.66.115.13 (blackhole.webpagetest.org) 
+as your nameserver. That one is designed to drop all the packets. On different Linux distributions, it is done differently. 
+I just use an AWS instance with Amazon Linux distribution, and there I could just edit the ```/etc/resolv.conf``` file, but 
+in distros like Ubuntu, that file is generated by other services; see [ubuntu.com](https://ubuntu.com/server/docs/service-domain-name-service-dns){:target="_blank"} for more information.
 
 ## Continuous profiling
 {: #continuous }
 
-Let's now focus on a different problem: We had some kind of performance degradation/outage in our system one hour ago.
+Let's now focus on a different problem: We had some performance degradation/outage in our system one hour ago.
 What can we do? The problem is gone, so attaching a profiler now won't help us much. We can start profiling 
-and wait for the problem to occur again, but maybe we can inspire ourselves with a concept that is working
+and wait for the problem to occur again, but maybe we can inspire ourselves with a concept used
 in the aviation business. 
 
 ![alt text](/assets/async-demos/cont-1.png "cont")
 
-In case of an airplane disaster, what is the plane owner doing? Is he or she adding logs or attaching instruments to the airplane and waiting 
+In case of an airplane disaster, what is the plane owner doing? Are they adding logs or attaching instruments to the airplane and waiting 
 for the next crash? No, the aviation business has a flight recorder on every plane. 
 
 ![alt text](/assets/async-demos/cont-2.png "cont")
 
 This box records all available data it can during the flight. After any disaster, the data are ready to be analyzed.
-Can we use a similar approach with Java profiling? Yes, we can. We can have a profiler attached 24/7 dumping the data
+Can we apply a similar approach to Java profiling? Yes, we can. We can have a profiler attached 24/7 dumping the data
 every fixed interval of time. If anything detrimental happens to our application, we have the data that we can analyze.
 
 From my personal experience, continuous profiling is the best technique to diagnose degradations
-and outages efficiently. It is also very useful, if you want to understand why the performance differs
-between two versions of the same application. You only need to get profiles of the previous version from your archives and compare it to the current one. 
+and outages efficiently. It is also handy to understand why the performance differs
+between two versions of the same application. You only need to get profiles of the previous version from your archives and compare them to the current one. 
 
 Here are the ways of enabling async-profiler in continuous mode:
 
@@ -2018,7 +2009,7 @@ do
 done
 ```
 
-It looks dirt simple, because it is, but I used that loop many times. Async-profiler includes this with the ```--loop``` option since version 2.6 in its ```profiler.sh``` script:
+It looks dirt simple because it is, but I used that loop many times. Async-profiler includes this with the ```--loop``` option since version 2.6 in its ```profiler.sh``` script:
 
 ```shell
 ./profiler.sh -e wall --loop 1m -f profile-%t.jfr <pid or application name>
@@ -2027,7 +2018,7 @@ It looks dirt simple, because it is, but I used that loop many times. Async-prof
 ### Java
 {: #continuous-java }
 
-I already introduced the Java API of AsyncProfiler [here](#how-to-java). To do it continuously you can simply create a thread
+I already introduced the Java API of AsyncProfiler [here](#how-to-java). To do it continuously, you can create a thread
 that is executing:
 
 ```java
@@ -2050,7 +2041,7 @@ while (true) {
 ### Spring boot
 {: #continuous-spring }
 
-If you have a Spring/SpringBoot application you can just use a starter written by me and Michał Rowicki:
+If you have a Spring/SpringBoot application, you can use a starter written by Michał Rowicki and me:
 
 ```xml
 <dependency>
@@ -2065,20 +2056,19 @@ Read the **[README](https://github.com/krzysztofslusarski/continuous-async-profi
 ## Contextual profiling
 {: #context-id }
 
-Continuous profiling together with the possibility to extract a profile of a single request is very
+Continuous profiling, together with the possibility to extract a profile of a single request, is very
 powerful. Unfortunately, there are applications where that is not enough. Some examples:
 
 - Any work that is delegated to a different thread will be missed in that profile
 - If one request is computed by multiple threads/JVMs, we need to combine multiple profiles
 - Applications in a distributed architecture, usually with microservices:  
-There are usually remote calls to other services even if every single request is processed by a single thread
+There are usually remote calls to other services, even if every single request is processed by a single thread.
 
-We can extract a profile for each microservice to understand the behavior of the
-request processing in such a distributed architecture. This is doable but consumes a lot of time.
+We can extract a profile for each microservice to understand the request processing behavior in such a distributed architecture. This is doable but consumes a lot of time.
 
 All the problems mentioned above can be covered by **contextual profiling**. The concept is pretty simple:
 Whenever any thread is executing any work, that work is done in some context, usually in the context
-of a single request. Instead of just doing that work, we do:
+of a single request. Instead of just doing that work, we do the following:
 
 ```java
 asyncProfiler.setContextId(contextId);
@@ -2086,10 +2076,10 @@ actualWork();
 asyncProfiler.clearContextId();
 ```
 
-If there is any sample gathered during ```actualWork()``` the profiler can add ```contextId``` to 
+If any sample is gathered during ```actualWork()```, the profiler can add ```contextId``` to 
 the sample in the JFR file. Such functionality is introduced in
 [Context ID PR](https://github.com/jvm-profiling-tools/async-profiler/pull/576){:target="_blank"}.
-For now that PR is not merged to the master, but it's a matter of paperwork, I hope it will be
+For now that PR is not merged into master, but it's a matter of paperwork; I hope it will be
 merged soon.
 
 ### Spring Boot microservices
@@ -2105,7 +2095,7 @@ Since that PR is not merged into master, you need to compile the async-profiler 
 I compiled it on my Ubuntu x86 with glibc
 [here](https://github.com/krzysztofslusarski/async-profiler-demos/blob/master/libasyncProfiler.so){:target="_blank"}.
 It may not work on every Linux on every machine. If this is your case, just compile the
-profiler from sources. It's really easy. 
+profiler from sources. It's straightforward. 
 
 Ok, let's integrate it with the async-profiler. This time I will use the Java API:
 
@@ -2129,7 +2119,7 @@ public abstract class AsyncProfilerUtils {
 }
 ```
 
-I load the profiler from ```/tmp/libasyncProfiler.so``` and use **wall-clock** mode, I believe it is the
+I load the profiler from ```/tmp/libasyncProfiler.so``` and use **wall-clock** mode; I believe it is the
 most suitable mode for most enterprise applications.
 
 To integrate the profiler with the Micrometer Tracing, we need to implement ```ObservationHandler```:
@@ -2175,8 +2165,8 @@ public class AsyncProfilerObservationHandler implements ObservationHandler<Obser
 }
 ```
 
-**Big warning**: Don't treat that class as production ready. It's suitable for that example,
-but it will not work with any asynchronous/reactive calls. Mind that ```onStart/onStop```
+**Big warning**: Don't treat that class as production ready. It's suitable for that example
+but will not work with any asynchronous/reactive calls. Mind that ```onStart/onStop```
 can be called multiple times with the same ```traceId``` and different ```spanId```.
 
 Now we need to register that implementation:
@@ -2215,7 +2205,7 @@ Now the applications will look for an async-profiler in ```/tmp/libasyncProfiler
 # little warmup
 ab -n 24 -c 1 http://localhost:8081/examples/context/observe
 
-# profiling time - this time we start profiler from Java
+# profiling time - this time, we start profiler from Java
 curl -v http://localhost:8081/examples/context/start
 curl -v http://localhost:8082/examples/context/start
 curl -v http://localhost:8083/examples/context/start
@@ -2228,7 +2218,7 @@ curl -v http://localhost:8082/examples/context/stop
 curl -v http://localhost:8083/examples/context/stop
 ```
 
-Let's look at the timings during profiling. I've cut output to 12 rows:
+Let's look at the timings during profiling. I've cut the output to 12 rows:
 
 ```shell
 04/gru/2022:20:54:25 +0100 [GET /examples/context/observe HTTP/1.0] [200] [1538 ms] [http-nio-8081-exec-8]
@@ -2250,7 +2240,7 @@ We can see that we have three groups of timings:
 - ```~3000ms```
 - ```~4500ms```
 
-After we executed the script above, we have three JFR files in the ```/tmp``` directory. When we load all three files 
+After we executed the script above, we had three JFR files in the ```/tmp``` directory. When we load all three files 
 together to my viewer and check the _Correlation ID stats_ section, we can see:
 
 ![alt text](/assets/async-demos/context-1.png "context-1")
@@ -2262,19 +2252,18 @@ the application name. Here comes the flame graph: ([HTML](/assets/async-demos/co
 
 ![alt text](/assets/async-demos/context-2.png "flames")
 
-All three applications are on the same flame graph. This is beautiful. Just a reminder: it's not a whole application,
-it's a **single request** presented here. I highlighted the ```slowPath()``` method
-executed in the second and third app, which causes higher latency. You can play with the HTML flame graph on your own
-to see what is happening there, or you can just jump into the code. I would like to focus on what insights the context ID 
+All three applications are on the same flame graph. This is beautiful. Just a reminder: it's not a whole application. It’s a **single request** presented here. I highlighted the ```slowPath()``` method
+executed in the second and third app, which causes higher latency. You can play with the HTML flame graph 
+to see what is happening there or jump into the code. I want to focus on what insights the context ID 
 functionality gives us. Because there is more. We've already added an additional _filename level_. We can also
-add timestamps as another level. Let's do that. I will present you only the bottom of the graph, since
+add timestamps as another level. Let's do that. I will present you only the bottom of the graph since
 that's what is important here: ([HTML](/assets/async-demos/context-2.html){:target="_blank"})
 
 ![alt text](/assets/async-demos/context-3.png "flames")
 
-The image may look blurred, you can check the [HTML](/assets/async-demos/context-2.html){:target="_blank"}
+The image may look blurred, but you can check the [HTML](/assets/async-demos/context-2.html){:target="_blank"}
 version for clarity. At the bottom, you can see five brown rectangles. Those are timestamps truncated to seconds.
-So from left to right, we can basically see what was happening to our request second by second. Let's highlight
+So from left to right, we can see what was happening to our request second by second. Let's highlight
 when the second application was running during that request:
 
 ![alt text](/assets/async-demos/context-4.png "flames")
@@ -2335,14 +2324,14 @@ class ContextService {
 So the second application is slower every third request, and the third application is slower every fourth request.
 That means that for every twelfth request, we are slower in both of them.
 
-I strongly believe that contextual profiling is the future in that area. Everything you see here should be taken with a grain of
+I firmly believe that contextual profiling is the future in that area. Everything you see here should be taken with a grain of
 salt. My Spring integration and my JFR viewer are far away from something professional. I want to inspire you to
 search for new possibilities like that. If you find any, share it with the rest of the Java performance community.
 
 ### Distributed systems
 {: #context-id-hz }
 
-First, let's differentiate distributed architecture from distributed systems. For the purpose of this post, let's assume
+First, let's differentiate distributed architecture from distributed systems. For this post, let's assume
 the following:
 
 - a distributed architecture is a set of applications that works together - like microservices
@@ -2415,7 +2404,7 @@ in the last seconds of processing.
 
 I checked five more long latency requests and the results were the same, confirming that the **10.212.1.104** server is 
 the problem. I spent a lot of time trying to figure out what was wrong with that machine. My biggest suspect was a 
-difference in meltdown/spectre patches in the kernel. In the end we reinstalled Linux on those machines which solved
+difference in meltdown/spectre patches in the kernel. In the end, we reinstalled Linux on those machines, which solved
 the problem with the **10.212.1.104** server.
 
 ## Stability and overhead
@@ -2424,21 +2413,20 @@ the problem with the **10.212.1.104** server.
 ### Stability
 
 
-Attaching a profiler to a JVM can potentially cause it to crash. It's important to be aware of this risk, as bugs can occur not only in profilers, but also in the JVM itself. The OpenJDK developers are working on improving the stability of the API used by profilers to minimize this risk. You can learn more about their work at:
+Attaching a profiler to a JVM can potentially cause it to crash. It's essential to be aware of this risk, as bugs can occur not only in profilers but also in the JVM itself. The OpenJDK developers are working on improving the stability of the API used by profilers to minimize this risk. You can learn more about their work at:
 
 - [Johannes Bechberger](https://github.com/openjdk/jdk/pulls?q=is%3Apr+author%3Aparttimenerd){:target="_blank"}
 - [Jaroslav Bachorik](https://github.com/openjdk/jdk/pulls?q=is%3Apr+author%3Ajbachorik){:target="_blank"}
 
 In my opinion, async-profiler is a very mature product already. I know a few companies
-that are running async-profiler in continuous mode 24/7. Over two years, I only heard about one production crash that has been caused by
-a profiler. It is working with **40** production JVMs, at least in wall-clock mode there. I have personally used async-profiler on multiple systems without encountering any crashes this year. While there is always some risk when attaching a profiler to a JVM, I believe the risk is minimal and can be safely ignored.
+that are running async-profiler in continuous mode 24/7. Over two years, I only heard about one production crash caused by a profiler. It is working with **40** production JVMs, at least in wall-clock mode there. I have used async-profiler on multiple systems without crashes this year. While there is always some risk when attaching a profiler to a JVM, I believe the risk is minimal and can be safely ignored.
 
-However, if you do experience a profiler-related crash, I encourage you to file a GitHub issue to help improve the OpenJDK.
-During the crash, the ```hs_err.<pid>``` file is generated. It may be very useful for finding the root cause of a problem.
+However, if you experience a profiler-related crash, I encourage you to file a GitHub issue to help improve the OpenJDK.
+During the crash, the ```hs_err.<pid>``` file is generated. It may be beneficial for finding the root cause of a problem.
 
-The main problem, according to Johannes Bechberger, stated in a recent [JEP proposal](https://openjdk.org/jeps/435){:target="_blank"}, is that async-profiler uses the internal AsyncGetCallTrace API for stack walking. This API has been introduced in November 2002 for Sun Studio, but has been removed in January 2003 and demoted to an internal API ([JVMTI](https://docs.oracle.com/en/java/javase/17/docs/specs/jvmti.html#ChangeHistory){:target="_blank"}). It is neither exported in any header nor standardized. To this date, there is only one [tiny test](https://github.com/openjdk/jdk/tree/master/test/hotspot/jtreg/serviceability/AsyncGetCallTrace){:target="_blank"} in the whole OpenJDK: The API might be broken with any version, Johannes Bechberger caught such an issue with [PR 7559](https://github.com/openjdk/jdk/pull/7559){:target="_blank"} before the release. Be aware of this risk and test every JDK with your profiling setup before using it in production.
+The main problem, according to Johannes Bechberger, stated in a recent [JEP proposal](https://openjdk.org/jeps/435){:target="_blank"}, is that async-profiler uses the internal AsyncGetCallTrace API for stack walking. This API was introduced in November 2002 for Sun Studio but was removed in January 2003 and demoted to an internal API ([JVMTI](https://docs.oracle.com/en/java/javase/17/docs/specs/jvmti.html#ChangeHistory){:target="_blank"}). It is neither exported in any header nor standardized. To this date, there is only one [tiny test](https://github.com/openjdk/jdk/tree/master/test/hotspot/jtreg/serviceability/AsyncGetCallTrace){:target="_blank"} in the whole OpenJDK: The API might be broken with any version, Johannes Bechberger caught such an issue with [PR 7559](https://github.com/openjdk/jdk/pull/7559){:target="_blank"} before the release. Be aware of this risk and test every JDK with your profiling setup before using it in production.
 
-There is an ongoing effort by Johannes Bechberger, with the help of Jaroslav Bachorik and others, to improve this situation by proposing the new [AsyncGetStackTrace API](https://openjdk.org/jeps/435){:target="_blank"}, that will hopefully be integrated into the OpenJDK. This API will be official, well-tested with stability and stress tests in the official OpenJDK test suite, and therefore more stable than AsyncGetCallTrace. It will also give the users of tools like async-profiler access to more information, like C/C++ frames between Java frames and inlining information for all Java frames. If you want to learn more, consider reading the [JEP](https://openjdk.org/jeps/435){:target="_blank"} or visit the [demo repository](https://github.com/parttimenerd/asgct2-demo){:target="_blank"} to see it in action.
+There is an ongoing effort by Johannes Bechberger, with the help of Jaroslav Bachorik and others, to improve this situation by proposing the new [AsyncGetStackTrace API](https://openjdk.org/jeps/435){:target="_blank"}, that will hopefully be integrated into the OpenJDK. This API will be official, well-tested with stability and stress tests in the official OpenJDK test suite, and therefore more stable than AsyncGetCallTrace. It will also give the users of tools like async-profiler more information, like C/C++ frames between Java frames and inlining information for all Java frames. If you want to learn more, consider reading the [JEP](https://openjdk.org/jeps/435){:target="_blank"} or visit the [demo repository](https://github.com/parttimenerd/asgct2-demo){:target="_blank"} to see it in action.
 
 Furthermore, many bugs have been found by both OpenJDK developers by using the [JDK Profiling Tester](https://github.com/parttimenerd/jdk-profiling-tester){:target="_blank"} to find and fix many stability issues. There are currently no known real-world stability issues.
 
@@ -2469,22 +2457,21 @@ The chart for his results:
 
 ![alt text](/assets/async-demos/overhead.png "chart")
 
-The logarithmic-scaled X-axis is the number of samples per second and the Y-axis is the additional overhead. 
+The logarithmic-scaled X-axis is the number of samples per second, and the Y-axis is the additional overhead. 
 
-Remember: **You should always easure the overhead in your application by yourself and configure the profiling interval and captured events according to your specific needs.**.
+Remember: **You should always measure the overhead in your application by yourself and configure the profiling interval and captured events according to your specific needs.**.
 
 ## Random thoughts
 {: #random }
 
 1. You need to remember that EVERY profiler lies in some way. The async-profiler is vulnerable to
 [JDK-8281677](https://bugs.openjdk.org/browse/JDK-8281677){:target="_blank"}. There is nothing that the profiler
-can do, JVM is lying to the profiler, so that lie is passed to the end user. You can change the mechanism
-that is used by a profiler, but you will be lied to, maybe differently.
+can do; JVM is lying to the profiler, so that lie is passed to the end user. You can change the mechanism
+used by a profiler, but you will be lied to, maybe differently.
 2. You can run an async-profiler to collect more than one event. It is allowed to gather ```lock``` and ```alloc```
 together with one of the modes that gathers execution samples, like ```cpu```, ```method```, ...
-3. You can run async-profiler with ```jfrsync``` option that will gather more information, that is exposed 
-by the JVM, but be aware to use the ```alloc``` option for information on allocations. This way you can also
+3. You can run an async-profiler with the ```jfrsync``` option that will gather more information exposed 
+by the JVM, but be aware to use the ```alloc``` option for information on allocations. This way, you can also
 capture GC information and more.
 
 If you want to know more on this topic, consider the curated collection of blogs and other resources you find [here](https://github.com/parttimenerd/jug-profiling-talk){:target="_blank"} and the [YouTube playlist](https://www.youtube.com/playlist?list=PLLLT4NxU7U1QYiqanOw48h0VUjlUvqCCv){:target="_blank"} with in-depth talks on profiling. Consider contacting Johannes Bechberger, who curates both, if you have any suggestions.
-
