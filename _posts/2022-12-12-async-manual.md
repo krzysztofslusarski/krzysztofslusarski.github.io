@@ -1497,7 +1497,7 @@ If you monitor that value and the chart like that:
 ![alt text](/assets/async-demos/threads-2.png "threads")
 
 Then you might want to check who is creating those short-living threads:
-We use async-profiler with the ```JVM_StartThread``` event in method mode for this purpose:
+We use async-profiler with the ```JVM_StartThread``` event in native functions mode for this purpose:
 
 ```shell
 # little warmup
