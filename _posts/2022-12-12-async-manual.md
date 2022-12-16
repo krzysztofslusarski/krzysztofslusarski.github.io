@@ -1,10 +1,11 @@
 ---
 layout: default
-title:  "[Java][Profiling][Work in progress] Async-profiler manual by use cases"
+title:  "[Java][Profiling] Async-profiler - manual by use cases"
 date:   2022-12-12 02:51:30 +0100
 ---
 
-# [Java][Profiling][Work in progress] Async-profiler manual by use cases
+# [Java][Profiling] Async-profiler - manual by use cases
+
 
 This blog post contains examples of async-profiler usages that I have found helpful in my job.
 Some content of this post is copy-pasted from previous entries, as I just wanted to avoid unnecessary
@@ -72,11 +73,15 @@ this post.
 ## Acknowledgments
 {: #acknowledgments }
 
-I would like to say thank you to [Andrei Pangin](https://twitter.com/AndreiPangin){:target="_blank"} for all the work he did to create async-profiler and for
+I would like to say thank you to [Andrei Pangin](https://twitter.com/AndreiPangin){:target="_blank"}
+([Lightrun](https://lightrun.com/){:target="_blank"})
+for all the work he did to create async-profiler and for
 his time and remarks on that article,
 [Johannes Bechberger](https://twitter.com/parttimen3rd){:target="_blank"} ([SapMachine team](https://sapmachine.io/){:target="_blank"} at [SAP](https://sap.com){:target="_blank"}) for all the work on making OpenJDK more stable with 
 profilers, the input he gave me on overhead and stability, and the copy editing of this document,
-[Marcin Grzejszczak](https://twitter.com/MGrzejszczak){:target="_blank"} for great insight on how to integrate this profiler with
+[Marcin Grzejszczak](https://twitter.com/MGrzejszczak){:target="_blank"}
+([VMware](https://www.vmware.com/pl.html){:target="_blank"})
+for great insight on how to integrate this profiler with
 Spring.
 
 ## Profiled application 
@@ -1122,7 +1127,7 @@ In this simple example, any of those tools is enough. In more complicated ones, 
 of the problem. It is nice to finally have a tool that can profile memory leaks on production systems.
 
 It is worth mentioning that the ```--live``` option is available only since **async-profiler 2.9**, it needs 
-**JDK >= 11** and might still contain bugs.
+**JDK >= 11** and might still contain bugs. I didn't have a chance to test it on any production system yet.
 
 ### Locks
 {: #locks }
