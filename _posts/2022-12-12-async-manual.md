@@ -83,7 +83,8 @@ profilers, the input he gave me on overhead and stability, and the copy editing 
 [Marcin Grzejszczak](https://twitter.com/MGrzejszczak){:target="_blank"}
 ([VMware](https://www.vmware.com/pl.html){:target="_blank"})
 for great insight on how to integrate this profiler with
-Spring.
+Spring,
+[Krystian Zybała](https://twitter.com/k_zybala) for the review.
 
 ## Profiled application 
 {: #profiled-application }
