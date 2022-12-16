@@ -62,7 +62,8 @@ this post.
 - [Contextual profiling](#context-id)
   - [Spring Boot microservices](#context-id-spring)
   - [Distributed systems](#context-id-hz)
-- [Stability and overhead](#stability-overhead)
+- [Stability](#stability)
+- [Overhead](#overhead)
 - [Random thoughts](#random)
 
 ## Change log
@@ -2415,11 +2416,8 @@ the problem. I spent a lot of time trying to figure out what was wrong with that
 difference in meltdown/spectre patches in the kernel. In the end, we reinstalled Linux on those machines, which solved
 the problem with the **10.212.1.104** server.
 
-## Stability and overhead
-{: #stability-overhead }
-
-### Stability
-
+## Stability
+{: #stability }
 
 Attaching a profiler to a JVM can potentially cause it to crash. It's essential to be aware of this risk, as bugs can occur not only in profilers but also in the JVM itself. The OpenJDK developers are working on improving the stability of the API used by profilers to minimize this risk. You can learn more about their work at:
 
@@ -2438,7 +2436,8 @@ There is an ongoing effort by Johannes Bechberger, with the help of Jaroslav Bac
 
 Furthermore, many bugs have been found by both OpenJDK developers by using the [JDK Profiling Tester](https://github.com/parttimenerd/jdk-profiling-tester){:target="_blank"} to find and fix many stability issues. There are currently no known real-world stability issues.
 
-### Overhead
+## Overhead
+{: #overhead }
 
 In the application where the profiler is running in continuous mode on production the 
 overhead (in terms of response time) is typically between **0%** and **2%**. That number is a comparison of response times 
