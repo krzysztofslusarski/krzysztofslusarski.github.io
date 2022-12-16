@@ -142,6 +142,9 @@ In all the examples, I will assume that the application is started with the ```j
 If you are running the application from the IDE, then the name of the application is switched 
 from ```first-application-0.0.1-SNAPSHOT.jar``` to ```FirstApplication```.
 
+All the JFRs generated while writing that post are available
+[here](https://github.com/krzysztofslusarski/async-profiler-demos/tree/master/jfrs){:target="_blank"}.
+
 ## How to run an Async-profiler 
 {: #how-to }
 
