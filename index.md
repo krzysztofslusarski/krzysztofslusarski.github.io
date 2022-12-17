@@ -3,6 +3,9 @@ layout: default
 title: "JVM/Java profiling and tuning"
 ---
 
+[**Async-profiler** - manual by use cases](2022/12/12/async-manual.html)
+
+
 ## Monday with JVM logs
 
 [**\[Safepoints\]** Introduction and safepoints logs](2021/07/16/monday-intro.html)
