@@ -6,7 +6,6 @@ date:   2022-12-12 02:51:30 +0100
 
 # [Java][Profiling] Async-profiler - manual by use cases
 
-
 This blog post contains examples of async-profiler usages that I have found helpful in my job.
 Some content of this post is copy-pasted from previous entries, as I just wanted to avoid unnecessary
 jumps between articles. 
@@ -2468,6 +2467,11 @@ The chart for his results:
 The logarithmic-scaled X-axis is the number of samples per second, and the Y-axis is the additional overhead. 
 
 Remember: **You should always measure the overhead in your application by yourself and configure the profiling interval and captured events according to your specific needs.**.
+
+## Open source examples of async-profiler usage
+
+https://github.com/questdb/questdb/pull/2654
+https://github.com/questdb/questdb/issues/1915
 
 ## Random thoughts
 {: #random }
