@@ -2057,7 +2057,7 @@ If you have a Spring/SpringBoot application, you can use a starter written by Mi
 <dependency>
     <groupId>com.github.krzysztofslusarski</groupId>
     <artifactId>continuous-async-profiler-spring-starter</artifactId>
-    <version>1.6</version>
+    <version>2.0</version>
 </dependency>
 ```
 
