@@ -2525,6 +2525,26 @@ call sites that you may want to optimize. As mentioned in Shipilev's article:
 
 This is a great example of optimization that shouldn't be done prematurely. 
 
+```shell
+# Little warmup
+ab -n 300 -c 1 http://localhost:8081/examples/os/quest/cpu/interface/megamorphic
+ab -n 300 -c 1 http://localhost:8081/examples/os/quest/cpu/interface/megamorphic-fixed
+ab -n 300 -c 1 http://localhost:8081/examples/os/quest/cpu/interface/megamorphic-type-check
+ab -n 300 -c 1 http://localhost:8081/examples/os/quest/cpu/classes/megamorphic
+ab -n 300 -c 1 http://localhost:8081/examples/os/quest/cpu/classes/megamorphic-fixed
+ab -n 300 -c 1 http://localhost:8081/examples/os/quest/cpu/classes/megamorphic-type-check
+
+# Profiling time
+./profiler.sh start -e cpu -f megamorphic.jfr FirstApplication
+ab -n 3000 -c 1 http://localhost:8081/examples/os/quest/cpu/interface/megamorphic
+ab -n 3000 -c 1 http://localhost:8081/examples/os/quest/cpu/interface/megamorphic-fixed
+ab -n 3000 -c 1 http://localhost:8081/examples/os/quest/cpu/interface/megamorphic-type-check
+ab -n 3000 -c 1 http://localhost:8081/examples/os/quest/cpu/classes/megamorphic
+ab -n 3000 -c 1 http://localhost:8081/examples/os/quest/cpu/classes/megamorphic-fixed
+ab -n 3000 -c 1 http://localhost:8081/examples/os/quest/cpu/classes/megamorphic-type-check
+./profiler.sh stop -f megamorphic.jfr FirstApplication
+```
+
 Here are the links to:
 - [original issue with the flame graph](https://github.com/questdb/questdb/issues/1915){:target="_blank"}
 - [original PR that solved the issue](https://github.com/questdb/questdb/pull/2654){:target="_blank"}
