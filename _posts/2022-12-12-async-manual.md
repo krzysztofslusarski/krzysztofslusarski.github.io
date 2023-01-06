@@ -64,6 +64,8 @@ this post.
 - [Stability](#stability)
 - [Overhead](#overhead)
 - [Random thoughts](#random)
+- [Open-source projects usage](#os)
+  - [CPU mode - detecting megamorphic call sites](#os-quest)
 
 ## Change log
 {: #change-log }
@@ -2468,11 +2470,6 @@ The logarithmic-scaled X-axis is the number of samples per second, and the Y-axi
 
 Remember: **You should always measure the overhead in your application by yourself and configure the profiling interval and captured events according to your specific needs.**.
 
-## Open source examples of async-profiler usage
-
-https://github.com/questdb/questdb/pull/2654
-https://github.com/questdb/questdb/issues/1915
-
 ## Random thoughts
 {: #random }
 
@@ -2486,4 +2483,48 @@ together with one of the modes that gathers execution samples, like ```cpu```, `
 by the JVM, but be aware to use the ```alloc``` option for information on allocations. This way, you can also
 capture GC information and more.
 
-If you want to know more on this topic, consider the curated collection of blogs and other resources you find [here](https://github.com/parttimenerd/jug-profiling-talk){:target="_blank"} and the [YouTube playlist](https://www.youtube.com/playlist?list=PLLLT4NxU7U1QYiqanOw48h0VUjlUvqCCv){:target="_blank"} with in-depth talks on profiling. Consider contacting Johannes Bechberger, who curates both, if you have any suggestions.
+If you want to know more on this topic, consider the curated collection of blogs and other resources you find 
+[here](https://github.com/parttimenerd/jug-profiling-talk){:target="_blank"} and the
+[YouTube playlist](https://www.youtube.com/playlist?list=PLLLT4NxU7U1QYiqanOw48h0VUjlUvqCCv){:target="_blank"} with
+in-depth talks on profiling. Consider contacting Johannes Bechberger, who curates both, if you have any suggestions.
+
+## Open-source projects usage
+{: #os }
+
+In this chapter I want to collect various async-profiler use-cases that are publicly available in open-source 
+projects PRs. I want to show you only interesting PRs, I see no point in providing dozens of PRs that changed
+```LinkedList``` to ```ArrayList```. I will do my best to recreate the issues in my demo application so you
+can try it on your own.
+
+### CPU mode - detecting megamorphic call sites
+{: #os-quest }
+
+I would like to say thank you to [Andrei Pechkurov](https://twitter.com/AndreyPechkurov){:target="_blank"} from
+[QuestDB](https://questdb.io/){:target="_blank"} for showing me this one.
+
+Let's consider such a method:
+
+```java
+private static int hashCodeMega(CharSequence value) {
+    int len = value.length();
+    // ...
+}
+```
+
+The parameter ```value``` is of type ```CharSequence``` which is an **interface**. The ```value.length()```
+is an invocation of **unknown** implementation of ```length()``` method in some class that implements
+```CharSequence```. Both C1 and C2 compilers are doing all they can to speed up such a call site.
+There is already a great article named
+[The Black Magic of (Java) Method Dispatch](https://shipilev.net/blog/2015/black-magic-method-dispatch){:target="_blank"}
+that explains what kind of magic is implemented in the JVM. In my post I want to focus on detecting megamorphic
+call sites that you may want to optimize. As mentioned in Shipilev's article:
+
+> You should not normally bother with method dispatch performance. The optimizing compiler that produces the
+> final code for hottest methods is able to inline most virtual calls. The remaining points are valid given 
+> **you identified your problem as the method dispatch/inlining performance problem**.
+
+This is a great example of optimization that shouldn't be done prematurely. 
+
+Here are the links to:
+- [original issue with the flame graph](https://github.com/questdb/questdb/issues/1915){:target="_blank"}
+- [original PR that solved the issue](https://github.com/questdb/questdb/pull/2654){:target="_blank"}
