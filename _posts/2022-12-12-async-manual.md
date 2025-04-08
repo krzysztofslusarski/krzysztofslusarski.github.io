@@ -52,6 +52,7 @@ this post.
   - [Cache misses](#perf-cache)
   - [Page faults](#perf-pf)
   - [Cycles](#perf-cycles)
+- [Native memory leaks](#nativemem) 
 - [Filtering single request](#single-req)
   - [Why aggregated results are not enough](#single-req-why)
   - [Real life example - DNS](#single-req-dns)
@@ -1679,9 +1680,9 @@ Java is a process from an OS perspective, nothing less, nothing more. Knowing th
 leak or some framework/library/JVM bug.
 
 But this is not perfect for tracing leaks since it shows every request for additional RAM,
-including ones that may be freed in the future. I know that Andrei Pangin is working
+including ones that may be freed in the future. ~~I know that Andrei Pangin is working
 on a native memory leak detector that will trace allocations that haven't been freed, but for
-now, that feature is not in the latest release.
+now, that feature is not in the latest release.~~
 
 As an example, let's run our application with and without ```-XX:+AlwaysPreTouch```,
 forcing the JVM to access all allocated memory after requesting it from the OS.
@@ -1767,6 +1768,11 @@ Corresponding profile for ```cycles``` event:
 ![alt text](/assets/async-demos/cycles-cycles.png "flames")
 
 As we can see, the ```cycles``` profile is more detailed. 
+
+## Native memory leaks
+{: #nativemem }
+
+Coming soon, please check [this article](../../../2025/03/31/native.html){:target="_blank"} meanwhile. 
 
 ## Filtering single request
 {: #single-req }

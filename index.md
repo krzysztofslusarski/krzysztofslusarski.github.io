@@ -59,7 +59,7 @@ title: "JVM/Java profiling and tuning"
 
 [Finding heap memory leaks with Async-profiler](2022/11/27/async-live.html)
 
-[Java/JVM native memory "leaks"](2025/03/31/native.html)
+[Java/JVM native memory leaks](2025/03/31/native.html)
 
 ## Other articles
 [Spring Boot + good old JSP/Tags = disaster](2021/04/04/bootjsp.html)
