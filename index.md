@@ -47,11 +47,11 @@ title: "JVM/Java profiling and tuning"
 
 ## Other articles
 
-[Spring Boot + good old JSP/Tags = disaster](2021/04/04/bootjsp.html)
+[**\[2021.11\]** Core dump - the last line of defence during outages](2021/11/14/coredump.html)
 
-[The ultimate monitoring of the JVM application - out of the box](2021/09/04/jmx.html)
+[**\[2021.09\]** The ultimate monitoring of the JVM application - out of the box](2021/09/04/jmx.html)
 
-[Core dump - the last line of defence during outages](2021/11/14/coredump.html)
+[**\[2021.04\]** Spring Boot + good old JSP/Tags = disaster](2021/04/04/bootjsp.html)
 
 ## Monday with JVM logs
 
