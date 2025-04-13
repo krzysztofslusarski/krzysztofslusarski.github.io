@@ -179,6 +179,8 @@ You can also use async-profiler to output JFR files:
 For formats different from JFR, you need to pass the file name during ```stop```, but for JFR 
 it is needed during ```start```.
 
+The `profiler.sh` script was removed in the **3.0** release, now we need to use `asprof` executable. 
+
 **WARNING**: This way of attaching any profiler to a JVM is vulnerable to
 [JDK-8212155](https://bugs.openjdk.org/browse/JDK-8212155){:target="_blank"}. That issue can crash 
 your JVM during attachment. It has been fixed in JDK 17.
