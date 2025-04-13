@@ -1772,7 +1772,115 @@ As we can see, the ```cycles``` profile is more detailed.
 ## Native memory leaks
 {: #nativemem }
 
-Coming soon, please check [this article](../../../2025/03/31/native.html){:target="_blank"} meanwhile. 
+With the **4.0** Async-profiler release, we can use the new `nativemem` mode which:
+> ... records `malloc`, `realloc`, `calloc` and `free` calls with the addresses, so that allocations can be matched with frees.
+ 
+This mode is extremely helpful with native memory leak detection. I already wrote an
+[article](../../../2025/03/31/native.html){:target="_blank"} on this topic. 
+Now let's just focus on usage of Async-profiler for a problem that I had in the past.
+
+Our application is run with _1GB_ fixed heap size:
+
+```shell
+java -Xmx1G -Xms1G -XX:+AlwaysPreTouch \
+-jar first-application/target/first-application-0.0.1-SNAPSHOT.jar
+```
+
+This native memory "leak" I want to show you is correlated with AWS S3 uploads. To make it easier to recreate let's run _localstacks_ on our PC and create a proper bucket and a file to upload:
+
+```shell
+docker run --rm -it -p 4566:4566 -p 4571:4571 localstack/localstack
+aws --endpoint-url=http://localhost:4566 s3 mb s3://temp-bucket
+dd if=/dev/zero of=/tmp/to_upload.tmp bs=1M count=15
+```
+
+Let's invoke our app:
+
+```shell
+ab -n 1  http://localhost:8081/examples/aws/upload
+```
+
+Now let's check how much memory is used by the application from an OS perspective:
+
+```shell
+jcmd first-application-0.0.1-SNAPSHOT.jar GC.run
+smem -c "pid command rss pss" -a -P "first-application-0.0.1-SNAPSHOT.jar"
+```
+
+The output:
+```
+  PID Command                                                       RSS     PSS 
+18206 /home/pasq/JDK/amazon-corretto-17.0.1.12.1-linux-x64/bin/ 1388836 1372957 
+```
+
+Let's invoke more of this endpoint with the profiler attached (the `profiler.sh` script is gone, we now use `asprof` executable):
+
+```shell
+./asprof start -e nativemem -f nativemem.jfr first-application-0.0.1-SNAPSHOT.jar
+ab -n 200 -c 10 http://localhost:8081/examples/aws/upload
+jcmd first-application-0.0.1-SNAPSHOT.jar GC.run
+./asprof stop -f nativemem.jfr first-application-0.0.1-SNAPSHOT.jar
+```
+
+Let's check how much memory is used now:
+
+```shell
+smem -c "pid command rss pss" -a -P "first-application-0.0.1-SNAPSHOT.jar"
+```
+
+The output:
+```
+  PID Command                                                       RSS     PSS 
+18206 /home/pasq/JDK/amazon-corretto-17.0.1.12.1-linux-x64/bin/ 1632140 1616206 
+```
+
+We can clearly see that both RSS and PSS grew. Let's see what data were gathered by the profiler. Let's convert _JFR_ to a flame graph first:
+```shell
+./jfrconv --total --nativemem --leak nativemem.jfr nativemem.html
+```
+
+([HTML](/assets/async-demos/nativemem.html){:target="_blank"})
+
+![alt text](/assets/async-demos/nativemem.png "flames")
+
+We can see that `nativemem` mode blames the `AwsService.upload` method for the "leak". In the HTML version you can see also other AWS-related allocations without any Java stack traces,
+but let's focus on our code:
+
+```java
+void upload() {
+    S3CrtAsyncClientBuilder s3CrtAsyncClientBuilder = S3AsyncClient.crtBuilder()
+            .endpointOverride(new URI("http://127.0.0.1:4566"))
+            .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(ACCESS_KEY_ID, SECRET_ACCESS_KEY)))
+            .region(REGION);
+
+    try (S3AsyncClient s3Client = s3CrtAsyncClientBuilder.build()) {
+        s3Client
+                .putObject(
+                        req -> req.bucket(BUCKET).key(NAME),
+                        AsyncRequestBody.fromFile(Paths.get(FILE_TO_UPLOAD)))
+                .join();
+    }
+}
+```
+
+We can also see (on the flame graph) that the native memory allocation was done in the `DefaultS3CrtClientBuilder.build` method. That line is covered with `try-with-resources`,
+so the `close` method on the returned object should be invoked automatically. The method is invoked, but it doesn't clean all the native allocations done by the builder. 
+This issue I found with _AWS S3_ libraries with the following versions:
+
+```xml
+<dependency>
+    <groupId>software.amazon.awssdk</groupId>
+    <artifactId>s3</artifactId>
+    <version>2.25.23</version>
+</dependency>
+<dependency>
+    <groupId>software.amazon.awssdk.crt</groupId>
+    <artifactId>aws-crt</artifactId>
+    <version>0.29.14</version>
+</dependency>
+```
+
+The behavior may vary with different versions. You can check how it looks with the newest ones. 
 
 ## Filtering single request
 {: #single-req }
