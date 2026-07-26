@@ -2199,7 +2199,7 @@ of a single request. Instead of just doing that work, we do the following:
 ```java
 long span = Span.start();
 actualWork();
-Span.end(span, "contextId");
+Span.end(span, contextId);
 ```
 
 The profiler will store span details in the JFR file. Span is a very simple structure. It contains details about
