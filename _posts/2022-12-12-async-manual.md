@@ -2197,16 +2197,14 @@ Whenever any thread is executing any work, that work is done in some context, us
 of a single request. Instead of just doing that work, we do the following:
 
 ```java
-asyncProfiler.setContextId(contextId);
+long span = Span.start();
 actualWork();
-asyncProfiler.clearContextId();
+Span.end(span, "contextId");
 ```
 
-If any sample is gathered during ```actualWork()```, the profiler can add ```contextId``` to 
-the sample in the JFR file. Such functionality is introduced in
-[Context ID PR](https://github.com/jvm-profiling-tools/async-profiler/pull/576){:target="_blank"}.
-For now that PR is not merged into master, but it's a matter of paperwork; I hope it will be
-merged soon.
+The profiler will store span details in the JFR file. Span is a very simple structure. It contains details about
+thread that was executing the span, start time and duration. That's all we need to correlate the span with all
+samples gathered in the ```actualWork()```.
 
 ### Spring Boot microservices
 {: #context-id-spring }
@@ -2216,12 +2214,6 @@ we have included **Micrometer Tracing**. One of its functionalities is generatin
 (called ```traceId```) for every request. That ```traceId``` is passed during the execution to
 other Spring Boot microservices. We just need to pass that ```traceId``` to the async-profiler
 and we are done. 
-
-Since that PR is not merged into master, you need to compile the async-profiler from sources.
-I compiled it on my Ubuntu x86 with glibc
-[here](https://github.com/krzysztofslusarski/async-profiler-demos/blob/master/libasyncProfiler.so){:target="_blank"}.
-It may not work on every Linux on every machine. If this is your case, just compile the
-profiler from sources. It's straightforward. 
 
 Ok, let's integrate it with the async-profiler. This time I will use the Java API:
 
@@ -2245,7 +2237,7 @@ public abstract class AsyncProfilerUtils {
 }
 ```
 
-I load the profiler from ```/tmp/libasyncProfiler.so``` and use **wall-clock** mode; I believe it is the
+I load the profiler from using  ```AsyncProfiler.getInstance()``` and use **wall-clock** mode; I believe it is the
 most suitable mode for most enterprise applications.
 
 To integrate the profiler with the Micrometer Tracing, we need to implement ```ObservationHandler```:
@@ -2253,39 +2245,43 @@ To integrate the profiler with the Micrometer Tracing, we need to implement ```O
 ```java
 public class AsyncProfilerObservationHandler implements ObservationHandler<Observation.Context> {
     private static final ThreadLocal<TraceContext> LOCAL_TRACE_CONTEXT = new ThreadLocal<>();
+    private static final ThreadLocal<Long> LOCAL_SPAN_START_TIME = new ThreadLocal<>();
 
     @Override
-    public boolean supportsContext(Observation.Context context) { return true; }
+    public boolean supportsContext(Observation.Context context) {
+        return true;
+    }
 
     @Override
     public void onStart(Observation.Context context) {
         TracingContext tracingContext = context.get(TracingContext.class);
         TraceContext traceContext = tracingContext.getSpan().context();
         TraceContext currentTraceContext = LOCAL_TRACE_CONTEXT.get();
-
-        if (currentTraceContext == null || 
-                !currentTraceContext.traceId().equals(traceContext.traceId())) {
+        
+        if (currentTraceContext == null || !currentTraceContext.traceId().equals(traceContext.traceId())) {
             LOCAL_TRACE_CONTEXT.set(traceContext);
-            AsyncProfilerUtils.load().setContextId(lowerHexToUnsignedLong(traceContext.traceId()));
+            LOCAL_SPAN_START_TIME.set(Span.start());
         }
     }
-
+    
     @Override
-    public void onError(Observation.Context context) { }
-
+    public void onError(Observation.Context context) {
+    }
+    
     @Override
-    public void onEvent(Observation.Event event, Observation.Context context) { }
-
+    public void onEvent(Observation.Event event, Observation.Context context) {
+    }
+    
     @Override
     public void onStop(Observation.Context context) {
         TracingContext tracingContext = context.get(TracingContext.class);
         TraceContext traceContext = tracingContext.getSpan().context();
         TraceContext currentTraceContext = LOCAL_TRACE_CONTEXT.get();
-        
-        if (currentTraceContext != null && 
-                currentTraceContext.spanId().equals(traceContext.spanId())) {
+        Long spanStartTime = LOCAL_SPAN_START_TIME.get();
+        if (currentTraceContext != null && spanStartTime != null && currentTraceContext.spanId().equals(traceContext.spanId())) {
             LOCAL_TRACE_CONTEXT.remove();
-            AsyncProfilerUtils.load().clearContextId();
+            LOCAL_SPAN_START_TIME.remove();
+            Span.end(spanStartTime, traceContext.traceId());
         }
     }
 }
@@ -2325,8 +2321,6 @@ java -Xms1G -Xmx1G \
 -jar third-application/target/third-application-0.0.1-SNAPSHOT.jar
 ```
 
-Now the applications will look for an async-profiler in ```/tmp/libasyncProfiler.so```.
-
 ```shell
 # little warmup
 ab -n 24 -c 1 http://localhost:8081/examples/context/observe
@@ -2347,38 +2341,39 @@ curl -v http://localhost:8083/examples/context/stop
 Let's look at the timings during profiling. I've cut the output to 12 rows:
 
 ```shell
-04/gru/2022:20:54:25 +0100 [GET /examples/context/observe HTTP/1.0] [200] [1538 ms] [http-nio-8081-exec-8]
-04/gru/2022:20:54:26 +0100 [GET /examples/context/observe HTTP/1.0] [200] [1537 ms] [http-nio-8081-exec-9]
-04/gru/2022:20:54:29 +0100 [GET /examples/context/observe HTTP/1.0] [200] [3039 ms] [http-nio-8081-exec-10]
-04/gru/2022:20:54:33 +0100 [GET /examples/context/observe HTTP/1.0] [200] [3218 ms] [http-nio-8081-exec-1]
-04/gru/2022:20:54:34 +0100 [GET /examples/context/observe HTTP/1.0] [200] [1538 ms] [http-nio-8081-exec-2]
-04/gru/2022:20:54:37 +0100 [GET /examples/context/observe HTTP/1.0] [200] [3038 ms] [http-nio-8081-exec-3]
-04/gru/2022:20:54:39 +0100 [GET /examples/context/observe HTTP/1.0] [200] [1538 ms] [http-nio-8081-exec-4]
-04/gru/2022:20:54:42 +0100 [GET /examples/context/observe HTTP/1.0] [200] [3270 ms] [http-nio-8081-exec-5]
-04/gru/2022:20:54:45 +0100 [GET /examples/context/observe HTTP/1.0] [200] [3038 ms] [http-nio-8081-exec-6]
-04/gru/2022:20:54:47 +0100 [GET /examples/context/observe HTTP/1.0] [200] [1536 ms] [http-nio-8081-exec-7]
-04/gru/2022:20:54:48 +0100 [GET /examples/context/observe HTTP/1.0] [200] [1536 ms] [http-nio-8081-exec-8]
-04/gru/2022:20:54:53 +0100 [GET /examples/context/observe HTTP/1.0] [200] [4756 ms] [http-nio-8081-exec-9]
+[26/lip/2026:19:13:58 +0200] [GET /examples/context/observe HTTP/1.0] [200] [1593 ms] [http-nio-8081-exec-2]
+[26/lip/2026:19:14:02 +0200] [GET /examples/context/observe HTTP/1.0] [200] [3164 ms] [http-nio-8081-exec-3]
+[26/lip/2026:19:14:05 +0200] [GET /examples/context/observe HTTP/1.0] [200] [3094 ms] [http-nio-8081-exec-4]
+[26/lip/2026:19:14:06 +0200] [GET /examples/context/observe HTTP/1.0] [200] [1590 ms] [http-nio-8081-exec-5]
+[26/lip/2026:19:14:08 +0200] [GET /examples/context/observe HTTP/1.0] [200] [1590 ms] [http-nio-8081-exec-6]
+[26/lip/2026:19:14:13 +0200] [GET /examples/context/observe HTTP/1.0] [200] [4821 ms] [http-nio-8081-exec-7]
+[26/lip/2026:19:14:14 +0200] [GET /examples/context/observe HTTP/1.0] [200] [1589 ms] [http-nio-8081-exec-8]
+[26/lip/2026:19:14:16 +0200] [GET /examples/context/observe HTTP/1.0] [200] [1594 ms] [http-nio-8081-exec-9]
+[26/lip/2026:19:14:19 +0200] [GET /examples/context/observe HTTP/1.0] [200] [3086 ms] [http-nio-8081-exec-10]
+[26/lip/2026:19:14:22 +0200] [GET /examples/context/observe HTTP/1.0] [200] [3160 ms] [http-nio-8081-exec-1]
+[26/lip/2026:19:14:24 +0200] [GET /examples/context/observe HTTP/1.0] [200] [1585 ms] [http-nio-8081-exec-2]
+[26/lip/2026:19:14:27 +0200] [GET /examples/context/observe HTTP/1.0] [200] [3090 ms] [http-nio-8081-exec-3]
 ```
 
 We can see that we have three groups of timings:
 - ```~1500ms```
 - ```~3000ms```
-- ```~4500ms```
+- ```~4800ms```
 
 After we executed the script above, we had three JFR files in the ```/tmp``` directory. When we load all three files 
-together to my viewer and check the _Correlation ID stats_ section, we can see:
+together to my viewer and check the _Span stats_ section, we can see:
 
 ![alt text](/assets/async-demos/context-1.png "context-1")
 
 So we have similar timings from our JFR files. Looking good. Let's filter all the samples by context ID. It's
-called a _Correlation ID filter_ in my viewer, let's use a value ```-3264552494855344825``` which took ```4650ms``` 
+called a _Span (equals)_ in my viewer, let's use a value ```6a6640603d40ced403d3184933910cf8``` which took ```4821ms``` 
 according to records in the JFR. Let's also add an additional _filename level_. The filename is correlated to
 the application name. Here comes the flame graph: ([HTML](/assets/async-demos/context-1.html){:target="_blank"})
 
 ![alt text](/assets/async-demos/context-2.png "flames")
 
-All three applications are on the same flame graph. This is beautiful. Just a reminder: it's not a whole application. It’s a **single request** presented here. I highlighted the ```slowPath()``` method
+All three applications are on the same flame graph. This is beautiful. Just a reminder: it's not a whole application.
+It’s a **single request** presented here. I highlighted the ```slowPath()``` method
 executed in the second and third app, which causes higher latency. You can play with the HTML flame graph 
 to see what is happening there or jump into the code. I want to focus on what insights the context ID 
 functionality gives us. Because there is more. We've already added an additional _filename level_. We can also
@@ -2388,7 +2383,8 @@ that's what is important here: ([HTML](/assets/async-demos/context-2.html){:targ
 ![alt text](/assets/async-demos/context-3.png "flames")
 
 The image may look blurred, but you can check the [HTML](/assets/async-demos/context-2.html){:target="_blank"}
-version for clarity. At the bottom, you can see five brown rectangles. Those are timestamps truncated to seconds.
+version for clarity. At the bottom, you can see five brown rectangles. Those are timestamps truncated to seconds
+(in UTC and local TZ, that's why there are 2 rows).
 So from left to right, we can see what was happening to our request second by second. Let's highlight
 when the second application was running during that request:
 
@@ -2464,7 +2460,7 @@ the following:
 - a distributed system is one application that is deployed on more than one JVM to service some request
   it distributes the work to more than one instance
 
-One example of a distributed system may be Hazelcast. I've applied the context ID functionality to trace the tail of
+One example of a distributed system may be Hazelcast. I've applied the span functionality to trace the tail of
 the latency in SQL queries.
 
 Sample benchmark details:
@@ -2487,7 +2483,7 @@ I’ve created a table with the longest queries in the files:
 
 ![alt text](/assets/distributed/cid.png "cid")
 
-Let’s analyze a single query using the context ID functionality. The full flame graph:
+Let’s analyze a single query using the span functionality. The full flame graph:
 
 ![alt text](/assets/distributed/1.png "1")
 
