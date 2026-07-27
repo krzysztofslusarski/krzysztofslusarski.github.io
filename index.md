@@ -9,6 +9,8 @@ title: "JVM/Java profiling and tuning"
 
 ## My articles about JVM performance and tuning
 
+[**\[2026.07\]** Async-profiler + OpenTelemetry spans](2026/07/27/spans
+
 [**\[2025.04\]** Java/JVM native memory leaks](2025/03/31/native.html)
 
 [**\[2022.11\]** Finding heap memory leaks with Async-profiler](2022/11/27/async-live.html)
