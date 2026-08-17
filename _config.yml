@@ -16,7 +16,7 @@
 title: JVM/Java profiling and tuning
 email: ks@gclogs.com
 description: >- # this means to ignore newlines until "baseurl:"
-  Just a homepage
+  Deep dives into JVM profiling, garbage collection and low-latency Java
 baseurl: "/" # the subpath of your site, e.g. /blog
 url: "https://krzysztofslusarski.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 google_analytics: UA-183103577-1
