@@ -9,6 +9,8 @@ title: "JVM/Java profiling and tuning"
 
 ## My articles about JVM performance and tuning
 
+[**\[2026.08\]** Why is _Arrays.fill_ 265 times slower on G1GC?](2026/08/19/g1barrier.html)
+
 [**\[2026.07\]** Async-profiler + OpenTelemetry spans](2026/07/27/spans.html)
 
 [**\[2025.04\]** Java/JVM native memory leaks](2025/03/31/native.html)
